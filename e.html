@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join event — Everycam</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site">
+    <a class="brand" href="index.html">Every<span>cam</span></a>
+    <nav><a href="support.html">Support</a></nav>
+  </header>
+
+  <div class="wrap" style="text-align:center;">
+    <h1 style="margin-top:40px;">You're invited 🎉</h1>
+    <p class="muted">Add your photos to the event album with the code below.</p>
+
+    <div class="card" style="margin:20px auto 0;max-width:420px;">
+      <p class="muted" style="letter-spacing:2px;margin:0;font-size:13px;">EVENT CODE</p>
+      <p id="code" style="font-family:'Fraunces',serif;font-size:42px;font-weight:700;letter-spacing:8px;margin:6px 0;color:var(--verde);">——————</p>
+    </div>
+
+    <div id="choice" style="margin-top:26px;">
+      <!-- Birincil: App Store — hiç hata vermez. Misafir web galerisi backend ile gelecek;
+           o gün "Continue in browser" birincil olur (GuestCam funnel deseni). -->
+      <p><a id="appStoreBtn" class="btn" href="https://apps.apple.com/app/id6799933163">Get the Everycam app</a></p>
+
+      <!-- Opt-in: yalnız uygulaması olanlar dokunur; şema açılmazsa mağazaya düşer. -->
+      <p style="margin-top:16px;">
+        <a id="openAppLink" href="#" class="muted" style="font-size:14.5px;text-decoration:underline;">
+          Already have the app? Open it →
+        </a>
+      </p>
+      <p class="muted" style="font-size:13px;margin-top:22px;">
+        In the app, tap <strong>“I'm a guest”</strong> and enter the code above.
+      </p>
+    </div>
+
+    <footer>
+      <a href="privacy.html">Privacy</a> ·
+      <a href="terms.html">Terms</a> ·
+      <a href="support.html">Support</a>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      var APP_STORE_URL = 'https://apps.apple.com/app/id6799933163';
+
+      var params = new URLSearchParams(window.location.search);
+      var code = (params.get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+      if (code) document.getElementById('code').textContent = code;
+
+      // Opt-in derin bağlantı: uygulama ~1.2 sn içinde devralmazsa App Store'a düş.
+      // Otomatik denenmez — uygulaması olmayanda "adres geçersiz" hatası çıkarmasın.
+      var deep = 'everycam://e/' + encodeURIComponent(code);
+      document.getElementById('openAppLink').addEventListener('click', function (ev) {
+        ev.preventDefault();
+        var t = setTimeout(function () { window.location.href = APP_STORE_URL; }, 1200);
+        window.addEventListener('pagehide', function () { clearTimeout(t); }, { once: true });
+        window.location.href = deep;
+      });
+    })();
+  </script>
+</body>
+</html>

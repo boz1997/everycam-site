@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Everycam</title>
+  <script>
+    // GitHub Pages'te dinamik yol yok — QR linkleri /e/KOD biçiminde gelir ve 404'e
+    // düşer; kod buradan çıkarılıp funnel sayfasına (e.html?code=KOD) yönlendirilir.
+    // Proje sitesi alt yolda yaşayabildiği için taban yol pathname'den hesaplanır.
+    (function () {
+      var m = location.pathname.match(/^(.*)\/e\/([A-Za-z0-9]{4,8})\/?$/);
+      if (m) {
+        location.replace(m[1] + '/e.html?code=' + encodeURIComponent(m[2].toUpperCase()) + location.hash);
+        return;
+      }
+      // Tanınmayan yol → ana sayfa. Proje alt yolu yalnız *.github.io'da vardır;
+      // custom domain'de (everycam.app) kök her zaman '/'.
+      var parts = location.pathname.split('/').filter(Boolean);
+      var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
+      location.replace(base);
+    })();
+  </script>
+</head>
+<body>
+  Redirecting… <a href="index.html">Everycam</a>
+</body>
+</html>
