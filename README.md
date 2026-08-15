@@ -38,5 +38,5 @@ klasörleri yayınlamaz ve `.well-known` sessizce 404 olur.
 - Depo adı hâlâ `everycam-site`; marka Sharecam'e döndü. Yeniden adlandırılırsa
   uygulamadaki `SITE_URL` (`src/config.ts`) da güncellenmeli — GitHub eski adı
   yönlendirir ama iki isim arasında gezinmek karışıklık üretir.
-- Destek adresi sayfalarda `everycam.app@gmail.com`. Sharecam kutusuna geçilecekse
+- Destek adresi sayfalarda `app.sharecam@gmail.com`. Sharecam kutusuna geçilecekse
   önce hesap açılmalı, sonra buradaki 5 bağlantı birden değişmeli.
