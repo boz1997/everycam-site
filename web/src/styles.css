@@ -262,16 +262,46 @@ input { font-family: inherit; }
 /* ---------- lightbox ---------- */
 .lightbox {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 60;
+  /* İOS TUZAĞI: `inset: 0` burada GÖRÜNENDEN UZUN bir kutu veriyor. Safari'nin
+     adres/araç çubuğu ekrandayken sabit konumlu öğe büyük görünüm alanına göre
+     ölçülüyor; kutu ekrandan taşıyor, içerik o taşan kutunun ortasına hizalanıyor
+     ve sonuç "fotoğraf ortalanmamış, aşağı kaymış" oluyordu. Alt bar da araç
+     çubuğunun altında kalıyordu. `dvh` görünen yüksekliği verir. */
+  height: 100vh; /* dvh desteklemeyen tarayıcılar için yedek */
+  height: 100dvh;
   /* TAM OPAK: yarı saydam bırakınca arkadaki galeri fotoğrafın üstünden
      okunuyor ve kare "kirli" görünüyordu. */
   background: var(--accent-dark);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
-.lightbox-media { position: relative; flex: 1; display: grid; place-items: center; padding: 12px; min-height: 0; }
-.lightbox-media img, .lightbox-media video { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--r-sm); }
+.lightbox-media { position: relative; flex: 1; min-height: 0; }
+/* Resim MUTLAK konumlu ve ölçüsü kapsayıcıdan hesaplanıyor; ölçekleme işini
+   object-fit yapıyor.
+
+   Neden bu kadar dolambaçlı: kapsayıcı `display:grid; place-items:center` idi ve
+   resimde `max-height:100%` vardı. place-items:center OTOMATİK bir satır izi
+   üretiyor, yüzdelik yükseklik de otomatik ize karşı çözülemediği için sessizce
+   `auto`ya düşüyor — yani resim en-boy oranından boyutlanıyor ve kutudan taşıyordu.
+   1320x2868 mağaza kareleri geldiğinde taşma 95px'e çıktı: fotoğraf ortalanmamış
+   görünüyor ve altı "Kaydet" barının altına giriyordu.
+
+   Mutlak konumda kapsayıcı blok kesin (flex:1 + min-height:0), yüzde güvenle
+   çözülüyor ve taşma matematiksel olarak imkânsız. */
+.lightbox-media img, .lightbox-media video {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: calc(100% - 24px);
+  height: calc(100% - 24px);
+  object-fit: contain;
+  border-radius: var(--r-sm);
+}
 /* Kaydırma sırasında tarayıcının kendi resim sürükleme/seçme davranışı devreye
    girip hareketi yarıda kesiyordu. */
 .lightbox-media img { -webkit-user-select: none; user-select: none; -webkit-user-drag: none; }
