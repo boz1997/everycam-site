@@ -1,7 +1,7 @@
 # sharecam-site
 
 Sharecam'in tanıtım + katılım sitesi. GitHub Pages'te yayında:
-https://boz1997.github.io/everycam-site/ (depo adı henüz eski markada — bkz. aşağısı).
+https://sharecam.app (depo adı henüz eski markada — bkz. aşağısı).
 
 ## Katılım funnel'ı
 
