@@ -1,0 +1,5 @@
+# Vite kaynagi kurulum ciktilari — /join derlenmis hali depoda DURUR
+# (GitHub Pages statik sunuyor, ayrica build adimi yok).
+web/node_modules/
+web/dist/
+.DS_Store

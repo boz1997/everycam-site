@@ -108,3 +108,33 @@ footer {
 }
 footer a { color: var(--ink-soft); text-decoration: none; margin: 0 8px; }
 footer a:hover { color: var(--verde); }
+
+/* ---------- marka işareti ---------- */
+.brand { display: inline-flex; align-items: center; gap: 9px; }
+.brand img { width: 30px; height: 30px; border-radius: 9px; display: block; }
+
+/* ---------- vurgulanan kart (web yükleyici duyurusu) ---------- */
+.card.highlight { border-color: var(--gold); background: linear-gradient(180deg, rgba(199,154,46,0.07), var(--card)); }
+.card.highlight h2 { font-size: 24px; }
+
+/* ---------- paket tablosu ---------- */
+.plans { width: 100%; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.plans th, .plans td { padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--line); }
+.plans th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 600; background: rgba(31,61,46,0.04); }
+.plans td:first-child, .plans th:first-child { text-align: left; padding-left: 16px; }
+.plans tbody tr:last-child td { border-bottom: none; }
+.plans tr.pick { background: rgba(199,154,46,0.09); }
+.plans .tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: var(--gold); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; vertical-align: middle; }
+
+/* Dar ekranda tablo yatay kayar — sayfanın kendisi ASLA yana kaymamalı. */
+@media (max-width: 640px) {
+  .plans-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .plans { min-width: 560px; }
+}
+
+/* Marka kelimesi TEK düğüm: flex gap yalnız işaretle metin arasına girsin.
+   "cam" rengi ALTIN DEĞİL yeşil — altın (#C79A2E) krem zeminde 2.25:1 kontrast
+   veriyor, WCAG büyük metin eşiği olan 3:1'in bile altında. Altın vurgu rengi
+   olarak rozetlerde ve tablo satırında kalıyor, okunması gereken metinde değil. */
+.brand .wordmark { font-style: normal; color: var(--verde); }
+.brand .wordmark i { font-style: normal; color: var(--soft); }

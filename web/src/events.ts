@@ -1,0 +1,303 @@
+import {
+  collection,
+  doc,
+  deleteDoc,
+  getDoc,
+  getDocs,
+  limit,
+  onSnapshot,
+  query,
+  setDoc,
+  updateDoc,
+  where,
+  type Unsubscribe,
+} from 'firebase/firestore';
+import { getDownloadURL, ref as storageRef, uploadBytesResumable } from 'firebase/storage';
+import { db, storage } from './firebase';
+import type { EventDoc, MediaDoc, MediaKind } from './types';
+
+// Veri katmanı. Mobil uygulamanın src/services/firebase/* karşılığı —
+// AYNI koleksiyonlar, AYNI alan adları.
+//
+// Kritik: buradaki hiçbir kontrol güvenlik değildir. Kota, ban, gizli mod ve
+// duraklatma firestore.rules tarafından zorlanıyor; bu dosyadaki kontroller
+// yalnız kullanıcıya DÜZGÜN MESAJ göstermek için. Sunucu her hâlükârda son sözü
+// söylüyor, o yüzden reddedilen yazımları da yakalayıp anlamlı hataya çeviriyoruz.
+
+const MAX_EDGE = 2048; // native mediaService ile aynı: 12MP HEIC → ~700KB JPEG
+const VIDEO_MAX_BYTES = 50 * 1024 * 1024; // storage.rules tavanı
+
+export function normalizeCode(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
+}
+
+function toEvent(id: string, d: Record<string, unknown>): EventDoc {
+  return {
+    id,
+    code: String(d.code ?? ''),
+    name: String(d.name ?? ''),
+    date: (d.date as string | null) ?? null,
+    coverUri: (d.coverUri as string | null) ?? null,
+    mode: d.mode === 'private' ? 'private' : 'open',
+    joinPaused: d.joinPaused === true,
+    guestCanDownload: d.guestCanDownload !== false,
+    hostId: String(d.hostId ?? ''),
+    activeGuestCount: Number(d.activeGuestCount ?? 0),
+    photoCount: Number(d.photoCount ?? 0),
+    videoCount: Number(d.videoCount ?? 0),
+    planId: String(d.planId ?? 'spark'),
+  };
+}
+
+/** Etkinlik dokümanı kodla bulunabilsin diye herkese açık okunur (kural: allow read: if true). */
+export async function getByCode(code: string): Promise<EventDoc | null> {
+  const snap = await getDocs(query(collection(db, 'events'), where('code', '==', normalizeCode(code)), limit(1)));
+  if (snap.empty) return null;
+  const d = snap.docs[0];
+  return toEvent(d.id, d.data());
+}
+
+export type JoinResult = 'ok' | 'banned' | 'full' | 'paused';
+
+/**
+ * Misafir kaydı. Doküman id'si uid'dir; `uid` alanı AYRICA yazılır çünkü hesap
+ * silme (Cloud Functions) misafir kayıtlarını koleksiyon GRUBU sorgusuyla buluyor
+ * ve o sorgu ancak alan üzerinden yapılabilir.
+ *
+ * Kotayı SUNUCU uygular: kural `activeGuestCount < planLimits().guests` diyor.
+ * Yazım reddedilirse burada 'full'/'paused' ayrımını etkinlik dokümanından
+ * çıkarıyoruz — misafire "bir şeyler ters gitti" demek yerine gerçek sebebi
+ * söyleyebilelim.
+ */
+export async function joinEvent(event: EventDoc, uid: string, name: string): Promise<JoinResult> {
+  const guestRef = doc(db, 'events', event.id, 'guests', uid);
+  const existing = await getDoc(guestRef).catch(() => null);
+
+  if (existing?.exists()) {
+    const data = existing.data();
+    if (data.banned === true) return 'banned';
+    if (name && data.name !== name) await updateDoc(guestRef, { name });
+    return 'ok';
+  }
+
+  if (event.joinPaused) return 'paused';
+
+  try {
+    await setDoc(guestRef, { uid, name, joinedAt: Date.now(), banned: false });
+    return 'ok';
+  } catch {
+    // Kural reddetti. Tek sebebi kota ya da duraklatma olabilir; ikisini de
+    // etkinliğin GÜNCEL hâlinden ayırt et (bizim kopyamız bayat olabilir).
+    const fresh = await getDoc(doc(db, 'events', event.id)).catch(() => null);
+    if (fresh?.exists() && fresh.data().joinPaused === true) return 'paused';
+    return 'full';
+  }
+}
+
+export async function isBanned(eventId: string, uid: string): Promise<boolean> {
+  const snap = await getDoc(doc(db, 'events', eventId, 'guests', uid)).catch(() => null);
+  return !!snap?.exists() && snap.data().banned === true;
+}
+
+/**
+ * Galeri akışı. GİZLİ MODDA sorgu KENDİ karelerimizle sınırlanır — bu bir
+ * nezaket değil zorunluluk: kural gizli modda başkasının dokümanını okumayı
+ * reddediyor ve koleksiyonun tamamını istersek sorgunun TAMAMI reddedilir.
+ *
+ * Beğeni sayıları likes alt koleksiyonundan derleniyor (media dokümanında
+ * sayaç tutulmuyor: bir misafir başkasının media dokümanını güncelleyemez).
+ */
+export function subscribeMedia(
+  event: EventDoc,
+  uid: string,
+  onData: (rows: MediaDoc[]) => void,
+  onError: (e: unknown) => void,
+): Unsubscribe {
+  const col = collection(db, 'events', event.id, 'media');
+  const q = event.mode === 'open' ? query(col) : query(col, where('ownerId', '==', uid));
+
+  return onSnapshot(
+    q,
+    async (snap) => {
+      const likeCounts = new Map<string, number>();
+      const mine = new Set<string>();
+      try {
+        const likes = await getDocs(collection(db, 'events', event.id, 'likes'));
+        likes.forEach((l) => {
+          const data = l.data();
+          const mid = String(data.mediaId);
+          likeCounts.set(mid, (likeCounts.get(mid) ?? 0) + 1);
+          if (data.uid === uid) mine.add(mid);
+        });
+      } catch {
+        // beğeniler okunamadıysa galeri yine de gösterilsin
+      }
+
+      const rows: MediaDoc[] = snap.docs
+        .map((d) => {
+          const x = d.data();
+          return {
+            id: d.id,
+            ownerId: String(x.ownerId ?? ''),
+            ownerName: String(x.ownerName ?? ''),
+            kind: (x.kind === 'video' ? 'video' : 'photo') as MediaKind,
+            uri: String(x.uri ?? ''),
+            width: Number(x.width ?? 0),
+            height: Number(x.height ?? 0),
+            takenAt: Number(x.takenAt ?? 0),
+            uploadedAt: Number(x.uploadedAt ?? 0),
+            hidden: x.hidden === true,
+            durationSec: typeof x.durationSec === 'number' ? x.durationSec : undefined,
+            likeCount: likeCounts.get(d.id) ?? 0,
+            likedByMe: mine.has(d.id),
+          };
+        })
+        .filter((m) => !m.hidden || m.ownerId === uid)
+        .sort((a, b) => b.uploadedAt - a.uploadedAt);
+
+      onData(rows);
+    },
+    onError,
+  );
+}
+
+export async function toggleLike(eventId: string, mediaId: string, uid: string, liked: boolean): Promise<void> {
+  const ref = doc(db, 'events', eventId, 'likes', `${mediaId}~${uid}`);
+  if (liked) await deleteDoc(ref);
+  else await setDoc(ref, { mediaId, uid });
+}
+
+/** Kaynak imzasından türetilen kimlik — aynı dosyayı iki kez seçmek tek kayıt üretir. */
+async function contentId(file: File, uid: string): Promise<string> {
+  const seed = `${file.name}|${file.size}|${file.lastModified}`;
+  const bytes = new TextEncoder().encode(seed);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  const hex = Array.from(new Uint8Array(digest))
+    .slice(0, 8)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return `${hex}_${uid}`;
+}
+
+interface Prepared {
+  blob: Blob;
+  ext: string;
+  width: number;
+  height: number;
+  durationSec?: number;
+}
+
+/**
+ * Fotoğrafı yüklemeden ÖNCE tarayıcıda küçültür (uzun kenar 2048px, JPEG).
+ * Düğün wifi'ında farkı yaratan şey bu — native tarafta da aynı eşik var.
+ * Video olduğu gibi gider; yalnız süresi ve boyutu okunur.
+ */
+async function prepare(file: File): Promise<Prepared> {
+  if (file.type.startsWith('video/')) {
+    const meta = await readVideoMeta(file);
+    return { blob: file, ext: file.name.split('.').pop()?.toLowerCase() || 'mp4', ...meta };
+  }
+
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale);
+  const h = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('canvas-unavailable');
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close();
+
+  const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/jpeg', 0.85));
+  if (!blob) throw new Error('encode-failed');
+  return { blob, ext: 'jpg', width: w, height: h };
+}
+
+function readVideoMeta(file: File): Promise<{ width: number; height: number; durationSec: number }> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.onloadedmetadata = () => {
+      const meta = {
+        width: v.videoWidth,
+        height: v.videoHeight,
+        durationSec: Number.isFinite(v.duration) ? Math.round(v.duration) : 0,
+      };
+      URL.revokeObjectURL(url);
+      resolve(meta);
+    };
+    v.onerror = () => {
+      URL.revokeObjectURL(url);
+      resolve({ width: 0, height: 0, durationSec: 0 });
+    };
+    v.src = url;
+  });
+}
+
+export class UploadError extends Error {}
+
+/**
+ * Dosyayı Storage'a, metadata'yı Firestore'a yazar — native mediaService ile
+ * aynı sıra ve aynı alanlar. Yol içinde ownerId olması kritik: storage.rules
+ * "bu dosyayı kim yükledi" sorusunu Firestore'a gitmeden cevaplıyor.
+ */
+export async function uploadOne(
+  event: EventDoc,
+  uid: string,
+  ownerName: string,
+  file: File,
+  onProgress: (p: number) => void,
+): Promise<void> {
+  if (file.type.startsWith('video/') && file.size > VIDEO_MAX_BYTES) {
+    throw new UploadError('video-too-large');
+  }
+
+  const id = await contentId(file, uid);
+  const prepared = await prepare(file);
+  onProgress(0.1);
+
+  const path = `events/${event.id}/${uid}/${id}.${prepared.ext}`;
+  const task = uploadBytesResumable(storageRef(storage, path), prepared.blob, {
+    contentType: prepared.blob.type || file.type,
+  });
+
+  await new Promise<void>((resolve, reject) => {
+    task.on(
+      'state_changed',
+      (snap) => {
+        if (snap.totalBytes > 0) onProgress(0.1 + 0.8 * (snap.bytesTransferred / snap.totalBytes));
+      },
+      reject,
+      () => resolve(),
+    );
+  });
+
+  const uri = await getDownloadURL(task.snapshot.ref);
+  onProgress(0.95);
+
+  const payload: Record<string, unknown> = {
+    eventId: event.id,
+    ownerId: uid,
+    ownerName,
+    kind: file.type.startsWith('video/') ? 'video' : 'photo',
+    uri,
+    path,
+    width: prepared.width,
+    height: prepared.height,
+    takenAt: file.lastModified || Date.now(),
+    uploadedAt: Date.now(),
+    hidden: false,
+  };
+  if (prepared.durationSec !== undefined) payload.durationSec = prepared.durationSec;
+
+  try {
+    await setDoc(doc(db, 'events', event.id, 'media', id), payload);
+  } catch {
+    // Kural reddetti: neredeyse her zaman paket kotasının sert tavanı.
+    throw new UploadError('quota-reached');
+  }
+}

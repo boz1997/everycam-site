@@ -4,18 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sharecam — Every shot, collected.</title>
-  <meta name="description" content="One QR code on every table. Every guest's photos and videos land in one event gallery — nothing lost, nothing waiting. One-time packages, no subscription." />
+  <meta name="description" content="One QR code on every table. Every guest's photos and videos land in one event gallery — from the app or straight from the browser. One-time packages, no subscription." />
+  <meta property="og:title" content="Sharecam — Every shot, collected." />
+  <meta property="og:description" content="One QR code on every table. Every guest's photos land in one gallery. No app required for guests." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="sharemark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header class="site">
-    <a class="brand" href="index.html">Share<span>cam</span></a>
+    <a class="brand" href="index.html"><img src="sharemark.png" alt="" /><span class="wordmark">Share<i>cam</i></span></a>
     <nav>
+      <a href="#packages">Packages</a>
       <a href="support.html">Support</a>
       <a href="privacy.html">Privacy</a>
-      <a href="terms.html">Terms</a>
     </nav>
   </header>
 
@@ -31,6 +36,19 @@
       <p class="muted" style="font-size:13px;margin-top:12px;">Currently in private beta on TestFlight.</p>
     </section>
 
+    <!-- Web yükleyici artık gerçek: misafirin uygulama indirmesi GEREKMİYOR.
+         Bu, rakiplerin çoğunda olmayan somut fark — sayfada en üstte durmalı. -->
+    <section class="card narrow highlight" style="margin:0 auto;">
+      <p class="kicker">No app for guests</p>
+      <h2 style="margin:0 0 10px;">Your guests just scan and share</h2>
+      <p style="margin:0;">
+        The QR opens straight in the browser — name, then upload. No download, no
+        account, no sign-up. Guests who prefer the app can still use it; both land
+        in the same gallery.
+      </p>
+      <p style="margin:14px 0 0;"><a class="btn ghost" href="join/">Try the guest view →</a></p>
+    </section>
+
     <section class="grid">
       <div class="card">
         <div class="emoji">⚡️</div>
@@ -38,19 +56,19 @@
         <p>Guests scan the QR, type a name, and start sharing. No account, no app store detour required to contribute.</p>
       </div>
       <div class="card">
-        <div class="emoji">🐷</div>
-        <h3>Piggy-bank privacy</h3>
-        <p>Run an open live album — or piggy-bank mode, where only you see everything until the big reveal. Your call, switchable anytime.</p>
+        <div class="emoji">🤫</div>
+        <h3>Private mode</h3>
+        <p>Run an open live album — or private mode, where guests only see their own uploads until you reveal everything at once.</p>
       </div>
       <div class="card">
         <div class="emoji">🧾</div>
         <h3>One-time packages</h3>
-        <p>Pay once per event, from free to unlimited. Guest count is never limited in any package. No subscription, ever.</p>
+        <p>Pay once per event, from free to unlimited. No subscription, ever — and the free package is a real one, not a trial.</p>
       </div>
       <div class="card">
         <div class="emoji">🖨️</div>
         <h3>Card studio</h3>
-        <p>Six invite-card designs with your QR baked in. Share digitally or print four to a page, cut, and place on every table.</p>
+        <p>Sixteen invite-card designs with your QR baked in. Share digitally or print four to a page, cut, and place on every table.</p>
       </div>
       <div class="card">
         <div class="emoji">📺</div>
@@ -58,13 +76,38 @@
         <p>A slideshow that never sleeps: new shots fade in as they arrive, with the join QR always in the corner.</p>
       </div>
       <div class="card">
-        <div class="emoji">🤖</div>
-        <h3>AI people galleries</h3>
-        <p>Coming soon: the gallery sorted by person — every guest finds their own shots with a selfie.</p>
+        <div class="emoji">⬇️</div>
+        <h3>Everything is yours</h3>
+        <p>Download the full gallery in one tap, or let guests save their favourites. You're e-mailed before storage expires — photos are never silently deleted.</p>
       </div>
     </section>
 
-    <section class="card narrow" style="margin:0 auto;">
+    <section id="packages" class="narrow" style="margin:0 auto;">
+      <p class="kicker" style="text-align:center;">Packages</p>
+      <h2 style="text-align:center;margin:0 0 6px;">Pay once, per event</h2>
+      <p class="muted" style="text-align:center;margin:0 0 22px;">Prices shown in USD; the App Store charges in your own currency.</p>
+
+      <div class="plans-scroll">
+      <table class="plans">
+        <thead>
+          <tr><th>Package</th><th>Photos</th><th>Guests</th><th>Videos</th><th>Storage</th><th>Price</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Spark</strong></td><td>50</td><td>10</td><td>—</td><td>7 days</td><td>Free</td></tr>
+          <tr><td><strong>Mini</strong></td><td>200</td><td>25</td><td>—</td><td>1 month</td><td>$4.99</td></tr>
+          <tr><td><strong>Party</strong></td><td>500</td><td>50</td><td>5</td><td>1 month</td><td>$14.99</td></tr>
+          <tr class="pick"><td><strong>Wedding</strong> <span class="tag">Most popular</span></td><td>1000</td><td>100</td><td>20</td><td>6 months</td><td>$24.99</td></tr>
+          <tr><td><strong>Unlimited</strong></td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>1 year</td><td>$39.99</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="muted" style="font-size:13px;margin-top:14px;">
+        The live slideshow wall is included with Unlimited. Guest limits are per
+        event; a guest removed by the host frees their slot.
+      </p>
+    </section>
+
+    <section class="card narrow" style="margin:34px auto 0;">
       <p class="kicker">How it works</p>
       <ol class="steps">
         <li><strong>Create your event</strong> — name, date, privacy, package. Ready in sixty seconds.</li>

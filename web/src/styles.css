@@ -1,0 +1,320 @@
+/* Sharecam paleti — uygulamanın src/theme/tokens.ts dosyasıyla BİREBİR aynı.
+   Berk'in paleti: Verde Pipona #1F3D2E · Crema #F3EEE2 · Dorado #C79A2E ·
+   Verde Secundario #6E7F5F · Carbón #2B2B2B.
+   KOYU TEMA YOK: uygulamada da yok, web'de de yok (prefers-color-scheme okunmuyor). */
+:root {
+  --bg: #f3eee2;
+  --bg-alt: #ece5d2;
+  --card: #fbf8f0;
+  --line: #dfd8c4;
+  --ink: #2b2b2b;
+  --ink-soft: #6f695b;
+  --accent: #1f3d2e;
+  --accent-dark: #142b20;
+  --brand-soft: #6e7f5f;
+  --gold: #c79a2e;
+  --danger: #9c3d2e;
+  --on-accent: #f3eee2;
+
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+
+button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+input { font-family: inherit; }
+
+/* ---------- ortak kabuk ---------- */
+.centered {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 28px 22px;
+  text-align: center;
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 28px 24px;
+  box-shadow: 0 24px 50px -38px rgba(31, 61, 46, 0.55);
+}
+
+.muted { color: var(--ink-soft); font-size: 14px; line-height: 1.5; margin: 6px 0 0; }
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 16px;
+  font-weight: 600;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+.btn:active { transform: scale(0.985); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+
+.field {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px; /* 16px altı iOS'ta odaklanınca sayfayı zoomlar */
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(31, 61, 46, 0.08); }
+
+.field.code {
+  text-align: center;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-indent: 0.3em; /* letter-spacing sağda boşluk bırakır, ortalamayı bozar */
+  min-height: 64px;
+}
+
+.error-text { color: var(--danger); font-size: 13.5px; margin: 10px 0 0; }
+
+/* ---------- marka ---------- */
+.brand { display: inline-flex; align-items: center; gap: 9px; }
+.brand-name { font-family: var(--serif); font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+.brand-name span { color: var(--accent); }
+.brand-mark { width: 34px; height: 34px; border-radius: 10px; display: block; }
+.brand.sm .brand-name { font-size: 17px; }
+.brand.sm .brand-mark { width: 26px; height: 26px; border-radius: 8px; }
+
+/* ---------- üst bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(243, 238, 226, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  background: var(--bg-alt);
+  color: var(--ink-soft);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.lang-select {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink-soft);
+  border-radius: var(--r-pill);
+  padding: 5px 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- etkinlik başlığı ---------- */
+.hero { padding: 22px 18px 6px; max-width: 720px; margin: 0 auto; }
+.hero h1 { font-size: 28px; line-height: 1.15; }
+.hero .date { color: var(--ink-soft); font-size: 14px; margin-top: 5px; }
+
+.banner {
+  max-width: 720px;
+  margin: 14px auto 0;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  font-size: 13.5px;
+  line-height: 1.45;
+  background: var(--bg-alt);
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+}
+.banner.private { background: rgba(199, 154, 46, 0.1); border-color: rgba(199, 154, 46, 0.35); color: #6b5312; }
+
+/* ---------- galeri ---------- */
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 14px 150px; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 16px;
+}
+@media (min-width: 560px) { .grid { grid-template-columns: repeat(4, 1fr); gap: 7px; } }
+
+.tile {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  background: var(--bg-alt);
+  padding: 0;
+  display: block;
+  width: 100%;
+}
+.tile img, .tile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.tile-badge {
+  position: absolute;
+  left: 5px;
+  top: 5px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(31, 61, 46, 0.85);
+  color: var(--on-accent);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+.tile-likes {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  border-radius: var(--r-pill);
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.tile-video {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.empty { text-align: center; padding: 54px 20px; }
+.empty h3 { font-size: 19px; }
+.empty p { color: var(--ink-soft); font-size: 14px; line-height: 1.55; margin: 8px auto 0; max-width: 320px; }
+
+/* ---------- alt yükleme çubuğu ---------- */
+.dock {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  padding: 12px 14px calc(14px + env(safe-area-inset-bottom));
+  background: rgba(243, 238, 226, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--line);
+}
+.dock-inner { max-width: 720px; margin: 0 auto; }
+
+.queue { display: flex; flex-direction: column; gap: 7px; margin-bottom: 10px; }
+.queue-row { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--ink-soft); }
+.queue-thumb { width: 30px; height: 30px; border-radius: 6px; object-fit: cover; flex: none; background: var(--bg-alt); }
+.bar { flex: 1; height: 5px; border-radius: 3px; background: var(--bg-alt); overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); transition: width 0.2s ease; }
+.queue-row.failed .bar > i { background: var(--danger); }
+
+/* ---------- lightbox ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  /* TAM OPAK: yarı saydam bırakınca arkadaki galeri fotoğrafın üstünden
+     okunuyor ve kare "kirli" görünüyordu. */
+  background: var(--accent-dark);
+  display: flex;
+  flex-direction: column;
+}
+.lightbox-media { flex: 1; display: grid; place-items: center; padding: 12px; min-height: 0; }
+.lightbox-media img, .lightbox-media video { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: var(--r-sm); }
+.lightbox-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px calc(18px + env(safe-area-inset-bottom));
+  color: var(--on-accent);
+}
+.lightbox-owner { font-size: 13.5px; opacity: 0.85; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-btn {
+  text-decoration: none; /* <a> olarak da kullanılıyor (indirme) */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--r-pill);
+  background: rgba(243, 238, 226, 0.14);
+  color: var(--on-accent);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.icon-btn.on { background: var(--on-accent); color: var(--accent); }
+
+/* ---------- alt bilgi ---------- */
+.footnote { text-align: center; padding: 26px 18px 0; }
+.footnote a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.footnote p { color: var(--ink-soft); font-size: 13px; margin: 0 0 10px; }
+
+.spinner {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 3px solid var(--line);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ---------- etkinlik kapağı ---------- */
+.cover { max-width: 720px; margin: 0 auto; height: 190px; overflow: hidden; }
+.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (min-width: 560px) { .cover { height: 240px; border-radius: 0 0 var(--r-lg) var(--r-lg); } }

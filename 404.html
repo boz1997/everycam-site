@@ -6,17 +6,20 @@
   <meta name="robots" content="noindex" />
   <title>Sharecam</title>
   <script>
-    // GitHub Pages'te dinamik yol yok — QR linkleri /e/KOD biçiminde gelir ve 404'e
-    // düşer; kod buradan çıkarılıp funnel sayfasına (e.html?code=KOD) yönlendirilir.
-    // Proje sitesi alt yolda yaşayabildiği için taban yol pathname'den hesaplanır.
+    // GitHub Pages'te dinamik yol yok — QR linkleri /e/KOD biçiminde gelir ve
+    // 404'e düşer; kod buradan çıkarılıp misafir uygulamasına yönlendirilir.
+    //
+    // Hedef artık /join/ (Vite ile üretilen web istemcisi). Eski e.html de
+    // duruyor ve oraya yönlendiriyor: bugüne kadar basılmış hiçbir QR kırılmasın.
+    //
+    // Taban yol pathname'den hesaplanır çünkü proje sitesi alt yolda yaşıyor
+    // (/everycam-site/...); özel alan adına geçince kök '/' olur ve aynı kod çalışır.
     (function () {
       var m = location.pathname.match(/^(.*)\/e\/([A-Za-z0-9]{4,8})\/?$/);
       if (m) {
-        location.replace(m[1] + '/e.html?code=' + encodeURIComponent(m[2].toUpperCase()) + location.hash);
+        location.replace(m[1] + '/join/?code=' + encodeURIComponent(m[2].toUpperCase()) + location.hash);
         return;
       }
-      // Tanınmayan yol → ana sayfa. Proje alt yolu yalnız *.github.io'da vardır;
-      // custom domain'de (sharecam.app) kök her zaman '/'.
       var parts = location.pathname.split('/').filter(Boolean);
       var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
       location.replace(base);
