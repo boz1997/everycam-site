@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.berkoz.sharecam"],
+        "components": [
+          {
+            "/": "/e/*",
+            "comment": "Etkinlik davet linkleri uygulamada acilir; diger yollar tarayicida kalir."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <title>Everycam</title>
+  <title>Sharecam</title>
   <script>
     // GitHub Pages'te dinamik yol yok — QR linkleri /e/KOD biçiminde gelir ve 404'e
     // düşer; kod buradan çıkarılıp funnel sayfasına (e.html?code=KOD) yönlendirilir.
@@ -16,7 +16,7 @@
         return;
       }
       // Tanınmayan yol → ana sayfa. Proje alt yolu yalnız *.github.io'da vardır;
-      // custom domain'de (everycam.app) kök her zaman '/'.
+      // custom domain'de (sharecam.app) kök her zaman '/'.
       var parts = location.pathname.split('/').filter(Boolean);
       var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
       location.replace(base);
@@ -24,6 +24,6 @@
   </script>
 </head>
 <body>
-  Redirecting… <a href="index.html">Everycam</a>
+  Redirecting… <a href="index.html">Sharecam</a>
 </body>
 </html>
