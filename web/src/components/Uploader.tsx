@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { uploadOne, UploadError } from '../events';
+import { uploadOne, UploadError, VIDEO_MAX_BYTES } from '../events';
 import type { EventDoc, UploadItem } from '../types';
 import { IconPlus } from './Brand';
 
@@ -43,7 +43,8 @@ export function Uploader({ event, uid, name, t }: Props) {
       } catch (e) {
         const reason =
           e instanceof UploadError && e.message === 'video-too-large'
-            ? t('videoTooLarge')
+            ? // Sayı metne GÖMÜLMEZ: tavan değişince dokuz dil de sessizce yalan söylerdi.
+              t('videoTooLarge').replace('{max}', String(VIDEO_MAX_BYTES / 1048576))
             : e instanceof UploadError && e.message === 'quota-reached'
               ? t('quotaReached')
               : t('uploadFailed');

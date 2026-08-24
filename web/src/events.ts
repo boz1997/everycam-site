@@ -26,7 +26,10 @@ import type { EventDoc, MediaDoc, MediaKind } from './types';
 // söylüyor, o yüzden reddedilen yazımları da yakalayıp anlamlı hataya çeviriyoruz.
 
 const MAX_EDGE = 2048; // native mediaService ile aynı: 12MP HEIC → ~700KB JPEG
-const VIDEO_MAX_BYTES = 50 * 1024 * 1024; // storage.rules tavanı
+// storage.rules tavanıyla AYNI sayı olmak zorunda (uygulamada src/plans.ts >
+// VIDEO_MAX_BYTES). Ayrışırsa istemci yükletir, kural reddeder ve kullanıcı
+// sebebini göremez. 2026-08-24'te 50 → 200 MB: düğün videoları için darmış.
+export const VIDEO_MAX_BYTES = 200 * 1024 * 1024;
 
 export function normalizeCode(raw: string): string {
   return raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
