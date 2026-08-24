@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, type User } from 'firebase/auth';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
@@ -27,27 +27,53 @@ export const db = getFirestore(app);
 export const storage = getStorage(app);
 
 /**
+ * KİMLİĞİ İSPATLANMIŞ anonim oturum. Bu üç adımın üçü de sahada yaşanmış bir
+ * arızanın karşılığıdır — GuestCam'de aynı akış 1.0.1–1.0.8 arasında günde 1-3
+ * kez "Missing or insufficient permissions" veriyordu (29 rapor) ve orada
+ * `authStateReady` + `getIdToken` ile kapatıldı (EverybodyTakes 900b575).
+ *
+ * Sharecam'de bu boşluk GÖRÜNMEZDİ: etkinlik okuması herkese açık
+ * (firestore.rules `allow read: if true`), isBanned reddi de yutuluyor — yani
+ * kod ekranına kadar her şey kimliksiz de çalışıyor. Auth'un gerçekten şart
+ * olduğu ilk işlem misafir kaydının yazılmasıdır, arıza da orada patlıyordu.
+ *
  * Anonim oturum. Misafirden hesap İSTENMEZ — QR'ı okutan kişi saniyeler içinde
  * yüklemeye başlayabilmeli (ürün kuralı: misafir kaydı yok, yalnız isim).
  *
  * Oturum tarayıcıda kalıcıdır: aynı cihazdan geri dönen misafir kendi
  * karelerini görmeye devam eder.
  */
-export function ensureAnon(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const unsub = onAuthStateChanged(
-      auth,
-      (user: User | null) => {
-        unsub();
-        if (user) {
-          resolve(user.uid);
-          return;
-        }
-        signInAnonymously(auth)
-          .then((cred) => resolve(cred.user.uid))
-          .catch(reject);
-      },
-      reject,
-    );
-  });
+export async function ensureAnon(): Promise<string> {
+  // (1) OTURUMUN GERİ YÜKLENMESİNİ BEKLE. QR'dan gelen soğuk açılışta kalıcı
+  // oturum henüz IndexedDB'den okunmamış olabilir; eski hâl o anda currentUser'ı
+  // null görüp GERİ DÖNEN misafiri yepyeni bir anonim hesapla değiştiriyordu.
+  await auth.authStateReady();
+
+  // (2) OTURUMU VARSAY DEĞİL, İSPATLA. Bir User nesnesi kimliği öldükten sonra
+  // da elde kalır (hesap silinmiş, refresh token iptal edilmiş, yenileme
+  // çevrimdışı düşmüş). Eski hâl "user var" deyip girişi atlıyor, sonraki her
+  // yazma permission-denied dönüyordu. getIdToken token'ı tazeler ve oturum
+  // gerçekten gitmişse fırlatır.
+  const current = auth.currentUser;
+  if (current) {
+    try {
+      await current.getIdToken();
+      return current.uid;
+    } catch (e) {
+      // HER HATA "kimlik ölmüş" DEĞİLDİR. SDK oturumu yalnız iki kodda düşürüyor
+      // (auth/user-disabled, auth/user-token-expired → isUserInvalidated); ağ
+      // hatasında oturumu BİLEREK koruyor. Üstelik signInAnonymously mevcut anonim
+      // kullanıcıda kısa devre yapıyor — yani currentUser hâlâ ayaktayken aşağı
+      // düşmek aynı kullanıcıyı geri alıp aynı hatayı ikinci kez fırlatmaktan
+      // ibaret olurdu. Oturum gerçekten düşürüldüyse currentUser null olur.
+      if (auth.currentUser) throw e;
+    }
+  }
+
+  // (3) TOKEN'I İLK FIRESTORE ÇAĞRISINDAN ÖNCE BAS. signInAnonymously hesap
+  // oluşur oluşmaz çözülüyor; o boşlukta çıkan istek kimliksiz gidiyor ve
+  // Firestore permission-denied ile cevaplıyor.
+  const cred = await signInAnonymously(auth);
+  await cred.user.getIdToken();
+  return cred.user.uid;
 }

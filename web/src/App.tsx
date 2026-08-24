@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ensureAnon } from './firebase';
 import { getByCode, isBanned, joinEvent, normalizeCode, subscribeMedia, toggleLike } from './events';
+import { errorCode } from './errorLog';
 import { detectLang, LANGS, LANG_LABEL, makeT, saveLang, type Lang } from './i18n';
 import type { EventDoc, MediaDoc } from './types';
 import { Brand, IconStack, Spinner } from './components/Brand';
@@ -36,6 +37,8 @@ export default function App() {
   const [codeInput, setCodeInput] = useState('');
   const [name, setName] = useState(() => localStorage.getItem(NAME_KEY) ?? '');
   const [notice, setNotice] = useState('');
+  // Teşhis için: yalnız gerçek bir hata kodu varsa görünür, normal akışta boş.
+  const [errCode, setErrCode] = useState('');
   const [lightbox, setLightbox] = useState<number | null>(null);
   const unsubRef = useRef<(() => void) | null>(null);
 
@@ -52,8 +55,19 @@ export default function App() {
     }
     setPhase('loading');
     setNotice('');
+    setErrCode('');
     try {
-      const userId = await ensureAnon();
+      // ensureAnon reddi bir BAĞLANTI sorunudur, "böyle bir etkinlik yok" değil.
+      // Ayrı yakalanmazsa geçerli bir QR koduna "Etkinlik bulunamadı" deniyordu.
+      let userId: string;
+      try {
+        userId = await ensureAnon();
+      } catch (e) {
+        setNotice(t('joinError'));
+        setErrCode(errorCode(e));
+        setPhase('blocked');
+        return;
+      }
       setUid(userId);
       const ev = await getByCode(code);
       if (!ev) {
@@ -91,15 +105,25 @@ export default function App() {
     setPhase('loading');
     setNotice('');
 
-    const result = await joinEvent(event, uid, trimmed);
+    // uid'yi joinEvent'ten GERİ ALIYORUZ: oturum ölmüşse orada yenisi açılıyor ve
+    // galeri aboneliği ile yükleyici o yeni kimlikle çalışmak zorunda. Eskiden
+    // buradaki donmuş uid ile devam ediliyordu.
+    const { result, uid: liveUid, code } = await joinEvent(event, trimmed).catch((e) => ({
+      result: 'error' as const,
+      uid: '',
+      code: errorCode(e),
+    }));
+    // Boş uid'yi state'e YAZMA: kimlik alınamadıysa eski uid hiç yoktan iyidir.
+    if (liveUid) setUid(liveUid);
     if (result !== 'ok') {
-      setNotice(t(result));
+      setNotice(t(result === 'error' ? 'joinError' : result));
+      setErrCode(code ?? '');
       setPhase('blocked');
       return;
     }
 
     unsubRef.current?.();
-    unsubRef.current = subscribeMedia(event, uid, setMedia, () => setMedia([]));
+    unsubRef.current = subscribeMedia(event, liveUid, setMedia, () => setMedia([]));
     setPhase('ready');
   }
 
@@ -220,6 +244,11 @@ export default function App() {
         <p className="muted" style={{ maxWidth: 320, fontSize: 15 }}>
           {notice}
         </p>
+        {errCode && (
+          <p className="muted" style={{ fontSize: 11, opacity: 0.65, marginTop: -6 }}>
+            {errCode}
+          </p>
+        )}
         <button className="btn ghost" style={{ maxWidth: 260 }} onClick={() => setPhase('needCode')}>
           {t('tryAgain')}
         </button>

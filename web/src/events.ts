@@ -13,7 +13,8 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytesResumable } from 'firebase/storage';
-import { db, storage } from './firebase';
+import { db, ensureAnon, storage } from './firebase';
+import { errorCode, logError } from './errorLog';
 import type { EventDoc, MediaDoc, MediaKind } from './types';
 
 // Veri katmanı. Mobil uygulamanın src/services/firebase/* karşılığı —
@@ -57,40 +58,118 @@ export async function getByCode(code: string): Promise<EventDoc | null> {
   return toEvent(d.id, d.data());
 }
 
-export type JoinResult = 'ok' | 'banned' | 'full' | 'paused';
+export type JoinResult = 'ok' | 'banned' | 'full' | 'paused' | 'error';
+
+/**
+ * Misafir kotaları — YALNIZ MESAJ SEÇMEK İÇİN. Kapının kendisi firestore.rules'ta;
+ * buradaki sayı yanlış olsa bile kimse fazladan içeri giremez.
+ *
+ * DİKKAT, bu tablonun DÖRDÜNCÜ kopyasıdır: everycam/src/plans.ts,
+ * everycam/functions/src/plans.ts ve everycam/firestore.rules > planLimits().
+ * O üçü planSync.test.ts ile birbirine bağlı; bu dosya AYRI DEPODA olduğu için
+ * o teste giremiyor. Paket limiti değişirse burayı da elle güncelle — sapması
+ * hâlinde tek kaybedilen şey mesajın doğruluğudur, güvenlik değil.
+ */
+const GUEST_LIMITS: Record<string, number> = {
+  spark: 10,
+  mini: 25,
+  party: 50,
+  wedding: 100,
+  unlimited: -1,
+};
+
+function guestLimitReached(d: Record<string, unknown>): boolean {
+  const limit = GUEST_LIMITS[String(d.planId ?? 'spark')] ?? 10;
+  return limit >= 0 && Number(d.activeGuestCount ?? 0) >= limit;
+}
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 /**
  * Misafir kaydı. Doküman id'si uid'dir; `uid` alanı AYRICA yazılır çünkü hesap
  * silme (Cloud Functions) misafir kayıtlarını koleksiyon GRUBU sorgusuyla buluyor
  * ve o sorgu ancak alan üzerinden yapılabilir.
  *
- * Kotayı SUNUCU uygular: kural `activeGuestCount < planLimits().guests` diyor.
- * Yazım reddedilirse burada 'full'/'paused' ayrımını etkinlik dokümanından
- * çıkarıyoruz — misafire "bir şeyler ters gitti" demek yerine gerçek sebebi
- * söyleyebilelim.
+ * UID'Yİ ÇAĞIRANDAN ALMIYOR (Berk, 2026-08-23). Eskiden App.tsx sayfa açılışında
+ * uid'yi state'e koyuyor, bu yazma dakikalar sonra o DONMUŞ uid ile gidiyordu;
+ * oysa Firestore token'ı her istekte canlı currentUser'dan okuyor. İkisi
+ * ayrıştığında ya da oturum hiç ispatlanmamışken yazma permission-denied alıyordu.
+ *
+ * REDDİ KOTA SANMA. Eski hâl catch'e düşen HER hatayı 'full'a çeviriyordu, üstelik
+ * `catch {` ile hata nesnesini bağlamadan — yani "misafir limiti doldu" bir teşhis
+ * değil, bilginin yokluğuydu. Şimdi: gerçek sebep etkinliğin taze hâlinden
+ * doğrulanıyor, kota gerçekten dolu değilse oturum yeniden ispatlanıp SESSİZCE
+ * bir kez daha deneniyor (kullanıcının elle yaptığı "sayfayı yenile"nin kod hâli),
+ * ve hâlâ olmuyorsa dürüstçe 'error' dönülüyor — hata kodu hem ekrana hem
+ * errorLogs'a yazılıyor.
  */
-export async function joinEvent(event: EventDoc, uid: string, name: string): Promise<JoinResult> {
-  const guestRef = doc(db, 'events', event.id, 'guests', uid);
-  const existing = await getDoc(guestRef).catch(() => null);
+export async function joinEvent(
+  event: EventDoc,
+  name: string,
+): Promise<{ result: JoinResult; uid: string; code?: string }> {
+  // joinEvent ASLA fırlatmaz. Buradaki tek korumasız await ekranı sonsuza kadar
+  // "Albüme katılıyorsun…" spinner'ında kilitliyordu: confirmName'de try/catch yok
+  // ve o fazda çıkış düğmesi de yok, tek kurtuluş sayfayı yenilemek oluyordu.
+  let uid: string;
+  try {
+    uid = await ensureAnon();
+  } catch (e) {
+    return { result: 'error', uid: '', code: errorCode(e) };
+  }
+  const guestRef = () => doc(db, 'events', event.id, 'guests', uid);
+  const write = () => setDoc(guestRef(), { uid, name, joinedAt: Date.now(), banned: false });
 
+  const existing = await getDoc(guestRef()).catch(() => null);
   if (existing?.exists()) {
     const data = existing.data();
-    if (data.banned === true) return 'banned';
-    if (name && data.name !== name) await updateDoc(guestRef, { name });
-    return 'ok';
+    if (data.banned === true) return { result: 'banned', uid };
+    // Ad güncellemesi katılımı bloke ETMEMELİ: düşerse misafir yine içeride.
+    if (name && data.name !== name) await updateDoc(guestRef(), { name }).catch(() => undefined);
+    return { result: 'ok', uid };
   }
 
-  if (event.joinPaused) return 'paused';
+  if (event.joinPaused) return { result: 'paused', uid };
 
   try {
-    await setDoc(guestRef, { uid, name, joinedAt: Date.now(), banned: false });
-    return 'ok';
-  } catch {
-    // Kural reddetti. Tek sebebi kota ya da duraklatma olabilir; ikisini de
-    // etkinliğin GÜNCEL hâlinden ayırt et (bizim kopyamız bayat olabilir).
+    await write();
+    return { result: 'ok', uid };
+  } catch (first) {
+    // Etkinlik dokümanı herkese açık okunur (kural: allow read: if true), yani
+    // bu okuma kimlik sorunundan bağımsız olarak çalışır.
     const fresh = await getDoc(doc(db, 'events', event.id)).catch(() => null);
-    if (fresh?.exists() && fresh.data().joinPaused === true) return 'paused';
-    return 'full';
+    const d = fresh?.exists() ? (fresh.data() as Record<string, unknown>) : null;
+
+    if (d?.joinPaused === true) return { result: 'paused', uid };
+    if (d && guestLimitReached(d)) {
+      void logError('join.full', first, { uid, planId: d.planId, activeGuestCount: d.activeGuestCount });
+      return { result: 'full', uid };
+    }
+
+    // Kota DOLU DEĞİL. Kalan en olası sebep oturumdur: yeniden ispatla ve bir kez
+    // daha dene. ensureAnon token'ı tazeler, ölmüş oturumun yerine yenisini açar —
+    // uid değişmişse yazma da yeni uid ile gider.
+    await wait(400);
+    uid = await ensureAnon().catch(() => uid);
+    try {
+      await write();
+      // Sessiz kurtarma da kayda geçer: kullanıcı bir şey görmese de bu arızanın
+      // sahada ne sıklıkta olduğunu ancak böyle öğreniriz.
+      void logError('join.recovered', first, { uid, firstCode: errorCode(first) });
+      return { result: 'ok', uid };
+    } catch (second) {
+      void logError('join.failed', second, {
+        uid,
+        firstCode: errorCode(first),
+        secondCode: errorCode(second),
+        eventId: event.id,
+        activeGuestCount: d?.activeGuestCount ?? null,
+        planId: d?.planId ?? null,
+      });
+      // Kod EKRANA da çıkar: errorLogs yazımı kural gereği kimlik istiyor, yani
+      // arıza tam da "kimlik yok" olduğunda günlük de yazılamaz. Ekrandaki kod
+      // o durumda elimizdeki TEK kanıt.
+      return { result: 'error', uid, code: errorCode(second) };
+    }
   }
 }
 
@@ -294,10 +373,33 @@ export async function uploadOne(
   };
   if (prepared.durationSec !== undefined) payload.durationSec = prepared.durationSec;
 
+  const mediaRef = doc(db, 'events', event.id, 'media', id);
   try {
-    await setDoc(doc(db, 'events', event.id, 'media', id), payload);
-  } catch {
-    // Kural reddetti: neredeyse her zaman paket kotasının sert tavanı.
-    throw new UploadError('quota-reached');
+    await setDoc(mediaRef, payload);
+  } catch (first) {
+    // Kural reddetti. En sık sebep paket kotasının sert tavanı AMA katılımda
+    // görüldüğü gibi (bkz. joinEvent) ölmüş bir oturum da aynı reddi üretiyor ve
+    // "albüm dolu" demek o durumda düpedüz yalan oluyor. Önce oturumu yeniden
+    // ispatlayıp bir kez daha dene; ancak o da düşerse kota de.
+    const live = await ensureAnon().catch(() => uid);
+    if (live !== uid) {
+      // Oturum takas edildi: ownerId ve Storage yolu ESKİ uid'yi taşıyor, yani
+      // ikinci deneme kural gereği kesin reddedilir (ownerId == auth.uid şartı ve
+      // yeni uid'in guests kaydı yok). Denemek yerine dürüst ol — "albüm dolu"
+      // demek burada düpedüz yalan olurdu.
+      void logError('upload.session-changed', first, { uid, live, eventId: event.id });
+      throw new UploadError('failed');
+    }
+    try {
+      await setDoc(mediaRef, payload);
+    } catch (second) {
+      void logError('upload.failed', second, {
+        firstCode: errorCode(first),
+        secondCode: errorCode(second),
+        eventId: event.id,
+        kind: payload.kind,
+      });
+      throw new UploadError('quota-reached');
+    }
   }
 }
