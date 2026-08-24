@@ -22,36 +22,63 @@ export function Uploader({ event, uid, name, t }: Props) {
   const [queue, setQueue] = useState<UploadItem[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
+  // Akan döngü kuyruğun O ANKİ hâlini görmek zorunda: yükleme sürerken seçilen
+  // dosyalar da aynı turda ele alınacak. State tek başına yetmez, çünkü döngü
+  // await'lerin arasında yaşıyor ve kendisini başlatan render'ın değerine
+  // kilitli kalıyor.
+  const queueRef = useRef<UploadItem[]>([]);
 
+  const commit = (next: UploadItem[]) => {
+    queueRef.current = next;
+    setQueue(next);
+  };
   const patch = (id: string, next: Partial<UploadItem>) =>
-    setQueue((q) => q.map((it) => (it.id === id ? { ...it, ...next } : it)));
+    commit(queueRef.current.map((it) => (it.id === id ? { ...it, ...next } : it)));
+  const drop = (id: string) => commit(queueRef.current.filter((it) => it.id !== id));
 
-  async function drain(items: UploadItem[]) {
+  async function upload(item: UploadItem) {
+    patch(item.id, { status: 'uploading', progress: 0, error: undefined });
+    try {
+      await uploadOne(event, uid, name, item.file, (p) => patch(item.id, { progress: p }));
+      patch(item.id, { status: 'done', progress: 1 });
+      // Tamamlananı kısa süre sonra listeden düşür: galeri zaten canlı
+      // güncelleniyor, kuyruk kalabalık kalmasın.
+      setTimeout(() => {
+        drop(item.id);
+        URL.revokeObjectURL(item.previewUrl);
+      }, 1200);
+    } catch (e) {
+      const reason =
+        e instanceof UploadError && e.message === 'video-too-large'
+          ? // Sayı metne GÖMÜLMEZ: tavan değişince dokuz dil de sessizce yalan söylerdi.
+            t('videoTooLarge').replace('{max}', String(VIDEO_MAX_BYTES / 1048576))
+          : e instanceof UploadError && e.message === 'quota-reached'
+            ? t('quotaReached')
+            : t('uploadFailed');
+      patch(item.id, { status: 'failed', error: reason });
+    }
+  }
+
+  /**
+   * Sabit bir listeyi değil, kuyruğun kendisini tüketir.
+   *
+   * Eskiden `drain(items)` seçilen partiyi alıyor ve meşgulse hiçbir şey
+   * yapmadan dönüyordu — yani ilk yükleme sürerken seçilen dosyalar sonsuza
+   * kadar %0'da kalıyordu: satır ekranda duruyor, yükleme hiç başlamıyor,
+   * hata da verilmiyor. Tek partide seçince görünmez, çünkü hepsi aynı dizide.
+   */
+  async function drain() {
     if (busyRef.current) return;
     busyRef.current = true;
-    for (const item of items) {
-      patch(item.id, { status: 'uploading', progress: 0 });
-      try {
-        await uploadOne(event, uid, name, item.file, (p) => patch(item.id, { progress: p }));
-        patch(item.id, { status: 'done', progress: 1 });
-        // Tamamlananı kısa süre sonra listeden düşür: galeri zaten canlı
-        // güncelleniyor, kuyruk kalabalık kalmasın.
-        setTimeout(() => {
-          setQueue((q) => q.filter((it) => it.id !== item.id));
-          URL.revokeObjectURL(item.previewUrl);
-        }, 1200);
-      } catch (e) {
-        const reason =
-          e instanceof UploadError && e.message === 'video-too-large'
-            ? // Sayı metne GÖMÜLMEZ: tavan değişince dokuz dil de sessizce yalan söylerdi.
-              t('videoTooLarge').replace('{max}', String(VIDEO_MAX_BYTES / 1048576))
-            : e instanceof UploadError && e.message === 'quota-reached'
-              ? t('quotaReached')
-              : t('uploadFailed');
-        patch(item.id, { status: 'failed', error: reason });
+    try {
+      for (;;) {
+        const next = queueRef.current.find((it) => it.status === 'queued');
+        if (!next) break;
+        await upload(next);
       }
+    } finally {
+      busyRef.current = false;
     }
-    busyRef.current = false;
   }
 
   function onPick(files: FileList | null) {
@@ -64,14 +91,14 @@ export function Uploader({ event, uid, name, t }: Props) {
       status: 'queued',
       previewUrl: URL.createObjectURL(file),
     }));
-    setQueue((q) => [...q, ...items]);
-    void drain(items);
+    commit([...queueRef.current, ...items]);
+    void drain();
     if (inputRef.current) inputRef.current.value = '';
   }
 
   const retry = (item: UploadItem) => {
     patch(item.id, { status: 'queued', error: undefined, progress: 0 });
-    void drain([{ ...item, status: 'queued', progress: 0 }]);
+    void drain();
   };
 
   return (
