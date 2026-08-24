@@ -340,6 +340,7 @@ function readVideoMeta(file: File): Promise<{ width: number; height: number; dur
 export class UploadError extends Error {}
 
 const THUMB_EDGE = 480;
+const POSTER_TIMEOUT_MS = 8000;
 
 /**
  * Izgara karesi. Fotoğrafta dosyanın kendisinden, videoda İLK KAREDEN üretilir —
@@ -347,58 +348,93 @@ const THUMB_EDGE = 480;
  * etkilenmez; doküman thumbUri'siz yazılır, ızgara eski davranışına döner.
  */
 async function makeThumb(file: File): Promise<Blob | null> {
+  if (file.type.startsWith('video/')) return videoPoster(file);
   try {
-    const bitmap = file.type.startsWith('video/') ? await firstVideoFrame(file) : await createImageBitmap(file);
-    if (!bitmap) return null;
-    const scale = Math.min(1, THUMB_EDGE / Math.max(bitmap.width, bitmap.height));
-    const canvas = document.createElement('canvas');
-    canvas.width = Math.round(bitmap.width * scale);
-    canvas.height = Math.round(bitmap.height * scale);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return null;
-    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-    bitmap.close?.();
+    const bitmap = await createImageBitmap(file);
+    const canvas = scaledCanvas(bitmap.width, bitmap.height);
+    canvas.getContext('2d')?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
     return await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/jpeg', 0.7));
   } catch {
     return null;
   }
 }
 
-/** Videonun ilk karesi. YEREL dosyadan okunur — uzaktaki mp4'e hiç dokunulmaz. */
-function firstVideoFrame(file: File): Promise<ImageBitmap | null> {
+function scaledCanvas(w: number, h: number): HTMLCanvasElement {
+  const scale = Math.min(1, THUMB_EDGE / Math.max(w, h)) || 1;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(w * scale));
+  canvas.height = Math.max(1, Math.round(h * scale));
+  return canvas;
+}
+
+/**
+ * Videonun poster karesi. YEREL dosyadan okunur — uzaktaki mp4'e hiç dokunulmaz.
+ *
+ * iOS Safari burada üç yerde nazlı, üçü de sahada görüldü (Berk, 2026-08-24:
+ * yüklenen videoların kapağı gelmedi):
+ *   • `createImageBitmap(videoElement)` güvenilir değil — kareyi canvas'a DOĞRUDAN
+ *     çizmek gerekiyor (GuestCam'de çalışan hâli de bu).
+ *   • Eleman DOM'da değilse ve hiç oynatılmadıysa kare çözülmeyebiliyor; bu yüzden
+ *     ekran dışına eklenip sessizce play/pause ediliyor.
+ *   • `preload="metadata"` seek için yetmiyor, `auto` gerekiyor.
+ * Yine de bazı .mov'lar hiç çözülmüyor — o zaman poster'siz devam edilir.
+ */
+function videoPoster(file: File): Promise<Blob | null> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const v = document.createElement('video');
     let settled = false;
-    const done = (out: ImageBitmap | null) => {
+    const finish = (out: Blob | null) => {
       if (settled) return;
       settled = true;
+      clearTimeout(timer);
+      v.pause();
       v.removeAttribute('src');
+      v.remove();
       URL.revokeObjectURL(url);
       resolve(out);
     };
-    v.preload = 'metadata';
+    const timer = setTimeout(() => finish(null), POSTER_TIMEOUT_MS);
+
     v.muted = true;
     v.playsInline = true;
-    v.onseeked = () => {
-      createImageBitmap(v).then(done).catch(() => done(null));
+    v.preload = 'auto';
+    v.setAttribute('muted', '');
+    v.setAttribute('playsinline', '');
+    v.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0';
+    document.body.appendChild(v);
+
+    const grab = () => {
+      try {
+        const canvas = scaledCanvas(v.videoWidth, v.videoHeight);
+        const ctx = canvas.getContext('2d');
+        if (!ctx || !v.videoWidth) return finish(null);
+        // Kareyi DOĞRUDAN elemandan çiz — createImageBitmap(video) Safari'de düşüyor.
+        ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((b) => finish(b), 'image/jpeg', 0.7);
+      } catch {
+        finish(null);
+      }
     };
+
+    v.onseeked = grab;
     v.onloadeddata = () => {
-      // 0 saniye çoğu kodekte siyah kare veriyor; yarım saniye güvenli.
-      v.currentTime = Math.min(0.5, v.duration || 0.5);
+      // 0. saniye çoğu kodekte siyah kare veriyor; yarım saniye güvenli.
+      const t = Math.min(0.5, (v.duration || 1) / 2);
+      // play() iOS'ta çözücüyü uyandırıyor; seek zaten kareyi getirecek.
+      void v.play().catch(() => undefined);
+      try {
+        v.currentTime = t;
+      } catch {
+        grab();
+      }
     };
-    v.onerror = () => done(null);
-    // Safari bazı .mov'larda hiç cevap vermiyor — poster uğruna yükleme bekletilmez.
-    setTimeout(() => done(null), 4000);
+    v.onerror = () => finish(null);
     v.src = url;
   });
 }
 
-/**
- * Dosyayı Storage'a, metadata'yı Firestore'a yazar — native mediaService ile
- * aynı sıra ve aynı alanlar. Yol içinde ownerId olması kritik: storage.rules
- * "bu dosyayı kim yükledi" sorusunu Firestore'a gitmeden cevaplıyor.
- */
 export async function uploadOne(
   event: EventDoc,
   uid: string,
