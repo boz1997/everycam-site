@@ -296,24 +296,43 @@ async function prepare(file: File): Promise<Prepared> {
   return { blob, ext: 'jpg', width: w, height: h };
 }
 
+// SAFARI BİR .mov İÇİN HİÇBİR ŞEY SÖYLEMEZ (Berk, 2026-08-24: web'de video yükleme
+// %0'da donuyordu). Çözemediği bir blob için ne `loadedmetadata` ne `error`
+// tetikleniyor; söz hiç sonuçlanmıyor, üstteki await hiç dönmüyor ve yükleme
+// sonsuza kadar %0'da kalıyor — üstelik hiçbir şey fırlatılmadığı için çevredeki
+// try/catch de hiçbir şey görmüyor. Kardeş üründe (GuestCam ba7bfe7) aynı sessizlik
+// iki aylık misafir videosunu yutmuştu.
+//
+// Süre sınırı o sessizliği sıradan bir sonuca çeviriyor: ölçüler sıfır kalır,
+// yükleme normal şekilde devam eder. Sıfır ölçü zaten kabul edilen bir durum —
+// `onerror` dalı da bugüne kadar aynısını yapıyordu.
+const VIDEO_META_TIMEOUT_MS = 4000;
+
 function readVideoMeta(file: File): Promise<{ width: number; height: number; durationSec: number }> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file);
     const v = document.createElement('video');
-    v.preload = 'metadata';
-    v.onloadedmetadata = () => {
-      const meta = {
-        width: v.videoWidth,
-        height: v.videoHeight,
-        durationSec: Number.isFinite(v.duration) ? Math.round(v.duration) : 0,
-      };
+    let settled = false;
+    const finish = (meta: { width: number; height: number; durationSec: number }) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      v.removeAttribute('src');
       URL.revokeObjectURL(url);
       resolve(meta);
     };
-    v.onerror = () => {
-      URL.revokeObjectURL(url);
-      resolve({ width: 0, height: 0, durationSec: 0 });
-    };
+    const timer = setTimeout(() => finish({ width: 0, height: 0, durationSec: 0 }), VIDEO_META_TIMEOUT_MS);
+
+    v.preload = 'metadata';
+    v.muted = true;
+    v.playsInline = true;
+    v.onloadedmetadata = () =>
+      finish({
+        width: v.videoWidth,
+        height: v.videoHeight,
+        durationSec: Number.isFinite(v.duration) ? Math.round(v.duration) : 0,
+      });
+    v.onerror = () => finish({ width: 0, height: 0, durationSec: 0 });
     v.src = url;
   });
 }
@@ -354,6 +373,7 @@ function firstVideoFrame(file: File): Promise<ImageBitmap | null> {
     const done = (out: ImageBitmap | null) => {
       if (settled) return;
       settled = true;
+      v.removeAttribute('src');
       URL.revokeObjectURL(url);
       resolve(out);
     };
