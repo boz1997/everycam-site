@@ -32,16 +32,22 @@ export function Gallery({ event, uid, media, t, onOpen }: Props) {
     <div className="grid">
       {media.map((m, i) => (
         <button key={m.id} className="tile" onClick={() => onOpen(i)} aria-label={m.ownerName || 'photo'}>
-          {m.kind === 'video' ? (
-            <>
-              {/* poster yok: ilk kareyi tarayıcı çizsin diye metadata yüklenir */}
-              <video src={m.uri} preload="metadata" muted playsInline />
-              <span className="tile-video">
-                <IconPlay />
-              </span>
-            </>
-          ) : (
+          {/* IZGARA ASLI ÇEKMEZ (2026-08-24).
+              Eskiden fotoğraf hücresi 2048px'lik aslın kendisini (~700 KB) indiriyordu
+              ve video hücresi `preload="metadata"` ile mp4'e uzanıyordu. Yeni yüklemeler
+              artık ~40 KB'lık bir ızgara karesi (`thumbUri`) taşıyor.
+              ESKİ dokümanlarda bu alan YOK: fotoğraf eskisi gibi asla düşer (hiçbir kare
+              kaybolmaz), video ise placeholder'da kalır — video için asla asla düşmüyoruz,
+              çünkü kazanç bir önizleme, kayıp onlarca megabayt. */}
+          {m.thumbUri ? (
+            <img src={m.thumbUri} alt="" loading="lazy" />
+          ) : m.kind === 'video' ? null : (
             <img src={m.uri} alt="" loading="lazy" />
+          )}
+          {m.kind === 'video' && (
+            <span className="tile-video">
+              <IconPlay />
+            </span>
           )}
           {event.mode === 'open' && m.ownerId === uid && <span className="tile-badge">{t('you')}</span>}
           {m.likeCount > 0 && (

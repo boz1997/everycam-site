@@ -29,6 +29,8 @@ export interface MediaDoc {
   ownerName: string;
   kind: MediaKind;
   uri: string;
+  /** Izgara karesi (~40 KB). ESKİ dokümanlarda yok — o hâlde ızgara `uri`ye düşer. */
+  thumbUri?: string;
   width: number;
   height: number;
   takenAt: number;

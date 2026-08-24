@@ -221,6 +221,7 @@ export function subscribeMedia(
             ownerName: String(x.ownerName ?? ''),
             kind: (x.kind === 'video' ? 'video' : 'photo') as MediaKind,
             uri: String(x.uri ?? ''),
+            thumbUri: x.thumbUri === undefined ? undefined : String(x.thumbUri),
             width: Number(x.width ?? 0),
             height: Number(x.height ?? 0),
             takenAt: Number(x.takenAt ?? 0),
@@ -319,6 +320,60 @@ function readVideoMeta(file: File): Promise<{ width: number; height: number; dur
 
 export class UploadError extends Error {}
 
+const THUMB_EDGE = 480;
+
+/**
+ * Izgara karesi. Fotoğrafta dosyanın kendisinden, videoda İLK KAREDEN üretilir —
+ * ikisi de TARAYICIDA, yükleme öncesi. Üretilemezse null döner ve yükleme
+ * etkilenmez; doküman thumbUri'siz yazılır, ızgara eski davranışına döner.
+ */
+async function makeThumb(file: File): Promise<Blob | null> {
+  try {
+    const bitmap = file.type.startsWith('video/') ? await firstVideoFrame(file) : await createImageBitmap(file);
+    if (!bitmap) return null;
+    const scale = Math.min(1, THUMB_EDGE / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bitmap.width * scale);
+    canvas.height = Math.round(bitmap.height * scale);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close?.();
+    return await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/jpeg', 0.7));
+  } catch {
+    return null;
+  }
+}
+
+/** Videonun ilk karesi. YEREL dosyadan okunur — uzaktaki mp4'e hiç dokunulmaz. */
+function firstVideoFrame(file: File): Promise<ImageBitmap | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(file);
+    const v = document.createElement('video');
+    let settled = false;
+    const done = (out: ImageBitmap | null) => {
+      if (settled) return;
+      settled = true;
+      URL.revokeObjectURL(url);
+      resolve(out);
+    };
+    v.preload = 'metadata';
+    v.muted = true;
+    v.playsInline = true;
+    v.onseeked = () => {
+      createImageBitmap(v).then(done).catch(() => done(null));
+    };
+    v.onloadeddata = () => {
+      // 0 saniye çoğu kodekte siyah kare veriyor; yarım saniye güvenli.
+      v.currentTime = Math.min(0.5, v.duration || 0.5);
+    };
+    v.onerror = () => done(null);
+    // Safari bazı .mov'larda hiç cevap vermiyor — poster uğruna yükleme bekletilmez.
+    setTimeout(() => done(null), 4000);
+    v.src = url;
+  });
+}
+
 /**
  * Dosyayı Storage'a, metadata'yı Firestore'a yazar — native mediaService ile
  * aynı sıra ve aynı alanlar. Yol içinde ownerId olması kritik: storage.rules
@@ -356,6 +411,23 @@ export async function uploadOne(
   });
 
   const uri = await getDownloadURL(task.snapshot.ref);
+  onProgress(0.92);
+
+  // EN İYİ ÇABA: poster üretimi ya da yüklemesi düşerse ana yükleme etkilenmez.
+  let thumbUri: string | null = null;
+  let thumbPath: string | null = null;
+  try {
+    const blob = await makeThumb(file);
+    if (blob) {
+      thumbPath = `events/${event.id}/${uid}/${id}_thumb.jpg`;
+      const tRef = storageRef(storage, thumbPath);
+      await uploadBytesResumable(tRef, blob, { contentType: 'image/jpeg' });
+      thumbUri = await getDownloadURL(tRef);
+    }
+  } catch {
+    thumbUri = null;
+    thumbPath = null;
+  }
   onProgress(0.95);
 
   const payload: Record<string, unknown> = {
@@ -372,6 +444,10 @@ export async function uploadOne(
     hidden: false,
   };
   if (prepared.durationSec !== undefined) payload.durationSec = prepared.durationSec;
+  if (thumbUri && thumbPath) {
+    payload.thumbUri = thumbUri;
+    payload.thumbPath = thumbPath;
+  }
 
   const mediaRef = doc(db, 'events', event.id, 'media', id);
   try {
