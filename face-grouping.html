@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finding your photos by face — ShareCam</title>
-  <meta name="description" content="How ShareCam's find-my-photos feature works, what face data it creates, how long it is kept, and how to say no." />
+  <meta name="description" content="How ShareCam's find-my-photos feature works, what face data it creates, where it is processed, how long it is kept, how it is destroyed, and how to say no." />
   <link rel="icon" href="sharemark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -22,85 +22,190 @@
 
   <div class="wrap narrow">
     <h1 style="margin-top:34px;">Finding your photos by face</h1>
-    <p class="updated">This page explains a feature that is <strong>not yet available</strong> in ShareCam. It is published in advance so the rules are clear before anything is switched on.</p>
-
-    <h2>What the feature does</h2>
-    <p>
-      At a big event, your photos are scattered across hundreds of shots taken by other
-      people. This feature lets <em>you</em> find the ones you appear in: you take a
-      selfie, and your phone compares it against the photos in that one event album.
+    <p class="updated">
+      Biometric data policy · Last updated: <!--LASTUPDATED-->30 August 2026<!--/LASTUPDATED--><br />
+      This page describes a feature that is <strong>not yet available</strong> in ShareCam. It is
+      published in advance, before any face data is collected, so that the rules are fixed and
+      public before anything is switched on.
     </p>
 
-    <h2>What data is created</h2>
+    <h2>1. What the feature does</h2>
     <p>
-      To compare faces, your phone turns your selfie into a <strong>face signature</strong> — a
-      set of numbers describing the geometry of your face. Under Illinois law this is a
-      "scan of face geometry"; under EU law it is <strong>biometric data</strong>. We treat it as
-      sensitive personal data in every country, regardless of what the local law requires.
+      At a big event your photos end up scattered across hundreds of shots taken by other
+      people. This feature lets you find the ones you appear in. You take a selfie, and
+      ShareCam compares it against the photos in <em>that one event album</em> and shows you
+      the matches.
+    </p>
+    <p>
+      That is the feature's only purpose. Your face is never used to identify you anywhere
+      else, in any other album, or for anything other than showing you your own matches.
     </p>
 
-    <h2>Where it is processed</h2>
+    <h2>2. What face data is created</h2>
     <p>
-      Entirely on your own device. The face signature is <strong>never uploaded</strong> to ShareCam's
-      servers, never sent to a third party, and never leaves your phone. We do not have a
-      copy of it and could not produce one if asked.
+      Comparing faces requires turning a face into numbers. ShareCam creates a
+      <strong>face signature</strong> — a mathematical description of the geometry of a face.
+      Under Illinois law this is a "scan of face geometry"; under EU and UK law it is
+      <strong>biometric data</strong> within the meaning of Article 9 GDPR; under Turkish law it is
+      a special category of personal data under Article 6 KVKK. We treat it as sensitive
+      personal data everywhere, whatever the local law happens to require.
+    </p>
+    <p>Two different kinds of signature exist, and they are governed by different rules:</p>
+    <ul>
+      <li>
+        <strong>Album signatures.</strong> When the feature is switched on for an event, a signature
+        is created for each face that appears in the photos in that album. These are what your
+        selfie is compared <em>against</em>. They are stored for as long as the album exists
+        (see section 5).
+      </li>
+      <li>
+        <strong>Your search signature.</strong> The signature made from the selfie you take in order to
+        search. This one is <strong>transient</strong>: it is used to run your search and then destroyed
+        (see section 5).
+      </li>
+    </ul>
+
+    <h2>3. Where it is processed, and who else sees it</h2>
+    <p>
+      Being straight about this matters more than sounding good, so plainly:
+      <strong>this processing happens on our servers, not on your phone.</strong>
+      Your selfie is sent to ShareCam and passed to our face-matching provider.
+    </p>
+    <ul>
+      <li><strong>ShareCam</strong> (independent developer, Türkiye) — operates the service.</li>
+      <li><strong>Google Firebase</strong> — hosting, database and file storage. Region:
+        <strong>Frankfurt, Germany (europe-west3)</strong>.</li>
+      <li><strong>Amazon Web Services</strong> — the face-matching engine. Region:
+        <strong>Frankfurt, Germany (eu-central-1)</strong>.</li>
+    </ul>
+    <p>
+      Both providers act as our processors under written data-processing terms. They may not use
+      your face data for their own purposes. Face data is not sent anywhere else, is not sold, is
+      not shared with advertisers or analytics providers, and is
+      <strong>never used to train any AI model</strong> — not ours and not anyone else's.
     </p>
     <p class="muted" style="font-size:14px;">
-      We want to be straight with you about one thing: processing on the device is a
-      genuine privacy protection, but courts have not accepted it as a complete legal
-      answer. That is exactly why the feature is opt-in, why it is off by default, and
-      why it is unavailable in the places listed below.
+      If you are in Türkiye, note that Frankfurt is outside Türkiye and this is therefore a
+      transfer abroad under Article 9 KVKK. We describe the safeguard we rely on in our
+      <a href="privacy.html">Privacy Policy</a>. If you would rather not have your face data
+      leave the country, do not use this feature — everything else in the album works without it.
     </p>
 
-    <h2>Retention and destruction schedule</h2>
+    <h2>4. What it is never used for</h2>
     <ul>
-      <li>The face signature exists <strong>only while the search is running</strong>.</li>
-      <li>It is <strong>destroyed as soon as results are shown</strong>, and in every case when you
-        close the album, at the latest within 24 hours of being created.</li>
-      <li>Nothing derived from your face is written to our database, our file storage,
-        our logs, or our backups.</li>
-      <li>The selfie you take for the search is not saved to the album unless you
-        explicitly upload it as a photo.</li>
+      <li>Not to identify you across different events. Signatures are locked to a single album
+        and comparison across albums is not possible in our system.</li>
+      <li>Not to train, improve, tune or evaluate any AI or machine-learning model.</li>
+      <li>Not for advertising, profiling, scoring, age or gender estimation, emotion detection,
+        or any other inference about you.</li>
+      <li>Not to build a list of who attended, and not to tell a host who appears in which photo.</li>
+      <li>We do not sell, lease, trade or otherwise profit from face data, and we will not
+        disclose it except where we are legally compelled to.</li>
     </ul>
 
-    <h2>Who it is shared with</h2>
-    <p>
-      <strong>No one.</strong> Not the event host, not other guests, not advertisers, not any
-      analytics or AI-training provider. There is nothing to share, because the signature
-      never reaches us.
-    </p>
-
-    <h2>Saying no, and changing your mind</h2>
+    <h2>5. Retention and destruction schedule</h2>
+    <p>This is our written retention schedule. We follow it; we do not keep face data longer.</p>
     <ul>
-      <li>The feature is <strong>off unless you turn it on</strong>. Nothing happens to your face
-        until you tap the button and take a selfie.</li>
-      <li>Declining <strong>does not affect the album</strong>. You can still join, upload,
-        browse and download exactly as before. We will never make album access
-        conditional on this.</li>
-      <li>You are never scanned because someone else opted in. Only the person who
-        starts a search has their own face processed.</li>
-      <li>There is nothing to delete afterwards, because nothing is kept.</li>
+      <li>
+        <strong>Your search signature is destroyed as soon as your search finishes</strong>, and in
+        every case within <strong>24 hours</strong> of being created. The selfie image itself is
+        discarded at the same time and is never added to the album.
+      </li>
+      <li>
+        <strong>Album signatures are destroyed when the album is deleted</strong>, which happens
+        automatically when the event's storage period ends (7 days to 1 year depending on the
+        host's package), or immediately if the host deletes the event.
+      </li>
+      <li>
+        <strong>Outer limit.</strong> All face data is destroyed when the purpose described in
+        section 1 has been satisfied, or within <strong>3 years</strong> of your last interaction
+        with ShareCam, whichever comes first.
+      </li>
+      <li>
+        <strong>Immediate destruction on request.</strong> If you withdraw (section 6), your data is
+        deleted straight away rather than waiting for any of the above.
+      </li>
+      <li>
+        <strong>If the host switches the feature off,</strong> every album signature for that event is
+        destroyed. Switching it back on rebuilds them from scratch; nothing is retained in between.
+      </li>
+      <li>Destruction covers backups and logs on our normal backup cycle, which completes within
+        <strong>30 days</strong>.</li>
     </ul>
 
-    <h2>Where the feature is not offered</h2>
+    <h2>6. Saying no, and changing your mind</h2>
+    <ul>
+      <li>
+        <strong>It is off unless you turn it on.</strong> Nothing is done with your face until you
+        read the consent screen and tap to agree. There is no pre-ticked box and consent is
+        never bundled into our Terms.
+      </li>
+      <li>
+        <strong>Declining costs you nothing.</strong> You can still join the event, upload, browse,
+        download and use every other part of the album exactly as before. We will never make
+        album access conditional on agreeing to this — under Article 7(4) GDPR consent obtained
+        that way would not be valid consent at all, and we think it is wrong regardless.
+      </li>
+      <li>
+        <strong>You can withdraw at any time</strong>, from the same screen or by writing to us.
+        Withdrawal deletes your signatures and removes you from any matches, and is as easy as
+        giving consent in the first place.
+      </li>
+      <li>
+        You may also ask us for a copy of the face data we hold about you, or ask us to correct
+        or delete it. Write to
+        <a href="mailto:app.sharecam@gmail.com">app.sharecam@gmail.com</a>; we answer within
+        30 days and there is no charge.
+      </li>
+    </ul>
+
+    <h2>7. Whose faces are in the album</h2>
     <p>
-      The feature is switched off for users in <strong>Illinois, Texas and Washington</strong> in the
-      United States. Those states have specific biometric privacy statutes, and we would
-      rather withhold a convenience feature than operate in a grey area.
+      We will not pretend this away. To let you search the album, signatures have to be created
+      for the faces in the album's photos — including people who never opened ShareCam and never
+      agreed to anything. That is a real limitation of any feature of this kind, and it is
+      why we do the following:
+    </p>
+    <ul>
+      <li>The feature is <strong>off by default for every event</strong>. A host has to switch it on.</li>
+      <li>Turning it on requires the host to confirm that they will tell their guests. We give
+        them wording to put on the invitation and on a sign at the event.</li>
+      <li>Guests are told on the join screen when an album has it switched on, before they upload
+        anything.</li>
+      <li>Signatures are never shown to anyone. There is no "people" list, no name suggestions and
+        no way for a host to look someone up.</li>
+      <li>Anyone who appears in an album can write to us and have their signatures deleted, whether
+        or not they use ShareCam.</li>
+    </ul>
+
+    <h2>8. Where the feature is not offered</h2>
+    <p>
+      The feature is switched off for anyone in <strong>Illinois, Texas and Washington</strong> in
+      the United States. Those states have dedicated biometric privacy statutes, and we would
+      rather withhold a convenience feature than operate in a grey area. We check this at the
+      moment you would give consent, and if we cannot tell where you are, the feature stays off.
+    </p>
+    <p class="muted" style="font-size:14px;">
+      We are also honest about the limits of that check: it is based on your internet connection,
+      so it can be wrong if you use a VPN. We therefore also ask you to confirm where you are.
+      Please answer that honestly — it is there to protect you as much as us.
     </p>
 
-    <h2>The event host's role</h2>
+    <h2>9. Roles and responsibilities</h2>
     <p>
-      A host can turn this feature off for their whole event, and it stays off until they
-      turn it on. A host can never see anyone's face signature, cannot search for a
-      specific guest, and cannot obtain a list of who appears in which photo.
+      For each event, the <strong>host is the data controller</strong> — it is their album, their guest
+      list, and their decision whether to use this feature. <strong>ShareCam is the processor</strong>,
+      acting on the host's instructions and on the terms in our
+      <a href="terms.html">Terms of Service</a>. For our own account and billing data we are the
+      controller; that is covered in the <a href="privacy.html">Privacy Policy</a>.
     </p>
 
-    <h2>Questions</h2>
+    <h2>10. Questions and complaints</h2>
     <p>
-      Write to <a href="mailto:app.sharecam@gmail.com">app.sharecam@gmail.com</a> and a
-      human will answer. If you are in the EU/EEA or the UK you also have the rights
-      described in our <a href="privacy.html">Privacy Policy</a>.
+      Write to <a href="mailto:app.sharecam@gmail.com">app.sharecam@gmail.com</a> and a human
+      will answer. If you are in the EU or EEA you may also complain to your national data
+      protection authority; in the UK, to the ICO; in Türkiye, to the Kişisel Verileri Koruma
+      Kurumu (KVKK).
     </p>
 
     <footer>
