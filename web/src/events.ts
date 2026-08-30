@@ -45,6 +45,7 @@ function toEvent(id: string, d: Record<string, unknown>): EventDoc {
     mode: d.mode === 'private' ? 'private' : 'open',
     joinPaused: d.joinPaused === true,
     guestCanDownload: d.guestCanDownload !== false,
+    aiPeopleEnabled: d.aiPeopleEnabled === true,
     hostId: String(d.hostId ?? ''),
     activeGuestCount: Number(d.activeGuestCount ?? 0),
     photoCount: Number(d.photoCount ?? 0),

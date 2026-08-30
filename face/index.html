@@ -266,8 +266,13 @@ async function search(fileObj) {
     }
     // IZGARADA ASIL ÇEKİLMEZ: thumbUri (~40 KB) çizilir, asıl yalnız tıklanınca
     // açılır. Egress dersi (sharecam-firebase-maliyet) burada da geçerli.
+    const canShare = typeof navigator.canShare === 'function'
+      && navigator.canShare({ files: [new File([new Blob()], 'a.jpg', { type: 'image/jpeg' })] });
     h(`<h1>Found ${m.length} photo${m.length > 1 ? 's' : ''}</h1>
        <p>These are the photos you appear in. Tap one to open it full size.</p>
+       ${canShare ? '<button class="primary" id="save">Save all to Photos</button>' : ''}
+       <button class="${canShare ? 'ghost' : 'primary'}" id="zip">Download all as a ZIP</button>
+       <p class="muted" id="dl"></p>
        <div class="grid">${m.map((x) =>
          `<a href="${esc(x.uri)}" target="_blank" rel="noopener">
             <img src="${esc(x.thumbUri || x.uri)}" alt="" loading="lazy" /></a>`).join('')}</div>
@@ -275,6 +280,49 @@ async function search(fileObj) {
          <a class="link" href="#" id="again">Try another selfie</a> ·
          <a class="link" href="../join/?code=${esc(codeFromUrl())}">Back to the album</a></p>`);
     document.getElementById('again').onclick = (e) => { e.preventDefault(); selfie(); };
+
+    const note = document.getElementById('dl');
+
+    // TELEFONDA "Fotoğraflara Kaydet" — `<a download>` ÇAPRAZ KAYNAKTA YOK
+    // SAYILIYOR (dosya firebasestorage'da, sayfa sharecam.app'te), Safari o
+    // durumda kaydetmek yerine görseli yeni sekmede açıyor. Doğru yol baytları
+    // okuyup paylaşım sayfasına vermek. Kova CORS'u bunun için açık.
+    const saveBtn = document.getElementById('save');
+    if (saveBtn) saveBtn.onclick = async () => {
+      saveBtn.disabled = true;
+      try {
+        const files = [];
+        for (let i = 0; i < m.length; i++) {
+          note.textContent = `Preparing ${i + 1} of ${m.length}…`;
+          const b = await (await fetch(m[i].uri)).blob();
+          files.push(new File([b], `sharecam-${i + 1}.jpg`, { type: b.type || 'image/jpeg' }));
+        }
+        note.textContent = '';
+        await navigator.share({ files });
+      } catch (e) {
+        // Kullanıcı paylaşım sayfasını kapatırsa AbortError gelir — hata değil.
+        note.textContent = String(e?.name) === 'AbortError' ? '' : "Couldn't save. Try the ZIP instead.";
+      }
+      saveBtn.disabled = false;
+    };
+
+    const zipBtn = document.getElementById('zip');
+    zipBtn.onclick = async () => {
+      zipBtn.disabled = true; note.textContent = 'Building your ZIP…';
+      try {
+        const { data } = await call('createMyPhotosZip')({ eventId: EVENT, mediaIds: m.map((x) => x.id) });
+        note.textContent = `${data.count} photos ready.`;
+        // ZIP'te `download` niteliğine gerek yok: içerik tipi application/zip
+        // olduğu için tarayıcı sekmede açmaz, indirir.
+        location.href = data.url;
+      } catch (e) {
+        const msg = String(e.message || e.code || '');
+        note.textContent = msg.includes('Downloads are off')
+          ? 'The host has turned downloads off for this album.'
+          : "Couldn't build the ZIP. Try again.";
+      }
+      zipBtn.disabled = false;
+    };
   } catch (e) {
     const code = String(e.message || e.code || '');
     if (code.includes('consent-required')) return consent();

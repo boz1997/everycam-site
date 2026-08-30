@@ -16,6 +16,7 @@ export interface EventDoc {
   mode: VisibilityMode;
   joinPaused: boolean;
   guestCanDownload: boolean;
+  aiPeopleEnabled: boolean;
   hostId: string;
   activeGuestCount: number;
   photoCount: number;

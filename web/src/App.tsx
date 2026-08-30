@@ -291,6 +291,19 @@ export default function App() {
       </div>
 
       <div className="wrap">
+        {/* YÜZ EŞLEŞTİRME GİRİŞİ — yalnız host o etkinlikte AÇTIYSA görünür.
+            Ayrı bir sayfaya (/face/) gidiyor çünkü coğrafi kapı ve rıza akışı
+            orada; buraya gömmek rızayı galeriye gömmek olurdu (BIPA §15(b)
+            rızanın başka bir şeye iliştirilmesini yasaklıyor). */}
+        {event.aiPeopleEnabled && (
+          <a
+            className="facecta"
+            href={`../face/?code=${encodeURIComponent(event.code)}`}
+          >
+            <strong>{t('findMyPhotos')}</strong>
+            <span>{t('findMyPhotosSub')}</span>
+          </a>
+        )}
         <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
         {!event.guestCanDownload && (
           <p className="muted" style={{ textAlign: 'center', marginTop: 18 }}>
