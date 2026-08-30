@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <title>Find your photos — ShareCam</title>
+  <link rel="icon" href="../sharemark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --green:#1F3D2E; --cream:#F3EEE2; --gold:#C79A2E; --sage:#6E7F5F; --coal:#2B2B2B;
+      --line:#DCD5C4; --surface:#FFFDF7;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--cream); color:var(--coal);
+      font-family:Inter,-apple-system,system-ui,sans-serif; font-size:16px; line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      padding:0 20px calc(40px + env(safe-area-inset-bottom));
+    }
+    .wrap{max-width:560px;margin:0 auto}
+    header{display:flex;align-items:center;gap:8px;padding:22px 0 8px}
+    header img{width:26px;height:26px}
+    .wordmark{font-family:Fraunces,Georgia,serif;font-weight:700;font-size:19px;color:var(--green)}
+    .wordmark i{font-style:normal;color:var(--gold)}
+    h1{font-family:Fraunces,Georgia,serif;font-weight:600;font-size:27px;line-height:1.2;
+       color:var(--green);margin:22px 0 10px;text-wrap:balance}
+    p{margin:0 0 14px;color:#4b5347}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:14px}
+    ul{margin:0 0 14px;padding-left:20px;color:#4b5347}
+    li{margin-bottom:8px}
+    strong{color:var(--coal)}
+    label.check{display:flex;gap:10px;align-items:flex-start;margin:18px 0;cursor:pointer;font-size:15px}
+    label.check input{width:22px;height:22px;margin:0;flex:0 0 auto;accent-color:var(--green)}
+    button{
+      font:inherit;font-weight:600;width:100%;padding:15px;border-radius:12px;border:none;
+      cursor:pointer;margin-bottom:10px;min-height:52px;
+    }
+    .primary{background:var(--green);color:var(--cream)}
+    .primary:disabled{opacity:.4;cursor:not-allowed}
+    .ghost{background:transparent;color:var(--sage);border:1px solid var(--line)}
+    input[type=text]{
+      font:inherit;width:100%;padding:14px;border-radius:12px;border:1px solid var(--line);
+      background:var(--surface);text-transform:uppercase;letter-spacing:.12em;text-align:center;
+      font-weight:600;margin-bottom:12px;
+    }
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:6px;margin-top:16px}
+    .grid a{display:block;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#e6e0d2}
+    .grid img{width:100%;height:100%;object-fit:cover;display:block}
+    .muted{font-size:13.5px;color:#7c8474}
+    .err{color:#9B4A2F}
+    a.link{color:var(--green)}
+    .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--line);
+      border-top-color:var(--green);border-radius:50%;animation:s .7s linear infinite;vertical-align:-3px}
+    @keyframes s{to{transform:rotate(360deg)}}
+    @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+    footer{margin-top:28px;font-size:13px;color:#7c8474;text-align:center}
+    footer a{color:#7c8474}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="../sharemark.png" alt="" />
+    <span class="wordmark">Share<i>Cam</i></span>
+  </header>
+  <div id="app"><p><span class="spin"></span> Starting…</p></div>
+  <footer>
+    <a href="../face-grouping.html">How face matching works</a> ·
+    <a href="../privacy.html">Privacy</a>
+  </footer>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js';
+import { getFirestore, collection, query, where, limit, getDocs }
+  from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
+import { getFunctions, httpsCallable }
+  from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-functions.js';
+
+// Yüz eşleştirme misafir yüzeyi.
+//
+// UYGULAMANIN İKİLİSİNDE DEĞİL, WEB'DE: coğrafi kapı ancak sunucu IP'siyle
+// kurulabiliyor ve bu sayede ABD yalnız IL/TX/WA hariç açılabiliyor.
+// Sayfanın statik olması bir şey bozmuyor — kararı `faceGateCheck` veriyor,
+// zorlamayı `faceConsentGrant` yapıyor, ikisi de sunucuda.
+// Gerekçe: event-gallery-plan/11-yuz-tanima-rekabet-plani.md §4.
+
+const app = initializeApp({
+  apiKey: 'AIzaSyCEFM3WDbee5oR7jW4JXKF-lhQUCUR9P8c',
+  authDomain: 'sharecam-1997boz.firebaseapp.com',
+  projectId: 'sharecam-1997boz',
+  storageBucket: 'sharecam-1997boz.firebasestorage.app',
+  messagingSenderId: '299822660999',
+  appId: '1:299822660999:ios:7bedf621b740f80d846722',
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+// BÖLGE functions/src/index.ts ile AYNI olmak ZORUNDA; ayrışırsa callable'lar
+// 404 döner ve hata "özellik yok" gibi görünür.
+const fns = getFunctions(app, 'europe-west3');
+const call = (n) => httpsCallable(fns, n);
+
+/**
+ * KİMLİĞİ İSPATLANMIŞ anonim oturum — `web/src/firebase.ts`'in birebir aynısı.
+ * Üç adımın üçü de sahada yaşanmış bir arızanın karşılığı (GuestCam'de aynı akış
+ * 29 rapor üretmişti): (1) kalıcı oturumun okunmasını bekle, (2) oturumu varsayma
+ * ISPATLA, (3) token'ı ilk çağrıdan önce bas.
+ */
+async function ensureAnon() {
+  await auth.authStateReady();
+  const cur = auth.currentUser;
+  if (cur) {
+    try { await cur.getIdToken(); return cur.uid; }
+    catch (e) { if (auth.currentUser) throw e; }
+  }
+  const cred = await signInAnonymously(auth);
+  await cred.user.getIdToken();
+  return cred.user.uid;
+}
+
+const el = document.getElementById('app');
+const h = (s) => { el.innerHTML = s; };
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+let EVENT = null, EVENT_NAME = '';
+
+const codeFromUrl = () =>
+  (new URLSearchParams(location.search).get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+/** Kod → etkinlik. Etkinlik okuması herkese açık (firestore.rules `allow read: if true`). */
+async function resolveCode(code) {
+  const snap = await getDocs(query(collection(db, 'events'), where('code', '==', code), limit(1)));
+  return snap.empty ? null : { id: snap.docs[0].id, name: snap.docs[0].data().name || 'this event' };
+}
+
+function askCode(msg) {
+  h(`<h1>Find your photos</h1>
+     <p>Enter the event code from your invite or table card.</p>
+     ${msg ? `<p class="err">${esc(msg)}</p>` : ''}
+     <input type="text" id="code" maxlength="8" placeholder="ABC123" autocapitalize="characters" />
+     <button class="primary" id="go">Continue</button>`);
+  const go = async () => {
+    const c = document.getElementById('code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length < 4) return;
+    h('<p><span class="spin"></span> Looking up the event…</p>');
+    start(c);
+  };
+  document.getElementById('go').onclick = go;
+  document.getElementById('code').onkeydown = (e) => { if (e.key === 'Enter') go(); };
+}
+
+/** Kapı kapalıyken gösterilen metin — SEBEBİ SÖYLEMEZ (12-hukuk-paketi §3.3). */
+function blocked() {
+  h(`<h1>Not available here</h1>
+     <p>This feature isn't available where you are. Everything else in the album works
+        normally — you can browse, upload and download as usual.</p>
+     <button class="ghost" onclick="location.href='../join/?code=${esc(codeFromUrl())}'">Back to the album</button>`);
+}
+
+/** Rıza ekranı — metin 12-hukuk-paketi.md §3.1. Kısaltmak BIPA §15(b)'yi bozar. */
+function consent() {
+  h(`<h1>Find the photos you're in</h1>
+     <div class="card">
+       <p>To do this we create a <strong>face signature</strong> from your selfie — a
+          mathematical description of your face's geometry. Illinois law calls this a scan of
+          face geometry; EU law calls it biometric data. We treat it as sensitive either way.</p>
+       <p><strong>What happens to it</strong></p>
+       <ul>
+         <li>Your selfie is sent to our servers and to our matching provider, Amazon Web
+             Services, in Frankfurt, Germany.</li>
+         <li>It is compared <strong>only against the photos in this album</strong> — never any
+             other event.</li>
+         <li>The signature from your selfie is <strong>destroyed as soon as the search
+             finishes</strong>, and within <strong>24 hours</strong> at the latest. The selfie is
+             not added to the album.</li>
+         <li>It is never used to train AI, never sold, and never shown to the host or to other
+             guests.</li>
+       </ul>
+       <p><strong>You stay in control.</strong> You can withdraw at any time, which deletes your
+          signature and removes you from any matches. Saying no changes nothing else — you keep
+          full access to the album either way.</p>
+       <label class="check">
+         <input type="checkbox" id="decl" />
+         <span>I confirm I am not located in Illinois, Texas or Washington.</span>
+       </label>
+       <button class="primary" id="agree" disabled>I agree — find my photos</button>
+       <button class="ghost" id="no">No thanks</button>
+       <p class="muted" style="text-align:center;margin:6px 0 0">
+         <a class="link" href="../face-grouping.html">Read the full notice, including how long
+         data is kept and how it is destroyed →</a></p>
+     </div>`);
+  const box = document.getElementById('decl'), ok = document.getElementById('agree');
+  box.onchange = () => { ok.disabled = !box.checked; };
+  document.getElementById('no').onclick = () =>
+    (location.href = `../join/?code=${encodeURIComponent(codeFromUrl())}`);
+  ok.onclick = async () => {
+    ok.disabled = true; ok.textContent = 'One moment…';
+    try {
+      await call('faceConsentGrant')({ eventId: EVENT, declaredOutsideBlockedStates: true });
+      selfie();
+    } catch (e) {
+      h(`<h1>Something went wrong</h1><p class="err">${esc(e.message || e.code)}</p>
+         <button class="ghost" onclick="location.reload()">Try again</button>`);
+    }
+  };
+}
+
+/** Selfie alma. `capture="user"` iOS'ta doğrudan ön kamerayı açar. */
+function selfie(note) {
+  h(`<h1>Take a selfie</h1>
+     <p>Look straight at the camera in decent light. You can retake it as many times as you like.</p>
+     ${note ? `<p class="err">${esc(note)}</p>` : ''}
+     <div class="card">
+       <input type="file" id="file" accept="image/*" capture="user" hidden />
+       <button class="primary" id="shoot">Open camera</button>
+       <button class="ghost" id="pick">Choose a photo instead</button>
+     </div>
+     <p class="muted"><a class="link" href="#" id="wd">I changed my mind — delete my face data</a></p>`);
+  const file = document.getElementById('file');
+  document.getElementById('shoot').onclick = () => { file.setAttribute('capture', 'user'); file.click(); };
+  document.getElementById('pick').onclick = () => { file.removeAttribute('capture'); file.click(); };
+  document.getElementById('wd').onclick = async (e) => {
+    e.preventDefault();
+    h('<p><span class="spin"></span> Deleting…</p>');
+    try { await call('faceConsentWithdraw')({ eventId: EVENT }); } catch {}
+    h(`<h1>Done</h1><p>Your face signature has been deleted and you've been removed from any
+        matches. You can turn this back on any time.</p>
+       <button class="ghost" onclick="location.reload()">Start over</button>`);
+  };
+  file.onchange = async () => { if (file.files?.[0]) search(file.files[0]); };
+}
+
+/**
+ * Selfie'yi KÜÇÜLTEREK gönderir. base64 boyutu %33 şişiriyor ve Rekognition ham
+ * bayt için 5 MB kabul ediyor — 1024px/JPEG 0.9 hem sınırın çok altında hem
+ * eşleşme için fazlasıyla yeterli.
+ */
+async function shrink(fileObj) {
+  const bmp = await createImageBitmap(fileObj);
+  const s = Math.min(1, 1024 / Math.max(bmp.width, bmp.height));
+  const c = document.createElement('canvas');
+  c.width = Math.round(bmp.width * s); c.height = Math.round(bmp.height * s);
+  c.getContext('2d').drawImage(bmp, 0, 0, c.width, c.height);
+  const blob = await new Promise((r) => c.toBlob(r, 'image/jpeg', 0.9));
+  const buf = new Uint8Array(await blob.arrayBuffer());
+  let bin = ''; for (const b of buf) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+async function search(fileObj) {
+  h('<h1>Looking…</h1><p><span class="spin"></span> Comparing your selfie with this album.</p>');
+  try {
+    const b64 = await shrink(fileObj);
+    const { data } = await call('faceSearch')({ eventId: EVENT, selfie: b64 });
+    if (data.noFaceInSelfie) return selfie("We couldn't find a face in that picture. Try again with better light.");
+    const m = data.matches || [];
+    if (!m.length) {
+      return h(`<h1>No photos yet</h1>
+        <p>We couldn't find you in ${esc(EVENT_NAME)} yet. More photos may still be uploading —
+           try again later.</p>
+        <button class="ghost" onclick="location.reload()">Try another selfie</button>`);
+    }
+    // IZGARADA ASIL ÇEKİLMEZ: thumbUri (~40 KB) çizilir, asıl yalnız tıklanınca
+    // açılır. Egress dersi (sharecam-firebase-maliyet) burada da geçerli.
+    h(`<h1>Found ${m.length} photo${m.length > 1 ? 's' : ''}</h1>
+       <p>These are the photos you appear in. Tap one to open it full size.</p>
+       <div class="grid">${m.map((x) =>
+         `<a href="${esc(x.uri)}" target="_blank" rel="noopener">
+            <img src="${esc(x.thumbUri || x.uri)}" alt="" loading="lazy" /></a>`).join('')}</div>
+       <p class="muted" style="margin-top:18px">
+         <a class="link" href="#" id="again">Try another selfie</a> ·
+         <a class="link" href="../join/?code=${esc(codeFromUrl())}">Back to the album</a></p>`);
+    document.getElementById('again').onclick = (e) => { e.preventDefault(); selfie(); };
+  } catch (e) {
+    const code = String(e.message || e.code || '');
+    if (code.includes('consent-required')) return consent();
+    h(`<h1>Something went wrong</h1><p class="err">${esc(code)}</p>
+       <button class="ghost" onclick="location.reload()">Try again</button>`);
+  }
+}
+
+async function start(code) {
+  try {
+    await ensureAnon();
+    const ev = await resolveCode(code);
+    if (!ev) return askCode('No event found with that code. Check it and try again.');
+    EVENT = ev.id; EVENT_NAME = ev.name;
+    history.replaceState(null, '', `?code=${encodeURIComponent(code)}`);
+
+    // Kapı rıza ekranı AÇILMADAN önce sorulur: kimse rıza vermeye davet edilip
+    // sonra reddedilmez. Aynı çağrı fonksiyonu ısıtır (soğuk başlangıç ~4 sn).
+    const { data } = await call('faceGateCheck')({});
+    data.allowed ? consent() : blocked();
+  } catch (e) {
+    h(`<h1>Something went wrong</h1><p class="err">${esc(e.message || e.code)}</p>
+       <button class="ghost" onclick="location.reload()">Try again</button>`);
+  }
+}
+
+const c0 = codeFromUrl();
+c0 ? start(c0) : askCode();
+</script>
+</body>
+</html>
