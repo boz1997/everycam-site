@@ -265,9 +265,15 @@ function render(item) {
     // geçiş tetikleniyor, ve görünürlükten bağımsız çalışıyor.
     void img.offsetWidth;
     img.classList.add('on');
+    // GEÇİŞE BEL BAĞLAMA. Sekme arka plandayken CSS geçişi ilerlemiyor ve kare
+    // opacity:0'da takılı kalabiliyor — duvar için bu siyah ekran demek. Geçiş
+    // süresi dolduktan sonra son durumu sabitliyoruz: geçiş çalıştıysa işlemsiz,
+    // çalışmadıysa kare görünür hâle geliyor.
+    setTimeout(() => { if (showing === img) img.style.opacity = '1'; }, 1000);
     bg.style.backgroundImage = `url("${item.uri}")`;
     if (showing && showing !== img) {
       const old = showing;
+      old.style.opacity = '';
       old.classList.remove('on');
       setTimeout(() => old.remove(), 1000);
     }
