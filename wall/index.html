@@ -259,45 +259,38 @@ async function start(code) {
     const name = ev.data().name || 'ShareCam';
     const joinUrl = `${location.origin}/e/${code}`;
 
-    // Etkinlik dokümanı CANLI dinlenir: host duvarı satın alır ya da modu
-    // değiştirirse ekran kendiliğinden doğru hâle gelir, kimse TV'ye koşmaz.
-    onSnapshot(doc(db, 'events', eventId), (d) => {
-      const data = d.data() || {};
-      if (data.wallPurchased !== true || (data.mode ?? 'open') !== 'open') {
+    // DURUM TEK YERDEN YÖNETİLİR.
+    //
+    // Kuralın reddetmesine GÜVENMEK YETMEZ: `isActiveGuest()` de medyayı
+    // okutuyor, yani albüme katılmış biri /wall/ açtığında eklenti alınmamış
+    // olsa bile kareler çiziliyordu (testte bizzat görüldü — ekranda hem
+    // tanıtım hem duvar vardı). Kural GÜVENLİK kapısı, bu ise ÜRÜN kapısı;
+    // ikisi de gerekli.
+    let enabled = false;
+    let rows = [];
+
+    function apply() {
+      if (!enabled) {
         if (timer) { clearInterval(timer); timer = null; }
-        stage.innerHTML = ''; showing = null; bg.style.backgroundImage = '';
-        promo(name, code);
+        stage.innerHTML = '';
+        showing = null;
+        bg.style.backgroundImage = '';
+        document.getElementById('corner')?.remove();
+        photos = [];
+        return promo(name, code);
       }
-    });
-
-    // MEDYA CANLI DİNLENİR, YOKLANMAZ. Duvar saatlerce açık kalıyor; 6 sn'de bir
-    // tam koleksiyon okumak tek TV'den binlerce okuma demekti
-    // (sharecam-firebase-maliyet dersi).
-    onSnapshot(
-      collection(db, 'events', eventId, 'media'),
-      (qs) => {
-        const rows = [];
-        qs.forEach((m) => {
-          const x = m.data();
-          // Gizlenen kare ANINDA düşer — ön onay yok, ama host telefonundan
-          // gizlediği an duvardan kaybolur (13-canli-duvar-plani.md §5).
-          if (x.hidden === true) return;
-          // Video oynatılmaz: sesli video düğün salonunda kaza olur. Posteri
-          // varsa o çizilir, yoksa kare atlanır.
-          if (x.kind === 'video') {
-            if (x.thumbUri) rows.push({ id: m.id, uri: x.thumbUri });
-            return;
-          }
-          rows.push({ id: m.id, uri: x.uri });
-        });
-        rows.sort((a, b) => (a.id < b.id ? -1 : 1));
-        const wasEmpty = photos.length === 0;
-        photos = rows;
-
-        if (photos.length === 0) { if (timer) clearInterval(timer); timer = null; return emptyState(name, code, joinUrl); }
-        if (wasEmpty) {
-          ui.style.display = 'none';
-          document.getElementById('corner')?.remove();
+      const wasEmpty = photos.length === 0;
+      photos = rows;
+      if (photos.length === 0) {
+        if (timer) { clearInterval(timer); timer = null; }
+        stage.innerHTML = '';
+        showing = null;
+        document.getElementById('corner')?.remove();
+        return emptyState(name, code, joinUrl);
+      }
+      if (wasEmpty) {
+        ui.style.display = 'none';
+        if (!document.getElementById('corner')) {
           const corner = document.createElement('div');
           corner.id = 'corner';
           corner.innerHTML =
@@ -307,11 +300,47 @@ async function start(code) {
              <div id="qr"></div>`;
           document.body.appendChild(corner);
           drawQr(document.getElementById('qr'), joinUrl);
-          idx = -1; next(); startLoop();
         }
+        idx = -1;
+        next();
+        startLoop();
+      }
+    }
+
+    // Etkinlik dokümanı CANLI dinlenir: host duvarı satın alır ya da modu
+    // değiştirirse ekran kendiliğinden doğru hâle gelir, kimse TV'ye koşmaz.
+    onSnapshot(doc(db, 'events', eventId), (d) => {
+      const data = d.data() || {};
+      enabled = data.wallPurchased === true && (data.mode ?? 'open') === 'open';
+      apply();
+    });
+
+    // MEDYA CANLI DİNLENİR, YOKLANMAZ. Duvar saatlerce açık kalıyor; 6 sn'de bir
+    // tam koleksiyon okumak tek TV'den binlerce okuma demekti
+    // (sharecam-firebase-maliyet dersi).
+    onSnapshot(
+      collection(db, 'events', eventId, 'media'),
+      (qs) => {
+        const list = [];
+        qs.forEach((m) => {
+          const x = m.data();
+          // Gizlenen kare ANINDA düşer — ön onay yok, ama host telefonundan
+          // gizlediği an duvardan kaybolur (13-canli-duvar-plani.md §5).
+          if (x.hidden === true) return;
+          // Video oynatılmaz: sesli video düğün salonunda kaza olur. Posteri
+          // varsa o çizilir, yoksa kare atlanır.
+          if (x.kind === 'video') {
+            if (x.thumbUri) list.push({ id: m.id, uri: x.thumbUri });
+            return;
+          }
+          list.push({ id: m.id, uri: x.uri });
+        });
+        list.sort((a, b) => (a.id < b.id ? -1 : 1));
+        rows = list;
+        apply();
       },
       // Kural reddederse (satın alınmamış / gizli mod) tanıtıma düş.
-      () => promo(name, code),
+      () => { enabled = false; apply(); },
     );
 
     screenAwake();
