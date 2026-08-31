@@ -247,10 +247,16 @@ let renderSeq = 0;
 function render(item) {
   const mine = ++renderSeq;
   const img = document.createElement('img');
-  img.src = item.uri;
   img.alt = '';
   img.decoding = 'async';
-  img.onload = () => {
+
+  // ⚠️ SIRALAMA KRİTİK: handler'lar `src`ten ÖNCE bağlanır.
+  //
+  // Kare ÖNBELLEKTEYSE yükleme, src atandığı anda biter; handler sonra bağlanırsa
+  // `onload` HİÇ çalışmaz, `.on` eklenmez ve ekran SİYAH kalır. Sonucu şuydu:
+  // duvar ilk açılışta çalışıyor, her YENİLEMEDE ölüyordu — mekânda tarayıcı bir
+  // kez yenilenirse gece biterdi. `complete` kontrolü ikinci emniyet.
+  const shown = () => {
     if (mine !== renderSeq) { img.remove(); return; } // geçildi, sessizce çekil
     // rAF KULLANMA: sekme arka plandayken requestAnimationFrame çalışmıyor,
     // yani `.on` hiç eklenmiyor ve ekran SİYAH kalıyor (testte görüldü).
@@ -269,8 +275,14 @@ function render(item) {
   };
   // Kare inmezse SIRAYI TIKAMAZ: atla, sonrakine geç. Duvar saatlerce açık
   // kalıyor, tek bir bozuk dosya gecenin geri kalanını dondurmamalı.
-  img.onerror = () => { img.remove(); if (mine === renderSeq) next(); };
+  const failed = () => { img.remove(); if (mine === renderSeq) next(); };
+
+  img.onload = shown;
+  img.onerror = failed;
   stage.appendChild(img);
+  img.src = item.uri;
+  // Önbellekten anında geldiyse onload bağlanmadan bitmiş olabilir.
+  if (img.complete) (img.naturalWidth > 0 ? shown : failed)();
 }
 
 function next() {
