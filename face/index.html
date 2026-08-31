@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -67,7 +67,7 @@
     <img src="../sharemark.png" alt="" />
     <span class="wordmark">Share<i>Cam</i></span>
   </header>
-  <div id="app"><p><span class="spin"></span> Starting…</p></div>
+  <div id="app"><p><span class="spin"></span> <span id="boot"></span></p></div>
   <footer>
     <a href="../face-grouping.html">How face matching works</a> ·
     <a href="../privacy.html">Privacy</a>
@@ -81,6 +81,9 @@ import { getFirestore, collection, query, where, limit, getDocs }
   from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
 import { getFunctions, httpsCallable }
   from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-functions.js';
+import { doc, setDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
+import { LANG, tr } from './i18n.js';
 
 // Yüz eşleştirme misafir yüzeyi.
 //
@@ -138,15 +141,15 @@ async function resolveCode(code) {
 }
 
 function askCode(msg) {
-  h(`<h1>Find your photos</h1>
-     <p>Enter the event code from your invite or table card.</p>
+  h(`<h1>${esc(tr('codeTitle'))}</h1>
+     <p>${esc(tr('codeHint'))}</p>
      ${msg ? `<p class="err">${esc(msg)}</p>` : ''}
      <input type="text" id="code" maxlength="8" placeholder="ABC123" autocapitalize="characters" />
-     <button class="primary" id="go">Continue</button>`);
+     <button class="primary" id="go">${esc(tr('codeGo'))}</button>`);
   const go = async () => {
     const c = document.getElementById('code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     if (c.length < 4) return;
-    h('<p><span class="spin"></span> Looking up the event…</p>');
+    h(`<p><span class="spin"></span> ${esc(tr('lookingUp'))}</p>`);
     start(c);
   };
   document.getElementById('go').onclick = go;
@@ -155,43 +158,32 @@ function askCode(msg) {
 
 /** Kapı kapalıyken gösterilen metin — SEBEBİ SÖYLEMEZ (12-hukuk-paketi §3.3). */
 function blocked() {
-  h(`<h1>Not available here</h1>
-     <p>This feature isn't available where you are. Everything else in the album works
-        normally — you can browse, upload and download as usual.</p>
-     <button class="ghost" onclick="location.href='../join/?code=${esc(codeFromUrl())}'">Back to the album</button>`);
+  h(`<h1>${esc(tr('blockedTitle'))}</h1>
+     <p>${esc(tr('blockedBody'))}</p>
+     <button class="ghost" onclick="location.href='../join/?code=${esc(codeFromUrl())}'">${esc(tr('backToAlbum'))}</button>`);
 }
 
 /** Rıza ekranı — metin 12-hukuk-paketi.md §3.1. Kısaltmak BIPA §15(b)'yi bozar. */
 function consent() {
-  h(`<h1>Find the photos you're in</h1>
+  h(`<h1>${esc(tr('consentTitle'))}</h1>
      <div class="card">
-       <p>To do this we create a <strong>face signature</strong> from your selfie — a
-          mathematical description of your face's geometry. Illinois law calls this a scan of
-          face geometry; EU law calls it biometric data. We treat it as sensitive either way.</p>
-       <p><strong>What happens to it</strong></p>
+       <p>${tr('consentIntro')}</p>
+       <p><strong>${esc(tr('consentWhat'))}</strong></p>
        <ul>
-         <li>Your selfie is sent to our servers and to our matching provider, Amazon Web
-             Services, in Frankfurt, Germany.</li>
-         <li>It is compared <strong>only against the photos in this album</strong> — never any
-             other event.</li>
-         <li>The signature from your selfie is <strong>destroyed as soon as the search
-             finishes</strong>, and within <strong>24 hours</strong> at the latest. The selfie is
-             not added to the album.</li>
-         <li>It is never used to train AI, never sold, and never shown to the host or to other
-             guests.</li>
+         <li>${tr('consentWhere')}</li>
+         <li>${tr('consentScope')}</li>
+         <li>${tr('consentDestroy')}</li>
+         <li>${tr('consentNever')}</li>
        </ul>
-       <p><strong>You stay in control.</strong> You can withdraw at any time, which deletes your
-          signature and removes you from any matches. Saying no changes nothing else — you keep
-          full access to the album either way.</p>
+       <p>${tr('consentControl')}</p>
        <label class="check">
          <input type="checkbox" id="decl" />
-         <span>I confirm I am not located in Illinois, Texas or Washington.</span>
+         <span>${esc(tr('declare'))}</span>
        </label>
-       <button class="primary" id="agree" disabled>I agree — find my photos</button>
-       <button class="ghost" id="no">No thanks</button>
+       <button class="primary" id="agree" disabled>${esc(tr('agree'))}</button>
+       <button class="ghost" id="no">${esc(tr('decline'))}</button>
        <p class="muted" style="text-align:center;margin:6px 0 0">
-         <a class="link" href="../face-grouping.html">Read the full notice, including how long
-         data is kept and how it is destroyed →</a></p>
+         <a class="link" href="../face-grouping.html">${esc(tr('readNotice'))}</a></p>
      </div>`);
   const box = document.getElementById('decl'), ok = document.getElementById('agree');
   box.onchange = () => { ok.disabled = !box.checked; };
@@ -203,33 +195,32 @@ function consent() {
       await call('faceConsentGrant')({ eventId: EVENT, declaredOutsideBlockedStates: true });
       selfie();
     } catch (e) {
-      h(`<h1>Something went wrong</h1><p class="err">${esc(e.message || e.code)}</p>
-         <button class="ghost" onclick="location.reload()">Try again</button>`);
+      h(`<h1>${esc(tr('oops'))}</h1><p class="err">${esc(e.message || e.code)}</p>
+         <button class="ghost" onclick="location.reload()">${esc(tr('retry'))}</button>`);
     }
   };
 }
 
 /** Selfie alma. `capture="user"` iOS'ta doğrudan ön kamerayı açar. */
 function selfie(note) {
-  h(`<h1>Take a selfie</h1>
-     <p>Look straight at the camera in decent light. You can retake it as many times as you like.</p>
+  h(`<h1>${esc(tr('selfieTitle'))}</h1>
+     <p>${esc(tr('selfieHint'))}</p>
      ${note ? `<p class="err">${esc(note)}</p>` : ''}
      <div class="card">
        <input type="file" id="file" accept="image/*" capture="user" hidden />
-       <button class="primary" id="shoot">Open camera</button>
-       <button class="ghost" id="pick">Choose a photo instead</button>
+       <button class="primary" id="shoot">${esc(tr('shoot'))}</button>
+       <button class="ghost" id="pick">${esc(tr('pick'))}</button>
      </div>
-     <p class="muted"><a class="link" href="#" id="wd">I changed my mind — delete my face data</a></p>`);
+     <p class="muted"><a class="link" href="#" id="wd">${esc(tr('withdrawLink'))}</a></p>`);
   const file = document.getElementById('file');
   document.getElementById('shoot').onclick = () => { file.setAttribute('capture', 'user'); file.click(); };
   document.getElementById('pick').onclick = () => { file.removeAttribute('capture'); file.click(); };
   document.getElementById('wd').onclick = async (e) => {
     e.preventDefault();
-    h('<p><span class="spin"></span> Deleting…</p>');
+    h(`<p><span class="spin"></span> ${esc(tr('withdrawing'))}</p>`);
     try { await call('faceConsentWithdraw')({ eventId: EVENT }); } catch {}
-    h(`<h1>Done</h1><p>Your face signature has been deleted and you've been removed from any
-        matches. You can turn this back on any time.</p>
-       <button class="ghost" onclick="location.reload()">Start over</button>`);
+    h(`<h1>${esc(tr('withdrewTitle'))}</h1><p>${esc(tr('withdrewBody'))}</p>
+       <button class="ghost" onclick="location.reload()">${esc(tr('startOver'))}</button>`);
   };
   file.onchange = async () => { if (file.files?.[0]) search(file.files[0]); };
 }
@@ -252,33 +243,32 @@ async function shrink(fileObj) {
 }
 
 async function search(fileObj) {
-  h('<h1>Looking…</h1><p><span class="spin"></span> Comparing your selfie with this album.</p>');
+  h('<h1>${esc(tr('searching'))}</h1><p><span class="spin"></span> ${esc(tr('searchingSub'))}</p>');
   try {
     const b64 = await shrink(fileObj);
     const { data } = await call('faceSearch')({ eventId: EVENT, selfie: b64 });
-    if (data.noFaceInSelfie) return selfie("We couldn't find a face in that picture. Try again with better light.");
+    if (data.noFaceInSelfie) return selfie(tr('noFace'));
     const m = data.matches || [];
     if (!m.length) {
-      return h(`<h1>No photos yet</h1>
-        <p>We couldn't find you in ${esc(EVENT_NAME)} yet. More photos may still be uploading —
-           try again later.</p>
-        <button class="ghost" onclick="location.reload()">Try another selfie</button>`);
+      return h(`<h1>${esc(tr('noneTitle'))}</h1>
+        <p>${esc(tr('noneBody', { event: EVENT_NAME }))}</p>
+        <button class="ghost" onclick="location.reload()">${esc(tr('tryAnother'))}</button>`);
     }
     // IZGARADA ASIL ÇEKİLMEZ: thumbUri (~40 KB) çizilir, asıl yalnız tıklanınca
     // açılır. Egress dersi (sharecam-firebase-maliyet) burada da geçerli.
     const canShare = typeof navigator.canShare === 'function'
       && navigator.canShare({ files: [new File([new Blob()], 'a.jpg', { type: 'image/jpeg' })] });
-    h(`<h1>Found ${m.length} photo${m.length > 1 ? 's' : ''}</h1>
-       <p>These are the photos you appear in. Tap one to open it full size.</p>
-       ${canShare ? '<button class="primary" id="save">Save all to Photos</button>' : ''}
-       <button class="${canShare ? 'ghost' : 'primary'}" id="zip">Download all as a ZIP</button>
+    h(`<h1>${esc(m.length === 1 ? tr('foundOne') : tr('foundMany', { n: m.length }))}</h1>
+       <p>${esc(tr('foundSub'))}</p>
+       ${canShare ? '<button class="primary" id="save">${esc(tr('saveAll'))}</button>' : ''}
+       <button class="${canShare ? 'ghost' : 'primary'}" id="zip">${esc(tr('zip'))}</button>
        <p class="muted" id="dl"></p>
        <div class="grid">${m.map((x) =>
          `<a href="${esc(x.uri)}" target="_blank" rel="noopener">
             <img src="${esc(x.thumbUri || x.uri)}" alt="" loading="lazy" /></a>`).join('')}</div>
        <p class="muted" style="margin-top:18px">
-         <a class="link" href="#" id="again">Try another selfie</a> ·
-         <a class="link" href="../join/?code=${esc(codeFromUrl())}">Back to the album</a></p>`);
+         <a class="link" href="#" id="again">${esc(tr('tryAnother'))}</a> ·
+         <a class="link" href="../join/?code=${esc(codeFromUrl())}">${esc(tr('backToAlbum'))}</a></p>`);
     document.getElementById('again').onclick = (e) => { e.preventDefault(); selfie(); };
 
     const note = document.getElementById('dl');
@@ -293,7 +283,7 @@ async function search(fileObj) {
       try {
         const files = [];
         for (let i = 0; i < m.length; i++) {
-          note.textContent = `Preparing ${i + 1} of ${m.length}…`;
+          note.textContent = tr('preparing', { i: i + 1, n: m.length });
           const b = await (await fetch(m[i].uri)).blob();
           files.push(new File([b], `sharecam-${i + 1}.jpg`, { type: b.type || 'image/jpeg' }));
         }
@@ -301,42 +291,55 @@ async function search(fileObj) {
         await navigator.share({ files });
       } catch (e) {
         // Kullanıcı paylaşım sayfasını kapatırsa AbortError gelir — hata değil.
-        note.textContent = String(e?.name) === 'AbortError' ? '' : "Couldn't save. Try the ZIP instead.";
+        note.textContent = String(e?.name) === 'AbortError' ? '' : tr('saveFail');
       }
       saveBtn.disabled = false;
     };
 
     const zipBtn = document.getElementById('zip');
     zipBtn.onclick = async () => {
-      zipBtn.disabled = true; note.textContent = 'Building your ZIP…';
+      zipBtn.disabled = true; note.textContent = tr('zipBuilding');
       try {
         const { data } = await call('createMyPhotosZip')({ eventId: EVENT, mediaIds: m.map((x) => x.id) });
-        note.textContent = `${data.count} photos ready.`;
+        note.textContent = tr('zipReady', { n: data.count });
         // ZIP'te `download` niteliğine gerek yok: içerik tipi application/zip
         // olduğu için tarayıcı sekmede açmaz, indirir.
         location.href = data.url;
       } catch (e) {
         const msg = String(e.message || e.code || '');
         note.textContent = msg.includes('Downloads are off')
-          ? 'The host has turned downloads off for this album.'
-          : "Couldn't build the ZIP. Try again.";
+          ? tr('zipOff')
+          : tr('zipFail');
       }
       zipBtn.disabled = false;
     };
   } catch (e) {
     const code = String(e.message || e.code || '');
     if (code.includes('consent-required')) return consent();
-    h(`<h1>Something went wrong</h1><p class="err">${esc(code)}</p>
-       <button class="ghost" onclick="location.reload()">Try again</button>`);
+    h(`<h1>${esc(tr('oops'))}</h1><p class="err">${esc(code)}</p>
+       <button class="ghost" onclick="location.reload()">${esc(tr('retry'))}</button>`);
   }
 }
 
 async function start(code) {
   try {
-    await ensureAnon();
+    const uid = await ensureAnon();
     const ev = await resolveCode(code);
-    if (!ev) return askCode('No event found with that code. Check it and try again.');
+    if (!ev) return askCode(tr('codeBad'));
     EVENT = ev.id; EVENT_NAME = ev.name;
+
+    // ZIP ÜYELİK İSTER (createMyPhotosZip: host ya da ban'sız misafir). Galeriden
+    // gelen zaten misafirdir; doğrudan bu adrese gelen DEĞİLDİ ve indirme
+    // "Not a participant" ile düşüyordu. Sessizce katıl: isim sormuyoruz çünkü
+    // burada kimse fotoğraf YÜKLEMİYOR — isim yükleyenin kim olduğunu göstermek
+    // için var. Kayıt zaten varsa merge hiçbir şeyi bozmaz.
+    try {
+      await setDoc(
+        doc(db, 'events', EVENT, 'guests', uid),
+        { uid, name: tr('guestName'), joinedAt: Date.now(), banned: false },
+        { merge: true },
+      );
+    } catch { /* kota dolu ya da katılım kapalı: arama yine çalışır, ZIP çalışmaz */ }
     history.replaceState(null, '', `?code=${encodeURIComponent(code)}`);
 
     // Kapı rıza ekranı AÇILMADAN önce sorulur: kimse rıza vermeye davet edilip
@@ -344,10 +347,13 @@ async function start(code) {
     const { data } = await call('faceGateCheck')({});
     data.allowed ? consent() : blocked();
   } catch (e) {
-    h(`<h1>Something went wrong</h1><p class="err">${esc(e.message || e.code)}</p>
-       <button class="ghost" onclick="location.reload()">Try again</button>`);
+    h(`<h1>${esc(tr('oops'))}</h1><p class="err">${esc(e.message || e.code)}</p>
+       <button class="ghost" onclick="location.reload()">${esc(tr('retry'))}</button>`);
   }
 }
+
+document.documentElement.lang = LANG;
+document.getElementById('boot').textContent = tr('starting');
 
 const c0 = codeFromUrl();
 c0 ? start(c0) : askCode();
