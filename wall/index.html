@@ -235,20 +235,34 @@ let showing = null;
 const seen = new Set();
 let fresh = [];
 
+/**
+ * AYNI ANDA İKİ KARE YÜKLENEBİLİR — zamanlayıcı bir sonrakini isterken yeni bir
+ * fotoğraf gelip sırayı atlatabiliyor. Korumasız hâlde hangisi SONRA yüklenirse
+ * diğerini "eski" sanıp siliyordu ve ekran siyah kalıyordu (testte görüldü).
+ * Sıra numarası: yalnız EN SON istenen kare ekrana yazabilir.
+ */
+let renderSeq = 0;
+
 function render(item) {
+  const mine = ++renderSeq;
   const img = document.createElement('img');
   img.src = item.uri;
   img.alt = '';
   img.decoding = 'async';
   img.onload = () => {
+    if (mine !== renderSeq) { img.remove(); return; } // geçildi, sessizce çekil
     requestAnimationFrame(() => img.classList.add('on'));
     bg.style.backgroundImage = `url("${item.uri}")`;
-    if (showing) { const old = showing; old.classList.remove('on'); setTimeout(() => old.remove(), 1000); }
+    if (showing && showing !== img) {
+      const old = showing;
+      old.classList.remove('on');
+      setTimeout(() => old.remove(), 1000);
+    }
     showing = img;
   };
   // Kare inmezse SIRAYI TIKAMAZ: atla, sonrakine geç. Duvar saatlerce açık
   // kalıyor, tek bir bozuk dosya gecenin geri kalanını dondurmamalı.
-  img.onerror = () => { img.remove(); next(); };
+  img.onerror = () => { img.remove(); if (mine === renderSeq) next(); };
   stage.appendChild(img);
 }
 
