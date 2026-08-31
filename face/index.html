@@ -243,7 +243,7 @@ async function shrink(fileObj) {
 }
 
 async function search(fileObj) {
-  h('<h1>${esc(tr('searching'))}</h1><p><span class="spin"></span> ${esc(tr('searchingSub'))}</p>');
+  h(`<h1>${esc(tr('searching'))}</h1><p><span class="spin"></span> ${esc(tr('searchingSub'))}</p>`);
   try {
     const b64 = await shrink(fileObj);
     const { data } = await call('faceSearch')({ eventId: EVENT, selfie: b64 });
@@ -260,7 +260,7 @@ async function search(fileObj) {
       && navigator.canShare({ files: [new File([new Blob()], 'a.jpg', { type: 'image/jpeg' })] });
     h(`<h1>${esc(m.length === 1 ? tr('foundOne') : tr('foundMany', { n: m.length }))}</h1>
        <p>${esc(tr('foundSub'))}</p>
-       ${canShare ? '<button class="primary" id="save">${esc(tr('saveAll'))}</button>' : ''}
+       ${canShare ? `<button class="primary" id="save">${esc(tr('saveAll'))}</button>` : ''}
        <button class="${canShare ? 'ghost' : 'primary'}" id="zip">${esc(tr('zip'))}</button>
        <p class="muted" id="dl"></p>
        <div class="grid">${m.map((x) =>
