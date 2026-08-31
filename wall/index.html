@@ -269,7 +269,13 @@ function render(item) {
     // opacity:0'da takılı kalabiliyor — duvar için bu siyah ekran demek. Geçiş
     // süresi dolduktan sonra son durumu sabitliyoruz: geçiş çalıştıysa işlemsiz,
     // çalışmadıysa kare görünür hâle geliyor.
-    setTimeout(() => { if (showing === img) img.style.opacity = '1'; }, 1000);
+    setTimeout(() => {
+      if (showing !== img) return;
+      // Geçişi de kapat: inline opacity yazmak yeni bir geçiş başlatıyor ve o da
+      // aynı sebeple ilerlemiyordu. Sonuç anında yazılmalı.
+      img.style.transition = 'none';
+      img.style.opacity = '1';
+    }, 1000);
     bg.style.backgroundImage = `url("${item.uri}")`;
     if (showing && showing !== img) {
       const old = showing;
