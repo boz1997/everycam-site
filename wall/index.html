@@ -221,6 +221,20 @@ let idx = 0;
 let timer = null;
 let showing = null;
 
+/**
+ * YENİ KARE SIRAYA GİRMEZ, ÖNE GEÇER.
+ *
+ * Duvarın tek değeri geri besleme döngüsü: misafir yükler, ekranda görür, yan
+ * masa da tarar (13-canli-duvar-plani.md §2). Sıraya girseydi 51 karede tam tur
+ * ~5 dakika, 500 karelik bir düğünde **50 dakika** sürerdi — kimse o kadar
+ * beklemez ve döngü hiç kurulmaz.
+ *
+ * `seen` ilk yüklemede tüm mevcut kareleri işaretler: açılışta 500 karenin
+ * hepsi "yeni" sayılıp kuyruğa dolmasın.
+ */
+const seen = new Set();
+let fresh = [];
+
 function render(item) {
   const img = document.createElement('img');
   img.src = item.uri;
@@ -240,6 +254,15 @@ function render(item) {
 
 function next() {
   if (photos.length === 0) return;
+  // Önce bekleyen yeni kareler; yoksa normal döngü kaldığı yerden.
+  const item = fresh.shift();
+  if (item) {
+    const at = photos.findIndex((p) => p.id === item.id);
+    if (at >= 0) idx = at; // döngü yeni kareden devam etsin, başa sarmasın
+    render(item);
+    startLoop(); // yeni kare de tam süreyi görsün
+    return;
+  }
   idx = (idx + 1) % photos.length;
   render(photos[idx]);
 }
@@ -336,8 +359,23 @@ async function start(code) {
           list.push({ id: m.id, uri: x.uri });
         });
         list.sort((a, b) => (a.id < b.id ? -1 : 1));
+
+        // İlk anlık görüntüde her şey "yeni"dir — kuyruğa DOLDURMA, yalnız işaretle.
+        if (seen.size === 0) {
+          for (const r of list) seen.add(r.id);
+        } else {
+          for (const r of list) {
+            if (!seen.has(r.id)) { seen.add(r.id); fresh.push(r); }
+          }
+        }
+        // Silinen/gizlenen kare kuyrukta kalmasın.
+        const live = new Set(list.map((r) => r.id));
+        fresh = fresh.filter((r) => live.has(r.id));
+
         rows = list;
         apply();
+        // Yeni kare geldiyse BEKLETME: sıradaki geçişi beklemeden ekrana al.
+        if (fresh.length && enabled && photos.length) next();
       },
       // Kural reddederse (satın alınmamış / gizli mod) tanıtıma düş.
       () => { enabled = false; apply(); },
