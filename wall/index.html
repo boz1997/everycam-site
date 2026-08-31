@@ -252,7 +252,13 @@ function render(item) {
   img.decoding = 'async';
   img.onload = () => {
     if (mine !== renderSeq) { img.remove(); return; } // geçildi, sessizce çekil
-    requestAnimationFrame(() => img.classList.add('on'));
+    // rAF KULLANMA: sekme arka plandayken requestAnimationFrame çalışmıyor,
+    // yani `.on` hiç eklenmiyor ve ekran SİYAH kalıyor (testte görüldü).
+    // TV'nin sekmesi bir an arka plana düşse duvar geri gelmezdi. Zorlanmış
+    // reflow aynı işi görüyor: tarayıcı opacity:0 halini boyamış sayılıyor,
+    // geçiş tetikleniyor, ve görünürlükten bağımsız çalışıyor.
+    void img.offsetWidth;
+    img.classList.add('on');
     bg.style.backgroundImage = `url("${item.uri}")`;
     if (showing && showing !== img) {
       const old = showing;
