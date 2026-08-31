@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="robots" content="noindex" />
+  <title>Live wall — ShareCam</title>
+  <link rel="icon" href="../sharemark.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root { --green:#1F3D2E; --cream:#F3EEE2; --gold:#C79A2E; --line:#DCD5C4; --surface:#FFFDF7; }
+    * { box-sizing:border-box }
+    html, body { height:100%; margin:0 }
+    body {
+      background:#0E1310; color:var(--cream);
+      font-family:Inter,-apple-system,system-ui,sans-serif;
+      overflow:hidden;
+    }
+
+    /* ——— duvar ——— */
+    #stage { position:fixed; inset:0; }
+    #stage img {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:contain;
+      opacity:0; transition:opacity 900ms ease;
+    }
+    #stage img.on { opacity:1 }
+    /* Arka planda aynı karenin bulanık kopyası: dikey fotoğraf yan bantlarda
+       siyah boşluk bırakıyor, TV'de kötü duruyor. */
+    #bg {
+      position:fixed; inset:-40px; background-size:cover; background-position:center;
+      filter:blur(46px) brightness(.35); transition:background-image 900ms ease;
+    }
+
+    /* ——— köşe kartı: duvarın kendisi katılım davetidir ——— */
+    #corner {
+      position:fixed; right:28px; bottom:28px;
+      background:rgba(243,238,226,.94); color:#1F3D2E;
+      border-radius:18px; padding:16px 18px;
+      display:flex; align-items:center; gap:16px;
+      box-shadow:0 10px 40px rgba(0,0,0,.35);
+    }
+    #corner .txt { max-width:320px }
+    #corner .ev {
+      font-family:Fraunces,Georgia,serif; font-weight:600; font-size:22px;
+      line-height:1.15; margin:0 0 4px;
+    }
+    #corner .hint { font-size:13.5px; color:#4b5347; margin:0 }
+    #corner .code {
+      font-family:Fraunces,Georgia,serif; font-weight:700; font-size:26px;
+      letter-spacing:.06em; margin:4px 0 0;
+    }
+    #qr { width:104px; height:104px; background:#fff; border-radius:10px; padding:6px }
+    #qr svg, #qr canvas { width:100%; height:100%; display:block }
+
+    /* ——— boş / tanıtım / hata ——— */
+    .center {
+      position:fixed; inset:0; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; gap:14px; padding:40px; text-align:center;
+    }
+    .center h1 {
+      font-family:Fraunces,Georgia,serif; font-weight:600;
+      font-size:clamp(28px,4.5vw,52px); margin:0; color:var(--cream); text-wrap:balance;
+    }
+    .center p { margin:0; font-size:clamp(15px,1.5vw,20px); color:#b9c0b2; max-width:44ch }
+    .center .bigcode {
+      font-family:Fraunces,Georgia,serif; font-weight:700;
+      font-size:clamp(34px,5vw,64px); letter-spacing:.08em; color:var(--gold);
+    }
+    .center #qrbig { width:min(30vw,240px); aspect-ratio:1; background:#fff; border-radius:16px; padding:12px }
+    .center a { color:var(--gold) }
+    input, button {
+      font:inherit; padding:14px 18px; border-radius:12px; border:1px solid var(--line);
+      background:var(--surface); color:#2B2B2B; min-width:220px; text-align:center;
+    }
+    input { text-transform:uppercase; letter-spacing:.12em; font-weight:600 }
+    button { background:var(--cream); font-weight:600; cursor:pointer; border:none }
+    @media (prefers-reduced-motion:reduce) {
+      #stage img, #bg { transition:none }
+    }
+  </style>
+</head>
+<body>
+  <div id="bg"></div>
+  <div id="stage"></div>
+  <div id="ui" class="center"><h1>Starting…</h1></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-app.js';
+import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-auth.js';
+import { getFirestore, collection, query, where, limit, getDocs, doc, onSnapshot }
+  from 'https://www.gstatic.com/firebasejs/12.17.0/firebase-firestore.js';
+import { toQR } from './toqr.mjs';
+
+// CANLI DUVAR — mekânın TV'si / projeksiyonu bu sayfayı açar.
+//
+// Kapı SUNUCUDA: `events/{id}.wallPurchased == true` VE `mode == 'open'`
+// (firestore.rules > isWallViewer). URL'i gizli tutmaya çalışmak anlamsız —
+// kod zaten her masadaki kartın üstünde. Satın alınmamışsa kural medyayı
+// okutmaz ve sayfa tanıtıma düşer.
+//
+// MİSAFİR KOTASINI TÜKETMEZ: burada misafir dokümanı YAZILMAZ, yani
+// `activeGuestCount` artmaz. Aksi hâlde tek bir TV, Spark'ın 10 kişilik
+// kotasından yer yerdi.
+//
+// Plan: event-gallery-plan/13-canli-duvar-plani.md
+
+const app = initializeApp({
+  apiKey: 'AIzaSyCEFM3WDbee5oR7jW4JXKF-lhQUCUR9P8c',
+  authDomain: 'sharecam-1997boz.firebaseapp.com',
+  projectId: 'sharecam-1997boz',
+  storageBucket: 'sharecam-1997boz.firebasestorage.app',
+  messagingSenderId: '299822660999',
+  appId: '1:299822660999:ios:7bedf621b740f80d846722',
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const SLIDE_MS = 6000;
+const ui = document.getElementById('ui');
+const stage = document.getElementById('stage');
+const bg = document.getElementById('bg');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+const codeFromUrl = () =>
+  (new URLSearchParams(location.search).get('code') || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+/** `web/src/firebase.ts`'in üç adımı — hepsi sahada yaşanmış bir arızanın karşılığı. */
+async function ensureAnon() {
+  await auth.authStateReady();
+  const cur = auth.currentUser;
+  if (cur) {
+    try { await cur.getIdToken(); return cur.uid; } catch (e) { if (auth.currentUser) throw e; }
+  }
+  const cred = await signInAnonymously(auth);
+  await cred.user.getIdToken();
+  return cred.user.uid;
+}
+
+/**
+ * QR — kütüphane YEREL, üçüncü taraf CDN YOK.
+ *
+ * Duvarın QR'ı katılımın kendisidir (13-canli-duvar-plani.md §2) ve ekran bir
+ * düğün boyunca saatlerce açık kalıyor; onu bir CDN'in ayakta olmasına bağlamak
+ * kabul edilemez. `toqr` (MIT, 13 KB) depoya kopyalandı — lisans yanında.
+ */
+function drawQr(el, text, dark = '#1F3D2E') {
+  try {
+    const m = toQR(text, 1);
+    const n = Math.round(Math.sqrt(m.length));
+    let path = '';
+    for (let r = 0; r < n; r++) {
+      for (let c = 0; c < n; c++) if (m[r * n + c] & 1) path += `M${c} ${r}h1v1h-1z`;
+    }
+    el.innerHTML =
+      `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges">` +
+      `<rect x="-1" y="-1" width="${n + 2}" height="${n + 2}" fill="#fff"/>` +
+      `<path d="${path}" fill="${dark}"/></svg>`;
+  } catch {
+    // QR çizilemezse kutuyu KALDIR — boş beyaz kare bozuk görünür, kod zaten
+    // yanında büyük puntoyla duruyor.
+    el.remove();
+  }
+}
+
+function screenAwake() {
+  // TV tarayıcılarında ve iOS 16.4+'ta var; yoksa sessizce geçilir — özellik
+  // kırılmaz, sadece ekran uyuyabilir.
+  try {
+    navigator.wakeLock?.request('screen').catch(() => {});
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') navigator.wakeLock?.request('screen').catch(() => {});
+    });
+  } catch {}
+}
+
+function promo(name, code) {
+  ui.style.display = 'flex';
+  ui.innerHTML = `
+    <h1>Live wall</h1>
+    <p>Guest photos appear here as they arrive, on any screen with a browser.
+       This album doesn't have the live wall yet — the host can add it in ShareCam.</p>
+    <p class="bigcode">${esc(code)}</p>
+    <p><a href="../">sharecam.app</a></p>`;
+}
+
+function fail(msg) {
+  ui.style.display = 'flex';
+  ui.innerHTML = `<h1>${esc(msg)}</h1><p><a href="../">sharecam.app</a></p>`;
+}
+
+function askCode() {
+  ui.style.display = 'flex';
+  ui.innerHTML = `
+    <h1>Live wall</h1>
+    <p>Enter the event code to start the wall on this screen.</p>
+    <input id="code" maxlength="8" placeholder="ABC123" autocapitalize="characters" />
+    <button id="go">Start</button>`;
+  const go = () => {
+    const c = document.getElementById('code').value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+    if (c.length >= 4) location.search = `?code=${encodeURIComponent(c)}`;
+  };
+  document.getElementById('go').onclick = go;
+  document.getElementById('code').onkeydown = (e) => { if (e.key === 'Enter') go(); };
+}
+
+/** Boş albüm: ekran QR'la beklemede kalır — ilk kareyi çekmeye davet. */
+function emptyState(name, code, joinUrl) {
+  ui.style.display = 'flex';
+  ui.innerHTML = `
+    <h1>${esc(name)}</h1>
+    <p>Scan to add the first photo.</p>
+    <div id="qrbig"></div>
+    <p class="bigcode">${esc(code)}</p>`;
+  drawQr(document.getElementById('qrbig'), joinUrl);
+}
+
+let photos = [];
+let idx = 0;
+let timer = null;
+let showing = null;
+
+function render(item) {
+  const img = document.createElement('img');
+  img.src = item.uri;
+  img.alt = '';
+  img.decoding = 'async';
+  img.onload = () => {
+    requestAnimationFrame(() => img.classList.add('on'));
+    bg.style.backgroundImage = `url("${item.uri}")`;
+    if (showing) { const old = showing; old.classList.remove('on'); setTimeout(() => old.remove(), 1000); }
+    showing = img;
+  };
+  // Kare inmezse SIRAYI TIKAMAZ: atla, sonrakine geç. Duvar saatlerce açık
+  // kalıyor, tek bir bozuk dosya gecenin geri kalanını dondurmamalı.
+  img.onerror = () => { img.remove(); next(); };
+  stage.appendChild(img);
+}
+
+function next() {
+  if (photos.length === 0) return;
+  idx = (idx + 1) % photos.length;
+  render(photos[idx]);
+}
+
+function startLoop() {
+  if (timer) clearInterval(timer);
+  timer = setInterval(next, SLIDE_MS);
+}
+
+async function start(code) {
+  try {
+    await ensureAnon();
+    const snap = await getDocs(query(collection(db, 'events'), where('code', '==', code), limit(1)));
+    if (snap.empty) return fail('No event with that code');
+    const ev = snap.docs[0];
+    const eventId = ev.id;
+    const name = ev.data().name || 'ShareCam';
+    const joinUrl = `${location.origin}/e/${code}`;
+
+    // Etkinlik dokümanı CANLI dinlenir: host duvarı satın alır ya da modu
+    // değiştirirse ekran kendiliğinden doğru hâle gelir, kimse TV'ye koşmaz.
+    onSnapshot(doc(db, 'events', eventId), (d) => {
+      const data = d.data() || {};
+      if (data.wallPurchased !== true || (data.mode ?? 'open') !== 'open') {
+        if (timer) { clearInterval(timer); timer = null; }
+        stage.innerHTML = ''; showing = null; bg.style.backgroundImage = '';
+        promo(name, code);
+      }
+    });
+
+    // MEDYA CANLI DİNLENİR, YOKLANMAZ. Duvar saatlerce açık kalıyor; 6 sn'de bir
+    // tam koleksiyon okumak tek TV'den binlerce okuma demekti
+    // (sharecam-firebase-maliyet dersi).
+    onSnapshot(
+      collection(db, 'events', eventId, 'media'),
+      (qs) => {
+        const rows = [];
+        qs.forEach((m) => {
+          const x = m.data();
+          // Gizlenen kare ANINDA düşer — ön onay yok, ama host telefonundan
+          // gizlediği an duvardan kaybolur (13-canli-duvar-plani.md §5).
+          if (x.hidden === true) return;
+          // Video oynatılmaz: sesli video düğün salonunda kaza olur. Posteri
+          // varsa o çizilir, yoksa kare atlanır.
+          if (x.kind === 'video') {
+            if (x.thumbUri) rows.push({ id: m.id, uri: x.thumbUri });
+            return;
+          }
+          rows.push({ id: m.id, uri: x.uri });
+        });
+        rows.sort((a, b) => (a.id < b.id ? -1 : 1));
+        const wasEmpty = photos.length === 0;
+        photos = rows;
+
+        if (photos.length === 0) { if (timer) clearInterval(timer); timer = null; return emptyState(name, code, joinUrl); }
+        if (wasEmpty) {
+          ui.style.display = 'none';
+          document.getElementById('corner')?.remove();
+          const corner = document.createElement('div');
+          corner.id = 'corner';
+          corner.innerHTML =
+            `<div class="txt"><p class="ev">${esc(name)}</p>
+               <p class="hint">Scan to add your photos</p>
+               <p class="code">${esc(code)}</p></div>
+             <div id="qr"></div>`;
+          document.body.appendChild(corner);
+          drawQr(document.getElementById('qr'), joinUrl);
+          idx = -1; next(); startLoop();
+        }
+      },
+      // Kural reddederse (satın alınmamış / gizli mod) tanıtıma düş.
+      () => promo(name, code),
+    );
+
+    screenAwake();
+  } catch (e) {
+    fail('Something went wrong');
+  }
+}
+
+const c0 = codeFromUrl();
+c0 ? start(c0) : askCode();
+</script>
+</body>
+</html>
