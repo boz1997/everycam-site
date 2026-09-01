@@ -43,11 +43,35 @@ export const storage = getStorage(app);
  * Oturum tarayıcıda kalıcıdır: aynı cihazdan geri dönen misafir kendi
  * karelerini görmeye devam eder.
  */
+/**
+ * KATILIM YAVAŞLIĞI ÖLÇÜMÜ (2026-09-01).
+ *
+ * Berk sahada "Safari'de 1-2 dakika döndü, uygulamada hiç giremedim" bildirdi;
+ * aynı akış geliştirme makinesinde 999 ms sürüyor, yani YENİDEN ÜRETİLEMİYOR.
+ * Tahminle auth yoluna dokunmak tehlikeli: aşağıdaki üç adım, GuestCam'de 29
+ * rapor üreten bir arızanın çözümü. Bu yüzden önce ÖLÇÜYORUZ — hangi adımın
+ * asıldığı bir dahaki sefere kayda geçsin.
+ *
+ * `authStateReady` en güçlü şüpheli: kalıcı oturumu IndexedDB'den okuyor ve
+ * Safari'de (özellikle ITP / gizli sekme) IndexedDB dakikalarca asılabiliyor.
+ * Ama kanıtsız kısaltmıyoruz: zaman aşımı koyup devam etmek, geri dönen misafiri
+ * yeni bir anonim hesapla değiştirme riskini geri getirir.
+ */
+const phases: Record<string, number> = {};
+function phase(name: string, startedAt: number) {
+  phases[name] = Math.round(performance.now() - startedAt);
+}
+export function authPhases(): Record<string, number> {
+  return { ...phases };
+}
+
 export async function ensureAnon(): Promise<string> {
+  const t0 = performance.now();
   // (1) OTURUMUN GERİ YÜKLENMESİNİ BEKLE. QR'dan gelen soğuk açılışta kalıcı
   // oturum henüz IndexedDB'den okunmamış olabilir; eski hâl o anda currentUser'ı
   // null görüp GERİ DÖNEN misafiri yepyeni bir anonim hesapla değiştiriyordu.
   await auth.authStateReady();
+  phase('authStateReady', t0);
 
   // (2) OTURUMU VARSAY DEĞİL, İSPATLA. Bir User nesnesi kimliği öldükten sonra
   // da elde kalır (hesap silinmiş, refresh token iptal edilmiş, yenileme
@@ -58,6 +82,7 @@ export async function ensureAnon(): Promise<string> {
   if (current) {
     try {
       await current.getIdToken();
+      phase('getIdToken', t0);
       return current.uid;
     } catch (e) {
       // HER HATA "kimlik ölmüş" DEĞİLDİR. SDK oturumu yalnız iki kodda düşürüyor
@@ -74,6 +99,8 @@ export async function ensureAnon(): Promise<string> {
   // oluşur oluşmaz çözülüyor; o boşlukta çıkan istek kimliksiz gidiyor ve
   // Firestore permission-denied ile cevaplıyor.
   const cred = await signInAnonymously(auth);
+  phase('signInAnonymously', t0);
   await cred.user.getIdToken();
+  phase('freshToken', t0);
   return cred.user.uid;
 }

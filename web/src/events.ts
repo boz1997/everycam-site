@@ -13,7 +13,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytesResumable } from 'firebase/storage';
-import { db, ensureAnon, storage } from './firebase';
+import { authPhases, db, ensureAnon, storage } from './firebase';
 import { errorCode, logError } from './errorLog';
 import type { EventDoc, MediaDoc, MediaKind } from './types';
 
@@ -114,21 +114,30 @@ export async function joinEvent(
   // joinEvent ASLA fırlatmaz. Buradaki tek korumasız await ekranı sonsuza kadar
   // "Albüme katılıyorsun…" spinner'ında kilitliyordu: confirmName'de try/catch yok
   // ve o fazda çıkış düğmesi de yok, tek kurtuluş sayfayı yenilemek oluyordu.
+  // YAVAŞ KATILIM KAYDA GEÇER. Sahada "1-2 dakika döndü" bildirildi ama
+  // geliştirme makinesinde 999 ms; hangi adımın asıldığını ancak KULLANICININ
+  // cihazından öğrenebiliriz. Eşiği aşan her katılım faz süreleriyle loglanır.
+  const joinStart = performance.now();
+  const elapsed = () => Math.round(performance.now() - joinStart);
+
   let uid: string;
   try {
     uid = await ensureAnon();
   } catch (e) {
+    void logError('join.auth_failed', e, { ms: elapsed(), phases: authPhases() });
     return { result: 'error', uid: '', code: errorCode(e) };
   }
   const guestRef = () => doc(db, 'events', event.id, 'guests', uid);
   const write = () => setDoc(guestRef(), { uid, name, joinedAt: Date.now(), banned: false });
 
+  const afterAuth = elapsed();
   const existing = await getDoc(guestRef()).catch(() => null);
   if (existing?.exists()) {
     const data = existing.data();
     if (data.banned === true) return { result: 'banned', uid };
     // Ad güncellemesi katılımı bloke ETMEMELİ: düşerse misafir yine içeride.
     if (name && data.name !== name) await updateDoc(guestRef(), { name }).catch(() => undefined);
+    reportIfSlow(uid, afterAuth, elapsed());
     return { result: 'ok', uid };
   }
 
@@ -136,6 +145,7 @@ export async function joinEvent(
 
   try {
     await write();
+    reportIfSlow(uid, afterAuth, elapsed());
     return { result: 'ok', uid };
   } catch (first) {
     // Etkinlik dokümanı herkese açık okunur (kural: allow read: if true), yani
@@ -538,4 +548,21 @@ export async function uploadOne(
       throw new UploadError('quota-reached');
     }
   }
+}
+
+
+/** Katılım EŞİĞİ AŞTIYSA kaydet — başarılı da olsa. Yavaşlık sessiz kalmamalı. */
+const SLOW_JOIN_MS = 6000;
+function reportIfSlow(uid: string, afterAuthMs: number, totalMs: number): void {
+  if (totalMs < SLOW_JOIN_MS) return;
+  void logError('join.slow', new Error(`join took ${totalMs}ms`), {
+    uid,
+    totalMs,
+    afterAuthMs,
+    // Faz kırılımı: asılan adım authStateReady mi (Safari/IndexedDB şüphesi),
+    // token tazeleme mi, yoksa Firestore yazması mı — kanıt burada.
+    phases: authPhases(),
+    ua: navigator.userAgent.slice(0, 180),
+    online: navigator.onLine,
+  });
 }
