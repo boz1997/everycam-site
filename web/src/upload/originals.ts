@@ -9,8 +9,20 @@
 // storage.rules `orig/` yolunu yalnız klasör sahibine (uid == ownerId) açar.
 import { doc, getDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytesResumable } from 'firebase/storage';
-import { contentId } from '../events';
 import { db, storage } from '../firebase';
+
+/**
+ * İÇERİK kimliği: ilk 4 MB'ın SHA-256'sı + boyut. Misafir yükleyicisi ad|boyut|mtime
+ * kullanır; fotoğrafçıda o yetmez — Lightroom'dan yeniden export edilen ya da
+ * kopyalanan klasörde mtime değişir ve aynı kare ikinci kez yüklenirdi. 4 MB'lık
+ * hash masaüstünde ~10 ms; aynı içerik = aynı kimlik = medya dokümanı zaten var.
+ */
+export async function originalId(file: File, uid: string): Promise<string> {
+  const head = await file.slice(0, 4 * 1024 * 1024).arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', head);
+  const hex = Array.from(new Uint8Array(digest)).slice(0, 10).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return `o${hex}${file.size.toString(36)}_${uid}`;
+}
 
 // Sunucu (sharp, prebuilt libvips) açabildiği biçimler. HEIC/HEIF BİLEREK yok:
 // HEVC çözücü lisans yüzünden prebuilt sharp'ta bulunmuyor; fotoğrafçı zaten
@@ -50,7 +62,7 @@ export async function uploadOriginal(
   file: File,
   onProgress: (p: number) => void,
 ): Promise<OriginalResult> {
-  const stem = await contentId(file, uid);
+  const stem = await originalId(file, uid);
   const existing = await getDoc(doc(db, 'events', eventId, 'media', stem));
   if (existing.exists()) return 'exists';
 
