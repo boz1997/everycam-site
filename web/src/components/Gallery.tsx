@@ -22,8 +22,9 @@ export function Gallery({ event, uid, media, t, onOpen }: Props) {
         <div className="chip" style={{ marginBottom: 12 }}>
           <IconStack />
         </div>
-        <h3>{t(open ? 'emptyOpenTitle' : 'emptyPrivateTitle')}</h3>
-        <p>{t(open ? 'emptyOpenBody' : 'emptyPrivateBody')}</p>
+        {/* Fotoğrafçı etkinliğinde "ilk sen yükle" YANLIŞ olurdu: misafir yüklemez. */}
+        <h3>{t(event.uploadPolicy === 'host' ? 'emptyProTitle' : open ? 'emptyOpenTitle' : 'emptyPrivateTitle')}</h3>
+        <p>{t(event.uploadPolicy === 'host' ? 'emptyProBody' : open ? 'emptyOpenBody' : 'emptyPrivateBody')}</p>
       </div>
     );
   }

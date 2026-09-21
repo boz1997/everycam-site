@@ -287,7 +287,7 @@ export default function App() {
       </div>
 
       <div className={`banner${event.mode === 'private' ? ' private' : ''}`}>
-        {t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
+        {event.uploadPolicy === 'host' ? t('proBanner') : t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
       </div>
 
       <div className="wrap">
@@ -313,7 +313,8 @@ export default function App() {
         {footer}
       </div>
 
-      <Uploader event={event} uid={uid} name={name.trim()} t={t} />
+      {/* FOTOĞRAFÇI ETKİNLİĞİ: misafir yüklemez (kural da reddeder) — yükleyici çizilmez. */}
+      {event.uploadPolicy !== 'host' && <Uploader event={event} uid={uid} name={name.trim()} t={t} />}
 
       {lightbox !== null && (
         <Lightbox

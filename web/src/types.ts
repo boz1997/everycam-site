@@ -22,6 +22,8 @@ export interface EventDoc {
   photoCount: number;
   videoCount: number;
   planId: string;
+  /** 'host' = fotoğrafçı etkinliği: misafir yüklemez, yalnız görür ve selfie ile arar. */
+  uploadPolicy: 'all' | 'host';
 }
 
 export interface MediaDoc {

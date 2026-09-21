@@ -51,6 +51,9 @@ function toEvent(id: string, d: Record<string, unknown>): EventDoc {
     photoCount: Number(d.photoCount ?? 0),
     videoCount: Number(d.videoCount ?? 0),
     planId: String(d.planId ?? 'spark'),
+    // Sunucu yazar (redeemEventPlan). Yoksa eski kayıt → herkes yükler.
+    // Paket bilgisi web'de YOK (src/plans.ts uygulamada); pro* paket adı yedek.
+    uploadPolicy: d.uploadPolicy === 'host' || (d.uploadPolicy === undefined && String(d.planId ?? '').startsWith('pro')) ? 'host' : 'all',
   };
 }
 
@@ -80,6 +83,12 @@ const GUEST_LIMITS: Record<string, number> = {
   party: 50,
   wedding: 100,
   unlimited: -1,
+  // Fotoğrafçı paketleri: misafir sınırı YOK (herkes selfie ile kendini bulur).
+  pro500: -1,
+  pro1000: -1,
+  pro2000: -1,
+  pro5000: -1,
+  proUnlimited: -1,
 };
 
 function guestLimitReached(d: Record<string, unknown>): boolean {
