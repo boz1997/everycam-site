@@ -379,7 +379,10 @@ async function start(code) {
     // değiştirirse ekran kendiliğinden doğru hâle gelir, kimse TV'ye koşmaz.
     onSnapshot(doc(db, 'events', eventId), (d) => {
       const data = d.data() || {};
-      enabled = (data.planId ?? 'spark') === 'unlimited' && (data.mode ?? 'open') === 'open';
+      // Unlimited + fotoğrafçı paketleri Pro 1000 ve üstü (firestore.rules > planTable 'wall').
+      // Bu liste kuralla AYNI olmak zorunda; sayfa kapıyı yalnız EKRAN için yineler.
+      const WALL_PLANS = ['unlimited', 'pro1000', 'pro2000', 'pro5000', 'proUnlimited'];
+      enabled = WALL_PLANS.includes(data.planId ?? 'spark') && (data.mode ?? 'open') === 'open';
       apply();
     });
 

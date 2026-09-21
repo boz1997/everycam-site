@@ -2,8 +2,15 @@
   "applinks": {
     "details": [
       {
-        "appIDs": ["T29WWHT8TZ.com.berkoz.sharecam"],
+        "appIDs": [
+          "T29WWHT8TZ.com.berkoz.sharecam"
+        ],
         "components": [
+          {
+            "/": "/e/P*",
+            "exclude": true,
+            "comment": "FOTOGRAFCI etkinlikleri (kod P ile baslar, 21 Eyl 2026) her telefonda WEB'de acilir: 1.0.4 oncesi uygulamalar pro paketi tanimaz ve misafiri kapida birakir. Yeni build'ler web'de de ayni deneyimi verir."
+          },
           {
             "/": "/e/*",
             "comment": "Etkinlik davet linkleri uygulamada acilir; diger yollar tarayicida kalir."
