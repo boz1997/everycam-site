@@ -6,8 +6,10 @@ import {
   getDocs,
   limit,
   onSnapshot,
+  orderBy,
   query,
   setDoc,
+  startAfter,
   updateDoc,
   where,
   type Unsubscribe,
@@ -209,6 +211,44 @@ export async function isBanned(eventId: string, uid: string): Promise<boolean> {
  * Beğeni sayıları likes alt koleksiyonundan derleniyor (media dokümanında
  * sayaç tutulmuyor: bir misafir başkasının media dokümanını güncelleyemez).
  */
+/**
+ * SAYFALI galeri — fotoğrafçı etkinliğinde misafir ve albüm sahibi (21 Eyl 2026).
+ * 10k karelik albümde tam koleksiyona abone olmak misafir başına 10k okuma;
+ * misafir önce selfie ile kendini bulur, tam albümü isterse 60'ar açar.
+ * Beğeni derlenmez (pro'da beğeni yok). Yalnız açık galeride kullanılır.
+ */
+export async function listMediaPage(eventId: string, after: number | null, pageSize = 60): Promise<{ items: MediaDoc[]; next: number | null }> {
+  const col = collection(db, 'events', eventId, 'media');
+  const q = after === null
+    ? query(col, orderBy('uploadedAt', 'desc'), limit(pageSize))
+    : query(col, orderBy('uploadedAt', 'desc'), startAfter(after), limit(pageSize));
+  const snap = await getDocs(q);
+  const items = snap.docs
+    .map((d) => {
+      const x = d.data();
+      return {
+        id: d.id,
+        ownerId: String(x.ownerId ?? ''),
+        ownerName: String(x.ownerName ?? ''),
+        kind: (x.kind === 'video' ? 'video' : 'photo') as MediaKind,
+        uri: String(x.uri ?? ''),
+        thumbUri: x.thumbUri === undefined ? undefined : String(x.thumbUri),
+        width: Number(x.width ?? 0),
+        height: Number(x.height ?? 0),
+        takenAt: Number(x.takenAt ?? 0),
+        uploadedAt: Number(x.uploadedAt ?? 0),
+        hidden: x.hidden === true,
+        durationSec: typeof x.durationSec === 'number' ? x.durationSec : undefined,
+        likeCount: 0,
+        likedByMe: false,
+      } as MediaDoc;
+    })
+    .filter((m) => !m.hidden);
+  const last = snap.docs[snap.docs.length - 1];
+  const next = snap.docs.length < pageSize || !last ? null : Number(last.data().uploadedAt ?? 0);
+  return { items, next };
+}
+
 export function subscribeMedia(
   event: EventDoc,
   uid: string,

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ensureAnon } from './firebase';
-import { getByCode, isBanned, joinEvent, normalizeCode, subscribeMedia, toggleLike } from './events';
-import { errorCode } from './errorLog';
+import { getByCode, isBanned, joinEvent, listMediaPage, normalizeCode, subscribeMedia, toggleLike } from './events';
+import { errorCode, logError } from './errorLog';
 import { detectLang, LANGS, LANG_LABEL, makeT, saveLang, type Lang } from './i18n';
 import type { EventDoc, MediaDoc } from './types';
 import { Brand, IconStack, Spinner } from './components/Brand';
@@ -40,6 +40,19 @@ export default function App() {
   // Teşhis için: yalnız gerçek bir hata kodu varsa görünür, normal akışta boş.
   const [errCode, setErrCode] = useState('');
   const [lightbox, setLightbox] = useState<number | null>(null);
+  // B AKIŞI (fotoğrafçı etkinliği): tam albüm isteğe bağlı ve sayfalı.
+  const [browse, setBrowse] = useState<{ open: boolean; next: number | null; loading: boolean; done: boolean }>({ open: false, next: null, loading: false, done: false });
+  const loadPage = async (eventId: string, reset = false) => {
+    setBrowse((b) => ({ ...b, open: true, loading: true, ...(reset ? { next: null, done: false } : {}) }));
+    try {
+      const page = await listMediaPage(eventId, reset ? null : browse.next);
+      setMedia((rows) => (reset ? page.items : [...rows, ...page.items]));
+      setBrowse({ open: true, next: page.next, loading: false, done: page.next === null });
+    } catch (e) {
+      void logError('gallery.page', e, { eventId });
+      setBrowse((b) => ({ ...b, loading: false }));
+    }
+  };
   const unsubRef = useRef<(() => void) | null>(null);
 
   const changeLang = (next: Lang) => {
@@ -123,7 +136,8 @@ export default function App() {
     }
 
     unsubRef.current?.();
-    unsubRef.current = subscribeMedia(event, liveUid, setMedia, () => setMedia([]));
+    // Fotoğrafçı etkinliğinde tam koleksiyona ABONE OLMA (10k kare = 10k okuma/misafir).
+    if (event.uploadPolicy !== 'host') unsubRef.current = subscribeMedia(event, liveUid, setMedia, () => setMedia([]));
     setPhase('ready');
   }
 
@@ -304,7 +318,26 @@ export default function App() {
             <span>{t('findMyPhotosSub')}</span>
           </a>
         )}
-        <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
+        {event.uploadPolicy === 'host' && !browse.open ? (
+          <div className="card" style={{ marginTop: 14 }}>
+            <strong>{t('browseTitle')}</strong>
+            <p className="muted">{event.photoCount > 0 ? t('browseBody').replace('{n}', String(event.photoCount)) : t('emptyProBody')}</p>
+            {event.photoCount > 0 && (
+              <button className="btn ghost" style={{ marginTop: 10 }} onClick={() => void loadPage(event.id, true)}>
+                {t('browseCta').replace('{n}', String(event.photoCount))}
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
+            {event.uploadPolicy === 'host' && !browse.done && (
+              <button className="btn ghost" style={{ marginTop: 12 }} disabled={browse.loading} onClick={() => void loadPage(event.id)}>
+                {browse.loading ? t('loading') : t('loadMore')}
+              </button>
+            )}
+          </>
+        )}
         {!event.guestCanDownload && (
           <p className="muted" style={{ textAlign: 'center', marginTop: 18 }}>
             {t('downloadOff')}
@@ -324,7 +357,7 @@ export default function App() {
           t={t}
           onClose={() => setLightbox(null)}
           onIndex={setLightbox}
-          onLike={onLike}
+          onLike={event.uploadPolicy === 'host' ? undefined : onLike}
         />
       )}
     </>

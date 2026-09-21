@@ -21,6 +21,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         upload: resolve(__dirname, 'upload/index.html'),
+        album: resolve(__dirname, 'album/index.html'), // çiftin albüm sayfası (/join/album/)
       },
     },
   },

@@ -9,7 +9,7 @@ interface Props {
   t: (k: string) => string;
   onClose: () => void;
   onIndex: (i: number) => void;
-  onLike: (m: MediaDoc) => void;
+  onLike?: (m: MediaDoc) => void; // yoksa beğeni yok (fotoğrafçı etkinliği)
 }
 
 // Parmağın kare değiştirmek için kat etmesi gereken yatay mesafe. 44px iOS'un
@@ -165,10 +165,12 @@ export function Lightbox({ event, media, index, t, onClose, onIndex, onLike }: P
       </div>
 
       <div className="lightbox-bar">
-        <button className={`icon-btn${item.likedByMe ? ' on' : ''}`} onClick={() => onLike(item)}>
-          <IconHeart filled={item.likedByMe} />
-          {item.likeCount > 0 ? item.likeCount : ''}
-        </button>
+        {onLike && (
+          <button className={`icon-btn${item.likedByMe ? ' on' : ''}`} onClick={() => onLike(item)}>
+            <IconHeart filled={item.likedByMe} />
+            {item.likeCount > 0 ? item.likeCount : ''}
+          </button>
+        )}
         {canDownload && (
           <button className="icon-btn" onClick={save} disabled={saving}>
             <IconDownload /> {saving ? t('saving') : saveError ? t('saveFailed') : t('save')}

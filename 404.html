@@ -27,6 +27,12 @@
         location.replace(u[1] + '/join/upload/' + location.search + location.hash);
         return;
       }
+      // Çiftin albüm sayfası: sharecam.app/album → /join/album/
+      var a = location.pathname.match(/^(.*)\/album\/?$/);
+      if (a) {
+        location.replace(a[1] + '/join/album/' + location.search + location.hash);
+        return;
+      }
       var parts = location.pathname.split('/').filter(Boolean);
       var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
       location.replace(base);
