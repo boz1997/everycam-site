@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { uploadOne, UploadError, VIDEO_MAX_BYTES } from '../events';
+import { useEffect, useRef, useState } from 'react';
+import { fileSeed, uploadOne, UploadError, VIDEO_MAX_BYTES } from '../events';
 import type { EventDoc, UploadItem } from '../types';
 import { IconPlus } from './Brand';
 
@@ -10,6 +10,92 @@ interface Props {
   t: (k: string) => string;
 }
 
+// Kuyrukta AYNI ANDA çizilen satır sayısı (başarısızlar hariç). Bir klasör 800
+// kare getirebiliyor; 800 <img> önizlemesi dock'u ekranın dışına taşırır ve
+// hepsini birden çözmek belleği yer. Gerisi tek satır sayı olarak yazılır.
+const VISIBLE_ROWS = 5;
+
+// MIME boş gelen dosyalar için uzantı listesi. Klasör seçiminde ve sürükle-
+// bırakta tarayıcı her dosyayı getirir (accept yok sayılır); .DS_Store, .xmp,
+// RAW (.cr2/.nef/.arw) gibi dosyalar burada elenir. RAW BİLEREK yok: tarayıcı
+// açamaz, sunucu da (sharp) açamaz — B2B kararı gelene kadar kabul edilmiyor.
+const IMAGE_EXT: Record<string, string> = {
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  heic: 'image/heic',
+  heif: 'image/heif',
+  avif: 'image/avif',
+  bmp: 'image/bmp',
+  tif: 'image/tiff',
+  tiff: 'image/tiff',
+};
+const VIDEO_EXT: Record<string, string> = {
+  mp4: 'video/mp4',
+  m4v: 'video/x-m4v',
+  mov: 'video/quicktime',
+  webm: 'video/webm',
+  '3gp': 'video/3gpp',
+};
+
+/**
+ * Fotoğraf/video mu? Değilse null. MIME boşsa uzantıdan türetilip dosya o
+ * tiple YENİDEN sarılır — events.ts `kind`, küçültme ve poster kararlarını
+ * `file.type`'tan veriyor; boş tip bir .mov'u fotoğraf sanıp bitmap açmaya
+ * kalkardı. `new File([file])` baytları kopyalamaz, aynı bloba referans.
+ */
+function asMedia(file: File): File | null {
+  if (file.name.startsWith('.')) return null;
+  if (file.type.startsWith('image/') || file.type.startsWith('video/')) return file;
+  if (file.type) return null;
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+  const type = IMAGE_EXT[ext] ?? VIDEO_EXT[ext];
+  if (!type) return null;
+  return new File([file], file.name, { type, lastModified: file.lastModified });
+}
+
+/** Sürüklenen giriş (dosya ya da klasör) → içindeki dosyalar, alt klasörler dahil. */
+async function filesFromEntry(entry: FileSystemEntry): Promise<File[]> {
+  if (entry.isFile) {
+    return new Promise((res) => (entry as FileSystemFileEntry).file((f) => res([f]), () => res([])));
+  }
+  if (entry.isDirectory) {
+    // macOS'un ZIP artığı ve gizli klasörler: içleri aynı adlı kopyalarla dolu.
+    if (entry.name.startsWith('.') || entry.name === '__MACOSX') return [];
+    const reader = (entry as FileSystemDirectoryEntry).createReader();
+    const out: File[] = [];
+    // readEntries partiler hâlinde döner (Chrome 100'er); boş parti = son.
+    for (;;) {
+      const batch = await new Promise<FileSystemEntry[]>((res) => reader.readEntries(res, () => res([])));
+      if (batch.length === 0) break;
+      for (const child of batch) out.push(...(await filesFromEntry(child)));
+    }
+    return out;
+  }
+  return [];
+}
+
+/**
+ * Bırakılan DataTransfer'dan dosyalar. `webkitGetAsEntry` drop olayının
+ * İÇİNDE, senkron çağrılmak zorunda — olay bitince item'lar geçersizleşir;
+ * o yüzden önce girişler toplanır, okuma sonra yapılır. Entry desteği olmayan
+ * tarayıcıda `dataTransfer.files`'a düşer (klasör içeriği o yolda gelmez).
+ */
+function collectDrop(dt: DataTransfer): Promise<File[]> {
+  const entries: FileSystemEntry[] = [];
+  for (const item of Array.from(dt.items ?? [])) {
+    if (item.kind !== 'file') continue;
+    const entry = typeof item.webkitGetAsEntry === 'function' ? item.webkitGetAsEntry() : null;
+    if (entry) entries.push(entry);
+  }
+  if (entries.length === 0) return Promise.resolve(Array.from(dt.files ?? []));
+  return Promise.all(entries.map(filesFromEntry)).then((lists) => lists.flat());
+}
+
+const hasFiles = (e: DragEvent) => Array.from(e.dataTransfer?.types ?? []).includes('Files');
+
 /**
  * Alt yükleme çubuğu. Dosyalar SIRAYLA yüklenir — paralel yükleme düğün
  * wifi'ında bant genişliğini bölüp hepsini birden yavaşlatıyor ve ilerleme
@@ -17,16 +103,32 @@ interface Props {
  *
  * Başarısız olan satır kuyrukta KALIR ve tek dokunuşla tekrar denenir; sessizce
  * kaybolan yükleme, misafirin "yükledim sanmıştım" dediği durumdur.
+ *
+ * Üç giriş yolu, hepsi aynı kuyruğa: dosya seçici (her cihaz), klasör seçici
+ * (yalnız masaüstü — iOS Safari `webkitdirectory` tanımaz) ve sayfanın
+ * tamamına sürükle-bırak (dosya da klasör de, alt klasörler dahil).
  */
 export function Uploader({ event, uid, name, t }: Props) {
   const [queue, setQueue] = useState<UploadItem[]>([]);
+  const [doneCount, setDoneCount] = useState(0);
+  const [dragging, setDragging] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const dirRef = useRef<HTMLInputElement>(null);
   const busyRef = useRef(false);
   // Akan döngü kuyruğun O ANKİ hâlini görmek zorunda: yükleme sürerken seçilen
   // dosyalar da aynı turda ele alınacak. State tek başına yetmez, çünkü döngü
   // await'lerin arasında yaşıyor ve kendisini başlatan render'ın değerine
   // kilitli kalıyor.
   const queueRef = useRef<UploadItem[]>([]);
+  // Bu oturumda kuyruğa girmiş her dosyanın imzası (bitmişler dahil): aynı
+  // klasörü ikinci kez bırakmak yeniden yüklemesin.
+  const seenRef = useRef<Set<string>>(new Set());
+  // Klasör seçici yalnız masaüstünde: dokunmatik cihazda seçici ya açılmaz ya
+  // da sıradan dosya seçiciye düşer — ikisi de "çalışmıyor" gibi görünür.
+  const desktop = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches,
+  ).current;
 
   const commit = (next: UploadItem[]) => {
     queueRef.current = next;
@@ -41,6 +143,7 @@ export function Uploader({ event, uid, name, t }: Props) {
     try {
       await uploadOne(event, uid, name, item.file, (p) => patch(item.id, { progress: p }));
       patch(item.id, { status: 'done', progress: 1 });
+      setDoneCount((n) => n + 1);
       // Tamamlananı kısa süre sonra listeden düşür: galeri zaten canlı
       // güncelleniyor, kuyruk kalabalık kalmasın.
       setTimeout(() => {
@@ -81,10 +184,34 @@ export function Uploader({ event, uid, name, t }: Props) {
     }
   }
 
-  function onPick(files: FileList | null) {
-    if (!files || files.length === 0) return;
-    const items: UploadItem[] = Array.from(files).map((file, i) => ({
-      id: `${Date.now()}_${i}_${file.name}`,
+  function flash(text: string) {
+    setNotice(text);
+    window.setTimeout(() => setNotice((cur) => (cur === text ? null : cur)), 4000);
+  }
+
+  /** Üç giriş yolunun ortak ağzı: ele, imzayı kontrol et, sırala, kuyruğa al. */
+  function enqueue(raw: File[]) {
+    if (raw.length === 0) return;
+    const fresh: File[] = [];
+    for (const f of raw) {
+      const media = asMedia(f);
+      if (!media) continue;
+      const seed = fileSeed(media);
+      if (seenRef.current.has(seed)) continue;
+      seenRef.current.add(seed);
+      fresh.push(media);
+    }
+    if (fresh.length === 0) {
+      // Hepsi elendiyse söyle: sessiz kalmak "sürükledim ama olmadı" demek.
+      if (raw.length > 0 && !raw.some((f) => seenRef.current.has(fileSeed(f)))) flash(t('noMediaFound'));
+      return;
+    }
+    // Klasör okuma sırası dosya sistemine bağlı ve rastgele görünür; ada göre
+    // (sayı bilinçli: IMG_2 < IMG_10) sıralamak ilerlemeyi takip edilir kılar.
+    fresh.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    const stamp = Date.now();
+    const items: UploadItem[] = fresh.map((file, i) => ({
+      id: `${stamp}_${i}_${file.name}`,
       file,
       kind: file.type.startsWith('video/') ? 'video' : 'photo',
       progress: 0,
@@ -93,7 +220,12 @@ export function Uploader({ event, uid, name, t }: Props) {
     }));
     commit([...queueRef.current, ...items]);
     void drain();
-    if (inputRef.current) inputRef.current.value = '';
+  }
+
+  function onPick(input: HTMLInputElement | null) {
+    if (!input?.files) return;
+    enqueue(Array.from(input.files));
+    input.value = '';
   }
 
   const retry = (item: UploadItem) => {
@@ -101,46 +233,129 @@ export function Uploader({ event, uid, name, t }: Props) {
     void drain();
   };
 
-  return (
-    <div className="dock">
-      <div className="dock-inner">
-        {queue.length > 0 && (
-          <div className="queue">
-            {queue.map((item) => (
-              <div key={item.id} className={`queue-row${item.status === 'failed' ? ' failed' : ''}`}>
-                <img className="queue-thumb" src={item.previewUrl} alt="" />
-                {item.status === 'failed' ? (
-                  <>
-                    <span style={{ flex: 1 }}>{item.error}</span>
-                    <button className="chip" onClick={() => retry(item)}>
-                      {t('retry')}
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <span className="bar">
-                      <i style={{ width: `${Math.round(item.progress * 100)}%` }} />
-                    </span>
-                    <span style={{ width: 34, textAlign: 'right' }}>{Math.round(item.progress * 100)}%</span>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+  // Sürükle-bırak SAYFANIN TAMAMINDA: misafir dosyayı dock'a değil galeriye
+  // bırakıyor. Derinlik sayacı şart — çocuk öğeler arasında geçerken
+  // dragleave/dragenter çifti ateşleniyor, tek bayrak titrerdi.
+  useEffect(() => {
+    let depth = 0;
+    const onEnter = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      depth += 1;
+      setDragging(true);
+    };
+    const onOver = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); // bırakmaya izin — bu olmadan drop hiç gelmez
+      if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+    };
+    const onLeave = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      depth = Math.max(0, depth - 1);
+      if (depth === 0) setDragging(false);
+    };
+    const onDrop = (e: DragEvent) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      depth = 0;
+      setDragging(false);
+      if (!e.dataTransfer) return;
+      void collectDrop(e.dataTransfer).then(enqueue);
+    };
+    window.addEventListener('dragenter', onEnter);
+    window.addEventListener('dragover', onOver);
+    window.addEventListener('dragleave', onLeave);
+    window.addEventListener('drop', onDrop);
+    return () => {
+      window.removeEventListener('dragenter', onEnter);
+      window.removeEventListener('dragover', onOver);
+      window.removeEventListener('dragleave', onLeave);
+      window.removeEventListener('drop', onDrop);
+    };
+    // enqueue kuyruğu ref üzerinden görüyor; dinleyiciler bir kez bağlanır.
+  }, []);
 
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*,video/*"
-          multiple
-          hidden
-          onChange={(e) => onPick(e.target.files)}
-        />
-        <button className="btn" onClick={() => inputRef.current?.click()}>
-          <IconPlus /> {t('addPhotos')}
-        </button>
+  const failed = queue.filter((it) => it.status === 'failed');
+  const live = queue.filter((it) => it.status !== 'failed');
+  const shown = [...failed, ...live.slice(0, VISIBLE_ROWS)];
+  const hiddenCount = Math.max(0, live.length - VISIBLE_ROWS);
+  // Biten satır 1,2 sn daha listede kalıyor; o pencerede iki kez sayılmasın.
+  const total = doneCount + queue.filter((it) => it.status !== 'done').length;
+
+  return (
+    <>
+      {dragging && (
+        <div className="dropzone" aria-hidden>
+          <div>{t('dropHere')}</div>
+        </div>
+      )}
+      <div className="dock">
+        <div className="dock-inner">
+          {queue.length > 0 && (
+            <div className="queue">
+              {total > 1 && (
+                <div className="queue-summary">
+                  {t('uploadedCount').replace('{done}', String(doneCount)).replace('{total}', String(total))}
+                </div>
+              )}
+              {shown.map((item) => (
+                <div key={item.id} className={`queue-row${item.status === 'failed' ? ' failed' : ''}`}>
+                  <img className="queue-thumb" src={item.previewUrl} alt="" />
+                  {item.status === 'failed' ? (
+                    <>
+                      <span style={{ flex: 1 }}>{item.error}</span>
+                      <button className="chip" onClick={() => retry(item)}>
+                        {t('retry')}
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <span className="bar">
+                        <i style={{ width: `${Math.round(item.progress * 100)}%` }} />
+                      </span>
+                      <span style={{ width: 34, textAlign: 'right' }}>{Math.round(item.progress * 100)}%</span>
+                    </>
+                  )}
+                </div>
+              ))}
+              {hiddenCount > 0 && (
+                <div className="queue-more">{t('moreWaiting').replace('{n}', String(hiddenCount))}</div>
+              )}
+            </div>
+          )}
+
+          {notice && <div className="queue-notice">{notice}</div>}
+
+          <input
+            ref={inputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            hidden
+            onChange={(e) => onPick(e.currentTarget)}
+          />
+          {/* webkitdirectory React tiplerinde yok; öznitelik olarak basılıyor.
+              accept burada YOK SAYILIR — eleme asMedia'da. */}
+          <input
+            ref={dirRef}
+            type="file"
+            multiple
+            hidden
+            {...({ webkitdirectory: '' } as Record<string, string>)}
+            onChange={(e) => onPick(e.currentTarget)}
+          />
+          <div className="dock-actions">
+            <button className="btn" onClick={() => inputRef.current?.click()}>
+              <IconPlus /> {t('addPhotos')}
+            </button>
+            {desktop && (
+              <button className="btn ghost" onClick={() => dirRef.current?.click()}>
+                {t('addFolder')}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

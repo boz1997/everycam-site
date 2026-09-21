@@ -261,10 +261,18 @@ export async function toggleLike(eventId: string, mediaId: string, uid: string, 
   else await setDoc(ref, { mediaId, uid });
 }
 
+/**
+ * Dosyanın oturum içi imzası. Uploader aynı imzayı kuyruğa İKİNCİ kez almaz —
+ * bir klasörü iki kez bırakmak (sürükle-bırak ile kolay) baytları yeniden
+ * yüklerdi; kayıt aynı kimliğe yazıldığı için galeri değil, egress şişerdi.
+ */
+export function fileSeed(file: File): string {
+  return `${file.name}|${file.size}|${file.lastModified}`;
+}
+
 /** Kaynak imzasından türetilen kimlik — aynı dosyayı iki kez seçmek tek kayıt üretir. */
 async function contentId(file: File, uid: string): Promise<string> {
-  const seed = `${file.name}|${file.size}|${file.lastModified}`;
-  const bytes = new TextEncoder().encode(seed);
+  const bytes = new TextEncoder().encode(fileSeed(file));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   const hex = Array.from(new Uint8Array(digest))
     .slice(0, 8)
