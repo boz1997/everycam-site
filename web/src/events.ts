@@ -280,7 +280,7 @@ export function fileSeed(file: File): string {
 }
 
 /** Kaynak imzasından türetilen kimlik — aynı dosyayı iki kez seçmek tek kayıt üretir. */
-async function contentId(file: File, uid: string): Promise<string> {
+export async function contentId(file: File, uid: string): Promise<string> {
   const bytes = new TextEncoder().encode(fileSeed(file));
   const digest = await crypto.subtle.digest('SHA-256', bytes);
   const hex = Array.from(new Uint8Array(digest))

@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -14,5 +15,13 @@ export default defineConfig({
   build: {
     outDir: '../join',
     emptyOutDir: true,
+    // İki sayfa: misafir istemcisi (/join/) ve fotoğrafçının masaüstü yükleyicisi
+    // (/join/upload/). Kısa adres sharecam.app/upload 404.html ile buraya düşer.
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        upload: resolve(__dirname, 'upload/index.html'),
+      },
+    },
   },
 });

@@ -20,6 +20,13 @@
         location.replace(m[1] + '/join/?code=' + encodeURIComponent(m[2].toUpperCase()) + location.hash);
         return;
       }
+      // Fotoğrafçının masaüstü yükleyicisi: kısa adres sharecam.app/upload
+      // (uygulamada böyle söyleniyor) → /join/upload/ (Vite ikinci sayfa).
+      var u = location.pathname.match(/^(.*)\/upload\/?$/);
+      if (u) {
+        location.replace(u[1] + '/join/upload/' + location.search + location.hash);
+        return;
+      }
       var parts = location.pathname.split('/').filter(Boolean);
       var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
       location.replace(base);
