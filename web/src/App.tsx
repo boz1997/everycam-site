@@ -4,7 +4,7 @@ import { getByCode, isBanned, joinEvent, listMediaPage, normalizeCode, subscribe
 import { errorCode, logError } from './errorLog';
 import { detectLang, LANGS, LANG_LABEL, makeT, saveLang, type Lang } from './i18n';
 import type { EventDoc, MediaDoc } from './types';
-import { Brand, IconStack, Spinner } from './components/Brand';
+import { Brand, IconStack, Spinner, IconSelfie } from './components/Brand';
 import { Gallery } from './components/Gallery';
 import { Lightbox } from './components/Lightbox';
 import { Uploader } from './components/Uploader';
@@ -224,7 +224,10 @@ export default function App() {
         <div className="card">
           <Brand />
           <h1 style={{ fontSize: 24, marginTop: 20 }}>{event.name}</h1>
-          <p className="muted">{t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}</p>
+          {/* Fotoğrafçı etkinliğinde "herkes yüklediğini görür" YANLIŞ olurdu: misafir yüklemez. */}
+          <p className="muted">
+            {event.uploadPolicy === 'host' ? t('proBanner') : t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
+          </p>
           <label
             style={{ display: 'block', marginTop: 20, marginBottom: 7, fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)' }}
           >
@@ -246,7 +249,7 @@ export default function App() {
             {t('join')}
           </button>
         </div>
-        {footer}
+        {event.uploadPolicy !== 'host' && footer}
       </div>
     );
   }
@@ -282,9 +285,12 @@ export default function App() {
       <header className="topbar">
         <Brand small />
         <span style={{ display: 'inline-flex', gap: 8, alignItems: 'center' }}>
-          <span className="chip">
-            <IconStack /> {media.length}
-          </span>
+          {/* Yükleme sayacı fotoğrafçı etkinliğinde anlamsız (misafir yüklemez, galeri sayfalı). */}
+          {event.uploadPolicy !== 'host' && (
+            <span className="chip">
+              <IconStack /> {media.length}
+            </span>
+          )}
           {langPicker}
         </span>
       </header>
@@ -296,46 +302,76 @@ export default function App() {
       )}
 
       <div className="hero">
+        {event.uploadPolicy === 'host' && <p className="pro-kicker">{t('proKicker')}</p>}
         <h1>{event.name}</h1>
         {dateStr && <p className="date">{dateStr}</p>}
       </div>
 
-      <div className={`banner${event.mode === 'private' ? ' private' : ''}`}>
-        {event.uploadPolicy === 'host' ? t('proBanner') : t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
-      </div>
+      {event.uploadPolicy !== 'host' && (
+        <div className={`banner${event.mode === 'private' ? ' private' : ''}`}>
+          {t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
+        </div>
+      )}
 
       <div className="wrap">
         {/* YÜZ EŞLEŞTİRME GİRİŞİ — yalnız host o etkinlikte AÇTIYSA görünür.
             Ayrı bir sayfaya (/face/) gidiyor çünkü coğrafi kapı ve rıza akışı
             orada; buraya gömmek rızayı galeriye gömmek olurdu (BIPA §15(b)
             rızanın başka bir şeye iliştirilmesini yasaklıyor). */}
-        {event.aiPeopleEnabled && (
-          <a
-            className="facecta"
-            href={`../face/?code=${encodeURIComponent(event.code)}`}
-          >
-            <strong>{t('findMyPhotos')}</strong>
-            <span>{t('findMyPhotosSub')}</span>
-          </a>
-        )}
-        {event.uploadPolicy === 'host' && !browse.open ? (
-          <div className="card" style={{ marginTop: 14 }}>
-            <strong>{t('browseTitle')}</strong>
-            <p className="muted">{event.photoCount > 0 ? t('browseBody').replace('{n}', String(event.photoCount)) : t('emptyProBody')}</p>
-            {event.photoCount > 0 && (
-              <button className="btn ghost" style={{ marginTop: 10 }} onClick={() => void loadPage(event.id, true)}>
-                {t('browseCta').replace('{n}', String(event.photoCount))}
-              </button>
-            )}
-          </div>
+        {event.uploadPolicy === 'host' ? (
+          // FOTOĞRAFÇI ETKİNLİĞİ (Berk 23 Eyl 2026): ana eylem SELFIE ile kendini bulmak —
+          // büyük birincil düğme. Tüm albüm küçük ikincil bağlantı: hem daha az istek (10k
+          // karede misafir başına sayfa sayfa okuma) hem de albüm HİÇBİR ZAMAN selfie'ye
+          // bağlı değil (reddetmenin bedeli yok; rıza /face/ sayfasında, tarafsız).
+          !browse.open ? (
+            <div className="pro-landing">
+              {event.aiPeopleEnabled ? (
+                <>
+                  <a className="btn pro-primary" href={`../face/?code=${encodeURIComponent(event.code)}`}>
+                    <IconSelfie /> {t('findMyPhotos')}
+                  </a>
+                  <p className="pro-sub">{t('proFindSub')}</p>
+                  {event.photoCount > 0 && (
+                    <button className="pro-browse" onClick={() => void loadPage(event.id, true)}>
+                      {t('proBrowseLink').replace('{n}', String(event.photoCount))} →
+                    </button>
+                  )}
+                </>
+              ) : event.photoCount > 0 ? (
+                <button className="btn pro-primary" onClick={() => void loadPage(event.id, true)}>
+                  {t('browseCta').replace('{n}', String(event.photoCount))}
+                </button>
+              ) : null}
+              {event.photoCount === 0 && <p className="pro-sub">{t('emptyProBody')}</p>}
+            </div>
+          ) : (
+            <>
+              {event.aiPeopleEnabled && (
+                <a className="btn pro-slim" href={`../face/?code=${encodeURIComponent(event.code)}`}>
+                  <IconSelfie /> {t('findMyPhotos')}
+                </a>
+              )}
+              <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
+              {!browse.done && (
+                <button className="btn ghost" style={{ marginTop: 12 }} disabled={browse.loading} onClick={() => void loadPage(event.id)}>
+                  {browse.loading ? t('loading') : t('loadMore')}
+                </button>
+              )}
+            </>
+          )
         ) : (
           <>
-            <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
-            {event.uploadPolicy === 'host' && !browse.done && (
-              <button className="btn ghost" style={{ marginTop: 12 }} disabled={browse.loading} onClick={() => void loadPage(event.id)}>
-                {browse.loading ? t('loading') : t('loadMore')}
-              </button>
+            {/* YÜZ EŞLEŞTİRME GİRİŞİ — yalnız host o etkinlikte AÇTIYSA görünür.
+                Ayrı bir sayfaya (/face/) gidiyor çünkü coğrafi kapı ve rıza akışı
+                orada; buraya gömmek rızayı galeriye gömmek olurdu (BIPA §15(b)
+                rızanın başka bir şeye iliştirilmesini yasaklıyor). */}
+            {event.aiPeopleEnabled && (
+              <a className="facecta" href={`../face/?code=${encodeURIComponent(event.code)}`}>
+                <strong>{t('findMyPhotos')}</strong>
+                <span>{t('findMyPhotosSub')}</span>
+              </a>
             )}
+            <Gallery event={event} uid={uid} media={media} t={t} onOpen={setLightbox} />
           </>
         )}
         {!event.guestCanDownload && (
@@ -343,7 +379,9 @@ export default function App() {
             {t('downloadOff')}
           </p>
         )}
-        {footer}
+        {/* Uygulama tanıtımı fotoğrafçı etkinliğinde YOK: misafir yüklemez, ve App Store'daki
+            eski sürüm fotoğrafçı etkinliğini tanımıyor (AASA /e/P* bu yüzden web'e açıyor). */}
+        {event.uploadPolicy !== 'host' && footer}
       </div>
 
       {/* FOTOĞRAFÇI ETKİNLİĞİ: misafir yüklemez (kural da reddeder) — yükleyici çizilmez. */}
