@@ -21,9 +21,9 @@ import { IconPlus } from '../components/Brand';
 import { QrPairing, type PairResult } from './QrPairing';
 
 const HOST_KEY = 'sharecam.uploadHostUid';
-// QR ONAYI (uploadLink.ts): uygulamanın okuyucusu olan build yayınlanana kadar
-// yalnız ?qr=1 ile görünür; o build TestFlight'a çıkınca true yapılır.
-const QR_PAIRING_LIVE = false;
+// QR ONAYI (uploadLink.ts): okuyuculu uygulama build'i (1.0.5) TestFlight'a çıktı
+// (23 Eyl 2026) → herkese açık. Eski build'ler QR'ı okuyamaz; kod yolu hemen altında.
+const QR_PAIRING_LIVE = true;
 const QR_PAIRING = QR_PAIRING_LIVE || new URLSearchParams(location.search).has('qr');
 // Telefonun kamerasıyla okutulan QR bu sayfayı telefonda açar: yol göster.
 const OPENED_FROM_PHONE_QR = new URLSearchParams(location.search).has('pair');
