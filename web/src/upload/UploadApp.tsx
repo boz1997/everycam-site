@@ -18,8 +18,15 @@ import { asMedia, collectDrop, hasFiles } from '../intake';
 import { fileSeed } from '../events';
 import { originalVerdict, uploadOriginal, ORIGINAL_MAX_BYTES } from './originals';
 import { IconPlus } from '../components/Brand';
+import { QrPairing, type PairResult } from './QrPairing';
 
 const HOST_KEY = 'sharecam.uploadHostUid';
+// QR ONAYI (uploadLink.ts): uygulamanın okuyucusu olan build yayınlanana kadar
+// yalnız ?qr=1 ile görünür; o build TestFlight'a çıkınca true yapılır.
+const QR_PAIRING_LIVE = false;
+const QR_PAIRING = QR_PAIRING_LIVE || new URLSearchParams(location.search).has('qr');
+// Telefonun kamerasıyla okutulan QR bu sayfayı telefonda açar: yol göster.
+const OPENED_FROM_PHONE_QR = new URLSearchParams(location.search).has('pair');
 const PARALLEL = 4; // masaüstü + fiber: 4 kanal iyi; daha fazlası tek bağlantıyı boğuyor
 const VISIBLE_ROWS = 6;
 
@@ -114,6 +121,22 @@ export function UploadApp() {
     })();
   }, [loadEvents]);
 
+  // ---- Eşleştirmenin son adımı (kod da QR da buraya iner): custom token → host oturumu
+  const finishPairing = useCallback(
+    async (res: PairResult) => {
+      await signInWithCustomToken(auth, res.token);
+      try {
+        localStorage.setItem(HOST_KEY, res.hostId);
+      } catch {
+        /* özel pencere: oturum yine de bu sekmede geçerli */
+      }
+      setUid(res.hostId);
+      history.replaceState(null, '', location.pathname);
+      await loadEvents(res.hostId, res.eventId);
+    },
+    [loadEvents],
+  );
+
   // ---- Eşleştirme: kod → custom token → host oturumu
   const pair = async () => {
     const clean = code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
@@ -126,15 +149,7 @@ export function UploadApp() {
         'redeemUploadCode',
       );
       const res = await fn({ code: clean });
-      await signInWithCustomToken(auth, res.data.token);
-      try {
-        localStorage.setItem(HOST_KEY, res.data.hostId);
-      } catch {
-        /* özel pencere: oturum yine de bu sekmede geçerli */
-      }
-      setUid(res.data.hostId);
-      history.replaceState(null, '', location.pathname);
-      await loadEvents(res.data.hostId, res.data.eventId);
+      await finishPairing(res.data);
     } catch (e) {
       const codeStr = String((e as { code?: string })?.code ?? '');
       const msg = String((e as { message?: string })?.message ?? '');
@@ -326,6 +341,19 @@ export function UploadApp() {
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('upTitle')}</h1>
+          {OPENED_FROM_PHONE_QR && (
+            <p className="muted" style={{ color: 'var(--gold)', margin: '0 0 10px' }}>
+              {t('upQrFromPhone')}
+            </p>
+          )}
+          {QR_PAIRING && !OPENED_FROM_PHONE_QR && (
+            <>
+              <QrPairing t={t} onPaired={finishPairing} />
+              <p className="muted" style={{ textAlign: 'center', margin: '14px 0 0' }}>
+                {t('upQrOr')}
+              </p>
+            </>
+          )}
           <p className="muted">{t('upPairIntro')}</p>
           <input
             className="field"
