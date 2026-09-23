@@ -1,127 +1,699 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  Sharecam home — direction D, Berk's pick-and-mix of A, B and C (research/05-d-brief.md).
+  Header, hero, album spread, FAQ, footer: A. How it works, Nobody downloads, privacy, pricing: C.
+  Features bento: B + C. Face matching: C type + B phone. Photographers: new (05 §4).
+  One system: two heading voices (statement = hero H1 + FAQ title; section = every other heading),
+  radii 0 (photos, buttons) / 6 (printed cards, objects in tiles) / 16 (tiles), square verde buttons,
+  shadows only on phones, cards and the laptop. Three dark bands: #guests, #wall, #privacy.
+  Markers: PRICING:catalog1, OPTIONAL:pro (visible for this preview), REPLACE with real screenshot, PENDING.
+  Photographer switch: every photographer entry point (nav, menu, header login, pricing tab + panel, section,
+  footer column) carries class="pro-only" inside an OPTIONAL:pro block. To hide them all before 1.0.5 ships,
+  change <body class="home"> to <body class="home no-pro"> (or delete every OPTIONAL:pro block).
+  Wordmark: <span class="wordmark">Share<i>Cam</i></span>; the casing/colour is ONE rule in style.css (.wordmark i).
+  Built from work/index.src.html by work/build.py (inlines the mark, the laurel crest and the App Store QR).
+-->
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ShareCam — Every shot, collected.</title>
-  <meta name="description" content="One QR code on every table. Every guest's photos and videos land in one event gallery — from the app or straight from the browser. One-time packages, no subscription." />
-  <meta property="og:title" content="ShareCam — Every shot, collected." />
-  <meta property="og:description" content="One QR code on every table. Every guest's photos land in one gallery. No app required for guests." />
-  <meta property="og:type" content="website" />
-  <link rel="icon" href="sharemark.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Sharecam — Every guest’s photos in one live album</title>
+<meta name="description" content="Put a QR code on the tables. Guests scan it and share photos and videos from their phone's browser. No app, no account. One live album.">
+<link rel="canonical" href="https://sharecam.app/">
+<meta name="theme-color" content="#F3EEE2">
+<meta name="apple-itunes-app" content="app-id=6801534049">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sharecam">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://sharecam.app/">
+<meta property="og:title" content="Sharecam — Every guest's photos in one live album">
+<meta property="og:description" content="Guests scan a QR code and share from their browser. Everything lands in one live album. Free to start, pay once per event.">
+<meta property="og:image" content="https://sharecam.app/assets/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Sharecam: Every guest's photos, one live album. A guest films the couple on his phone at a table under olive trees.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sharecam.app/assets/img/og.jpg">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/img/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+<link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/fraunces-italic-collected.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/avif" imagesrcset="assets/img/hero-800.avif 800w, assets/img/hero-1200.avif 1200w, assets/img/hero-1680.avif 1680w" imagesizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw" fetchpriority="high">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="assets/home.css">
+<script>document.documentElement.classList.add('js');if(matchMedia('(prefers-reduced-motion: no-preference)').matches)document.documentElement.classList.add('motion');</script>
+<script defer src="assets/site.js"></script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"MobileApplication","name":"Sharecam","operatingSystem":"iOS 16.4 or later","applicationCategory":"PhotographyApplication","url":"https://sharecam.app/","installUrl":"https://apps.apple.com/app/id6801534049","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
 </head>
-<body>
-  <header class="site">
-    <a class="brand" href="index.html"><img src="sharemark.png" alt="" /><span class="wordmark">Share<i>Cam</i></span></a>
-    <nav>
-      <a href="#packages">Packages</a>
-      <a href="support.html">Support</a>
-      <a href="privacy.html">Privacy</a>
+<body class="home">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="mark" viewBox="222 243 581 561"><path fill="currentColor" fill-rule="evenodd" d="M459 533L422 536 375 542 364 544 345 549 324 558 310 565 298 573 286 582 276 591 266 601 258 612 252 622 247 632 244 643 242 650 242 661 243 672 246 680 250 686 264 704 274 715 290 728 304 740 315 747 326 752 344 760 356 764 369 766 381 768 399 767 412 765 428 761 441 756 453 751 482 736 496 727 510 717 520 709 532 697 539 690 546 679 554 666 558 656 562 643 565 630 567 610 567 589 566 578 563 570 560 562 556 556 548 549 540 543 530 539 522 537 511 535 490 532ZM416 552L434 552 472 555 494 559 516 565 533 572 539 576 545 582 550 588 552 594 554 600 554 607 553 616 549 630 544 643 536 658 526 676 518 686 508 697 490 712 476 720 466 726 444 735 424 741 406 746 384 750 374 751 362 751 349 749 337 745 326 740 319 735 310 727 303 720 297 712 288 698 282 685 276 672 270 652 269 643 270 637 272 628 275 622 280 613 292 600 302 591 312 584 326 576 335 571 360 561 372 558 389 554 401 553ZM700 479L690 480 682 481 673 484 666 487 656 492 649 498 633 512 621 528 614 538 607 550 602 560 596 577 591 598 587 636 584 670 584 715 586 736 591 756 594 764 598 774 604 782 611 790 620 795 628 797 634 798 647 798 659 797 670 795 682 791 690 787 700 782 712 773 720 765 730 754 740 741 748 729 759 711 770 688 782 663 788 648 792 633 795 621 796 597 795 584 794 576 791 567 786 555 775 537 766 525 756 514 730 490 724 486 716 482 706 480ZM690 500L696 500 704 500 712 503 718 505 732 515 736 520 743 530 757 557 765 575 769 587 772 598 774 614 775 624 774 640 772 653 770 662 766 672 761 683 750 701 730 728 713 748 703 757 696 763 686 769 679 773 670 776 661 778 655 778 646 776 637 773 628 769 618 763 613 760 605 751 600 740 596 724 594 708 594 697 596 679 599 658 607 618 620 572 624 560 630 548 640 530 648 522 656 515 663 509 672 504 682 501ZM637 269L625 270 610 273 596 278 582 284 568 290 550 301 518 323 498 340 486 352 476 364 470 375 463 388 460 396 456 408 454 423 452 438 452 447 454 468 457 477 460 483 464 489 470 496 476 500 487 504 499 507 516 508 547 506 580 501 622 492 658 482 685 472 710 458 721 451 734 441 745 432 759 416 766 408 774 394 779 384 782 373 783 364 783 354 782 344 777 334 771 326 766 321 742 302 718 287 706 282 690 276 678 273 660 270 650 269ZM652 283L663 283 674 284 681 285 692 289 700 293 710 299 716 303 726 314 734 324 741 334 746 345 754 363 756 369 756 378 756 382 753 392 748 400 742 410 734 418 727 426 716 434 704 443 691 451 678 458 654 468 636 474 620 477 602 480 565 482 553 483 530 482 508 480 499 478 487 474 480 470 475 466 470 460 467 454 466 448 466 441 468 428 477 402 482 392 491 376 504 358 512 350 522 340 537 328 552 319 566 312 596 299 627 288 642 284ZM358 249L342 252 333 254 322 257 314 261 303 268 296 274 286 282 279 292 270 305 260 322 248 350 234 390 230 406 228 422 228 434 228 444 232 461 239 478 249 492 258 503 266 510 286 527 304 540 310 543 326 548 334 548 345 548 354 545 362 542 370 538 380 532 387 525 394 518 402 507 408 498 413 489 417 480 425 458 429 434 429 396 425 348 421 320 418 306 413 292 408 280 402 270 397 264 390 257 382 253 374 250 368 249ZM340 271L349 270 356 271 372 275 386 282 392 287 396 291 404 303 410 321 413 340 414 362 413 396 409 426 401 466 395 484 386 501 381 507 374 514 366 520 358 524 351 527 345 528 338 529 330 529 321 527 315 525 309 522 302 517 296 512 287 503 270 479 263 467 255 450 248 431 246 413 246 395 247 386 251 372 258 354 274 328 282 316 294 300 308 286 314 281 323 276 332 272Z"/></symbol></svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- 0 · HEADER (A: hairline under the nav, square verde "Get the app") -->
+<header class="site">
+  <a class="brand" href="/" aria-label="Sharecam, home"><span class="wordmark">Share<i>Cam</i></span></a>
+  <nav class="nav-desktop" aria-label="Main">
+    <a href="#how">How it works</a>
+    <a href="#packages">Pricing</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://sharecam.app/join/">Join an event</a>
+    <!-- OPTIONAL:pro --><a class="pro-only" href="#photographers">For photographers</a><!-- /OPTIONAL:pro -->
+  </nav>
+  <!-- OPTIONAL:pro --><a class="nav-login pro-only" href="https://sharecam.app/join/upload/">Photographer login</a><!-- /OPTIONAL:pro -->
+  <a class="btn btn-sm" href="https://apps.apple.com/app/id6801534049">Get the app</a>
+  <details class="nav-mobile">
+    <summary aria-label="Menu"><span class="menu-lines" aria-hidden="true"></span></summary>
+    <nav aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#packages">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://sharecam.app/join/">Join an event</a>
+      <!-- OPTIONAL:pro -->
+      <a class="pro-only" href="#photographers">For photographers</a>
+      <a class="menu-login pro-only" href="https://sharecam.app/join/upload/">Photographer login</a>
+      <!-- /OPTIONAL:pro -->
     </nav>
-  </header>
+  </details>
+</header>
 
-  <div class="wrap">
-    <section class="hero">
-      <p class="kicker">Event photo galleries</p>
-      <h1>Every shot,<br />collected.</h1>
-      <p class="lead">
-        One QR code on every table. Every guest's photos and videos land in one
-        gallery — nothing lost on someone's phone, nothing waiting to be texted.
-      </p>
-      <a class="btn" href="https://apps.apple.com/app/id6801534049">Get ShareCam for iPhone</a>
-      <p class="muted" style="font-size:13px;margin-top:12px;">Currently in private beta on TestFlight.</p>
-    </section>
+<main id="main">
 
-    <!-- Web yükleyici artık gerçek: misafirin uygulama indirmesi GEREKMİYOR.
-         Bu, rakiplerin çoğunda olmayan somut fark — sayfada en üstte durmalı. -->
-    <section class="card narrow highlight" style="margin:0 auto;">
-      <p class="kicker">No app for guests</p>
-      <h2 style="margin:0 0 10px;">Your guests just scan and share</h2>
-      <p style="margin:0;">
-        The QR opens straight in the browser — name, then upload. No download, no
-        account, no sign-up. Guests who prefer the app can still use it; both land
-        in the same gallery.
-      </p>
-      <p style="margin:14px 0 0;"><a class="btn ghost" href="join/">Try the guest view →</a></p>
-    </section>
-
-    <section class="grid">
-      <div class="card">
-        <div class="emoji">⚡️</div>
-        <h3>Join in one step</h3>
-        <p>Guests scan the QR, type a name, and start sharing. No account, no app store detour required to contribute.</p>
+<!-- 1 · HERO (A: "The spread"; new plate, recropped so the phone reads ≥ 200 px at 1440) -->
+<section class="hero" aria-labelledby="hero-title">
+  <div class="bleed-grid hero-grid">
+    <figure class="hero-fig">
+      <picture>
+        <source type="image/avif" srcset="assets/img/hero-800.avif 800w, assets/img/hero-1200.avif 1200w, assets/img/hero-1680.avif 1680w" sizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw">
+        <img src="assets/img/hero-1200.webp" srcset="assets/img/hero-800.webp 800w, assets/img/hero-1200.webp 1200w, assets/img/hero-1680.webp 1680w" sizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw" width="1680" height="1470" fetchpriority="high" decoding="async" alt="A guest films the couple's embrace on his phone, the Sharecam camera open on the screen, while the table applauds under the olive trees.">
+      </picture>
+      <figcaption class="cap">From table four, just after the toasts.</figcaption>
+    </figure>
+    <div class="hero-copy">
+      <h1 id="hero-title" class="display">Every shot, <em>collected.</em></h1>
+      <p class="lead only-wide">Put a QR code on the tables. Guests scan it, type their name and share photos and videos straight from their phone’s browser. No app, no account. Everything lands in one live album.</p>
+      <p class="lead only-narrow">Guests scan a QR code and share from their browser. Everything lands in one live album.</p>
+      <!-- PENDING: demo event (brief §8.2). /join/ asks for a code, so this link is labelled for guests who have one.
+           When Berk creates the demo event, change all three "Have a code? Join an event" links (hero, #guests, closing)
+           back to "Try it as a guest →" pointing at https://sharecam.app/e/<DEMO>. -->
+      <div class="cta-row">
+        <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
+        <a class="text-link" href="https://sharecam.app/join/">Have a code? Join an event <span aria-hidden="true">→</span></a>
       </div>
-      <div class="card">
-        <div class="emoji">🤫</div>
-        <h3>Private mode</h3>
-        <p>Run an open live album — or private mode, where guests only see their own uploads until you reveal everything at once.</p>
-      </div>
-      <div class="card">
-        <div class="emoji">🧾</div>
-        <h3>One-time packages</h3>
-        <p>Pay once per event, from free to unlimited. No subscription, ever — and the free package is a real one, not a trial.</p>
-      </div>
-      <div class="card">
-        <div class="emoji">🖨️</div>
-        <h3>Card studio</h3>
-        <p>Sixteen invite-card designs with your QR baked in. Share digitally or print four to a page, cut, and place on every table.</p>
-      </div>
-      <div class="card">
-        <div class="emoji">📺</div>
-        <h3>Live wall</h3>
-        <p>A slideshow that never sleeps: new shots fade in as they arrive, with the join QR always in the corner.</p>
-      </div>
-      <div class="card">
-        <div class="emoji">⬇️</div>
-        <h3>Everything is yours</h3>
-        <p>Download the full gallery in one tap, or let guests save their favourites. You're warned before storage expires — photos are never silently deleted.</p>
-      </div>
-    </section>
-
-    <section id="packages" class="narrow" style="margin:0 auto;">
-      <p class="kicker" style="text-align:center;">Packages</p>
-      <h2 style="text-align:center;margin:0 0 6px;">Pay once, per event</h2>
-      <p class="muted" style="text-align:center;margin:0 0 22px;">Prices shown in USD; the App Store charges in your own currency.</p>
-
-      <div class="plans-scroll">
-      <table class="plans">
-        <thead>
-          <tr><th>Package</th><th>Photos</th><th>Guests</th><th>Videos</th><th>Storage</th><th>Price</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><strong>Spark</strong></td><td>50</td><td>10</td><td>—</td><td>7 days</td><td>Free</td></tr>
-          <tr><td><strong>Mini</strong></td><td>200</td><td>25</td><td>—</td><td>1 month</td><td>$4.99</td></tr>
-          <tr><td><strong>Party</strong></td><td>500</td><td>50</td><td>5</td><td>1 month</td><td>$14.99</td></tr>
-          <tr class="pick"><td><strong>Wedding</strong> <span class="tag">Most popular</span></td><td>1000</td><td>100</td><td>20</td><td>6 months</td><td>$24.99</td></tr>
-          <tr><td><strong>Unlimited</strong></td><td>Unlimited</td><td>Unlimited</td><td>Unlimited</td><td>1 year</td><td>$39.99</td></tr>
-        </tbody>
-      </table>
-      </div>
-      <p class="muted" style="font-size:13px;margin-top:14px;">
-        The live slideshow wall is included with Unlimited. Guest limits are per
-        event; a guest removed by the host frees their slot.
-      </p>
-    </section>
-
-    <section class="card narrow" style="margin:34px auto 0;">
-      <p class="kicker">How it works</p>
-      <ol class="steps">
-        <li><strong>Create your event</strong> — name, date, privacy, package. Ready in sixty seconds.</li>
-        <li><strong>Put the QR on the tables</strong> — print table cards straight from the app.</li>
-        <li><strong>Watch the gallery fill up</strong> — every guest's shots, live, in one place. Download everything with one tap.</li>
-      </ol>
-    </section>
-
-    <footer>
-      <a href="privacy.html">Privacy Policy</a> ·
-      <a href="terms.html">Terms of Service</a> ·
-      <a href="support.html">Support</a>
-      <p style="margin-top:10px;">© 2026 ShareCam</p>
-    </footer>
+      <p class="reassure">Free to start. Pay once per event if you need more. No subscription.</p>
+    </div>
   </div>
+</section>
+
+<!-- 2 · THE ALBUM (A: three-image editorial spread, captions under every image) -->
+<section class="section album" id="album" aria-labelledby="album-title">
+  <div class="wrap">
+    <div class="grid album-head">
+      <h2 id="album-title" class="h2">The photos you’d never have seen.</h2>
+      <p class="lead album-body">The speech you missed. The kids under the table. The dance floor at 1&nbsp;a.m. Every guest’s photos and videos arrive in one gallery within seconds, each with the name of the person who shared it.</p>
+    </div>
+    <div class="grid spread">
+      <figure class="spread-a">
+        <picture>
+          <source type="image/avif" srcset="assets/img/album-guests-700.avif 700w, assets/img/album-guests-1100.avif 1100w, assets/img/album-guests-1600.avif 1600w" sizes="(min-width: 1200px) 50vw, (min-width: 768px) 60vw, 100vw">
+          <img src="assets/img/album-guests-1100.webp" srcset="assets/img/album-guests-700.webp 700w, assets/img/album-guests-1100.webp 1100w, assets/img/album-guests-1600.webp 1600w" sizes="(min-width: 1200px) 50vw, (min-width: 768px) 60vw, 100vw" width="1600" height="2000" loading="lazy" decoding="async" alt="A guest in a sage linen dress stands to photograph friends raising their glasses at a long table under olive trees.">
+        </picture>
+        <figcaption class="cap">Across the table, as the glasses went up.</figcaption>
+      </figure>
+      <figure class="spread-b">
+        <picture>
+          <source type="image/avif" srcset="assets/img/album-toast-600.avif 600w, assets/img/album-toast-1000.avif 1000w" sizes="(min-width: 1200px) 30vw, (min-width: 768px) 36vw, 50vw">
+          <img src="assets/img/album-toast-600.webp" srcset="assets/img/album-toast-600.webp 600w, assets/img/album-toast-1000.webp 1000w" sizes="(min-width: 1200px) 30vw, (min-width: 768px) 36vw, 50vw" width="1000" height="1250" loading="lazy" decoding="async" alt="The father of the bride, eyes wet, gives a toast into a microphone while guests smile at the tables under olive trees.">
+        </picture>
+        <figcaption class="cap">The toast, from the back row.</figcaption>
+      </figure>
+      <figure class="spread-c">
+        <picture>
+          <source type="image/avif" srcset="assets/img/album-dance-500.avif 500w, assets/img/album-dance-800.avif 800w" sizes="(min-width: 1200px) 22vw, (min-width: 768px) 36vw, 50vw">
+          <img src="assets/img/album-dance-500.webp" srcset="assets/img/album-dance-500.webp 500w, assets/img/album-dance-800.webp 800w" sizes="(min-width: 1200px) 22vw, (min-width: 768px) 36vw, 50vw" width="800" height="800" loading="lazy" decoding="async" alt="An older couple dances cheek to cheek under string lights in the olive grove.">
+        </picture>
+        <figcaption class="cap">The grandparents, one slow song.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · HOW IT WORKS (C: app QR screen · the table card · the gallery) -->
+<section class="section how" id="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <h2 id="how-title" class="h2">How it works.</h2>
+    <!-- REPLACE with real 1.0.5 screenshots (brief §8.5): both phones are HTML renders from the app's own templates; the QR encodes https://sharecam.app/ -->
+    <ol class="steps">
+      <li class="step">
+        <div class="step-visual">
+          <div class="phone"><img src="assets/img/screen-qr-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="The app's QR screen for Emma &amp; Daniel: 'Guests join in one step', the event's QR code and code, and a Create Share Card button."></div>
+        </div>
+        <p class="step-label">First</p>
+        <h3 class="h3">Create your event.</h3>
+        <p>Name, date, open or private. Your QR code is ready in about a minute, and you don’t need an account to start.</p>
+      </li>
+      <li class="step">
+        <div class="step-visual step-photo">
+          <picture>
+            <source type="image/avif" srcset="assets/img/step-card-640.avif 640w, assets/img/step-card-1000.avif 1000w" sizes="(min-width: 1200px) 34vw, (min-width: 768px) 46vw, 100vw">
+            <img src="assets/img/step-card-640.webp" srcset="assets/img/step-card-640.webp 640w, assets/img/step-card-1000.webp 1000w" sizes="(min-width: 1200px) 34vw, (min-width: 768px) 46vw, 100vw" width="1000" height="1250" loading="lazy" decoding="async" alt="A printed Laurel table card with its QR code on a brass holder, between beeswax candles and white roses.">
+          </picture>
+        </div>
+        <p class="step-label">Then</p>
+        <h3 class="h3">Put it on the tables.</h3>
+        <p>Choose from 16 card designs with your QR code built in. Print four to an A4 page with cut marks, or send the invite link.</p>
+      </li>
+      <li class="step">
+        <div class="step-visual">
+          <div class="phone"><img src="assets/img/screen-guest-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="The live gallery for Emma &amp; Daniel on a guest's phone: 'Everyone can see what you upload', a grid of the party's photos, some marked YOU."></div>
+        </div>
+        <p class="step-label">After</p>
+        <h3 class="h3">Watch it fill up.</h3>
+        <p>Photos and videos from every phone land in one live gallery. Afterwards, save them all to Photos or download a ZIP.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- 4 · NOBODY DOWNLOADS ANYTHING (C: dark band 1 of 3; new scan plate with the real /join/ page) -->
+<section class="section guests band band-verde" id="guests" aria-labelledby="guests-title">
+  <div class="bleed-grid guests-grid">
+    <figure class="guests-fig">
+      <picture>
+        <source type="image/avif" srcset="assets/img/scan-720.avif 720w, assets/img/scan-1100.avif 1100w, assets/img/scan-1600.avif 1600w" sizes="(min-width: 1200px) 50vw, (min-width: 768px) 50vw, 100vw">
+        <img src="assets/img/scan-1100.webp" srcset="assets/img/scan-720.webp 720w, assets/img/scan-1100.webp 1100w, assets/img/scan-1600.webp 1600w" sizes="(min-width: 1200px) 50vw, (min-width: 768px) 50vw, 100vw" width="1600" height="1986" loading="lazy" decoding="async" alt="A guest holds her phone next to a Laurel table card with a QR code; the phone shows the Sharecam join page in the browser: Emma &amp; Daniel, a Your name field and a Join the album button.">
+      </picture>
+      <figcaption class="cap">Table six, joining from the browser.</figcaption>
+    </figure>
+    <div class="guests-copy">
+      <h2 id="guests-title" class="h2">Nobody downloads anything.</h2>
+      <p class="lead">The QR code opens in the phone’s browser, iPhone or Android. Guests type their name, pick photos, videos or a whole folder, and they’re in. No app, no account, no password.</p>
+      <ul class="points">
+        <li><strong>A name on every photo.</strong> Every upload carries the guest’s name, and you see the full guest list.</li>
+        <li><strong>Lost the card?</strong> The 6-character code works too, at <a href="https://sharecam.app/join/">sharecam.app/join</a>.</li>
+        <li><strong>Light on the Wi-Fi.</strong> Photos are resized on the phone to 2,048&nbsp;px before upload, so they go up quickly.</li>
+        <li><strong>App or browser, same album.</strong> Guests who prefer the app can use it. Everything lands in one place.</li>
+      </ul>
+      <div class="cta-row">
+        <a class="btn btn-cream" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
+        <a class="text-link" href="https://sharecam.app/join/">Have a code? Join an event <span aria-hidden="true">→</span></a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · YOUR ALBUM, YOUR CALL (bento of B and C; every tile holds real UI or a real photo) -->
+<section class="section features" id="features" aria-labelledby="features-title">
+  <div class="wrap">
+    <h2 id="features-title" class="h2">Your album, your call.</h2>
+    <div class="bento">
+
+      <!-- a · B's blurred grid + PRIVATE MODE card, C's visible toggle "Open the gallery to everyone" (Berk's photo 12).
+           The switch is named by its visible label (WCAG 2.5.3); works without JS (:checked). -->
+      <div class="tile tile-surprise">
+        <input type="checkbox" id="reveal" class="reveal-input" role="switch">
+        <div class="tile-head">
+          <h3 class="h3">Keep it a surprise.</h3>
+          <p>In private mode, guests see only their own photos while you see everything. Reveal the whole album when you’re ready: tap once, or schedule it for the morning after.</p>
+          <label for="reveal" class="reveal-toggle"><span class="toggle-sw" aria-hidden="true"></span>Open the gallery to everyone</label>
+        </div>
+        <!-- UI re-creation: GalleryGrid tiles + the Private mode settings row (app strings), not a device capture -->
+        <div class="surprise-ui">
+          <div class="pgrid" role="img" aria-label="The album as a guest sees it. In private mode each guest sees only her own photos, marked YOU, and everyone else's stay hidden; opening the gallery shows everyone's photos.">
+            <i><img src="assets/img/t-embrace.webp" width="400" height="400" alt="" loading="lazy" decoding="async"></i>
+            <i class="mine"><img src="assets/img/t-bridesmaids.webp" width="400" height="400" alt="" loading="lazy" decoding="async"><b class="you">YOU</b></i>
+            <i><img src="assets/img/t-sparklers.webp" width="400" height="400" alt="" loading="lazy" decoding="async"></i>
+            <i><img src="assets/img/t-table.webp" width="400" height="400" alt="" loading="lazy" decoding="async"></i>
+            <i><img src="assets/img/t-bench.webp" width="400" height="400" alt="" loading="lazy" decoding="async"></i>
+            <i class="mine"><img src="assets/img/t-lights.webp" width="400" height="400" alt="" loading="lazy" decoding="async"><b class="you">YOU</b></i>
+          </div>
+          <div class="app-card pcard" aria-hidden="true">
+            <div><p class="app-label">Private mode</p>
+              <p class="app-desc"><span class="on-priv">Guests only see their own photos.</span><span class="on-open">Everyone can see what you upload.</span></p></div>
+            <div class="app-state"><span class="ios-sw"></span><span class="app-statetxt"><span class="on-priv">Private</span><span class="on-open">Off</span></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- b · C's lightbox (app Lightbox.tsx host actions, en-US date as the app formats it) -->
+      <div class="tile tile-control">
+        <div class="lightbox" role="img" aria-label="A photo open in the host's lightbox, shared by Marco, with Save, Hide, Delete and Close.">
+          <picture>
+            <source type="image/avif" srcset="assets/img/lightbox-600.avif 600w, assets/img/lightbox-768.avif 768w" sizes="(min-width: 1200px) 30vw, (min-width: 768px) 50vw, 100vw">
+            <img src="assets/img/lightbox-600.webp" srcset="assets/img/lightbox-600.webp 600w, assets/img/lightbox-768.webp 768w" sizes="(min-width: 1200px) 30vw, (min-width: 768px) 50vw, 100vw" width="768" height="960" alt="" loading="lazy" decoding="async">
+          </picture>
+          <div class="lb-bar" aria-hidden="true">
+            <p class="lb-name">Marco · Jun 13, 07:40 PM</p>
+            <p class="lb-actions"><span>Save</span><span class="lb-gold">Hide</span><span class="lb-red">Delete</span><span>Close</span></p>
+          </div>
+        </div>
+        <div class="tile-head">
+          <h3 class="h3">Stay in control.</h3>
+          <p>Hide or delete any photo, remove a guest, or pause new joins. If a guest reports a photo, it disappears for them at once and waits in your Reported list.</p>
+        </div>
+      </div>
+
+      <!-- c · C's hand of cards: five designs ported from shareCard.tsx, QR → https://sharecam.app/ -->
+      <div class="tile tile-cards">
+        <div class="tile-head">
+          <h3 class="h3">Sixteen cards, ready to print.</h3>
+          <p>Invite and table-card designs with your QR code built in. Share them, or print four per A4 page with cut marks.</p>
+          <div class="fan-controls" data-fan-controls hidden>
+            <button type="button" class="btn-icon" data-fan-prev aria-label="Previous design"><span aria-hidden="true">←</span></button>
+            <p class="fan-name" aria-live="polite"><span data-fan-name>Laurel</span> <span class="fan-count"><span data-fan-index>3</span>&thinsp;/&thinsp;5</span></p>
+            <button type="button" class="btn-icon btn-icon-fill" data-fan-next aria-label="Next design"><span aria-hidden="true">→</span></button>
+          </div>
+        </div>
+        <div class="fan" data-fan>
+          <img class="fan-card" data-name="Arch" src="assets/img/card-arch.webp" width="580" height="870" loading="lazy" decoding="async" alt="Arch design: the QR code framed in an arch.">
+          <img class="fan-card" data-name="Monogram" src="assets/img/card-monogram.webp" width="580" height="870" loading="lazy" decoding="async" alt="Monogram design: large initials E &amp; D over a gold rule.">
+          <img class="fan-card" data-name="Laurel" src="assets/img/card-laurel.webp" width="580" height="870" loading="lazy" decoding="async" alt="Laurel design: initials in a laurel crest, Emma &amp; Daniel, the date and the QR code.">
+          <img class="fan-card" data-name="Botanical" src="assets/img/card-botanical.webp" width="580" height="870" loading="lazy" decoding="async" alt="Botanical design: an olive sprig inside a double frame.">
+          <img class="fan-card" data-name="Noir" src="assets/img/card-noir.webp" width="580" height="870" loading="lazy" decoding="async" alt="Noir design: cream type on deep green with gold corner marks.">
+        </div>
+      </div>
+
+      <!-- d · the host gallery's Save all / Download ZIP row + the Guest downloads setting -->
+      <div class="tile tile-home">
+        <div class="tile-head">
+          <h3 class="h3">Take it all home.</h3>
+          <p>Save the whole album to your Photos, or download it as a ZIP. You decide whether guests can save photos too.</p>
+        </div>
+        <div class="home-ui">
+          <!-- REPLACE with real 1.0.5 screenshot: host gallery render (paid state, Face tab, no upgrade chip) -->
+          <div class="phone phone-top"><img src="assets/img/host-top-600.webp" width="600" height="746" loading="lazy" decoding="async" alt="The top of the host's gallery for Emma &amp; Daniel: Gallery · 148, then Select, Save all (148) and Download ZIP above the Most loved photos."></div>
+          <div class="app-card dcard" aria-hidden="true">
+            <div><p class="app-label">Guest downloads</p><p class="app-desc">Guests can save photos.</p></div>
+            <div class="app-state"><span class="ios-sw"></span><span class="app-statetxt">On</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- e · the real expiry push (functions/src/notifyCopy.ts, 14 days = Wedding/Unlimited WARN_DAYS) -->
+      <div class="tile tile-keep">
+        <div class="tile-head">
+          <h3 class="h3">Never silently deleted.</h3>
+          <p class="keep-quote">You’re always warned before storage expires — photos are never silently deleted.</p>
+          <p>Storage is counted from your event date, not the day you set it up.</p>
+        </div>
+        <div class="push" role="img" aria-label="A Sharecam notification: Emma &amp; Daniel closes in 14 days. Download what you want to keep. Nothing is deleted without this warning.">
+          <span class="push-icon" aria-hidden="true"><svg><use href="#mark"/></svg></span>
+          <span class="push-txt" aria-hidden="true"><b>Emma &amp; Daniel closes in 14 days</b>Download what you want to keep. Nothing is deleted without this warning.</span>
+          <span class="push-time" aria-hidden="true">now</span>
+        </div>
+        <p class="keep-range">Spark 7&nbsp;days · Mini and Party 1&nbsp;month · Wedding 6&nbsp;months · Unlimited 1&nbsp;year</p>
+      </div>
+    </div>
+
+    <ul class="also">
+      <li><h3 class="h4">The best ones rise.</h3><p>In an open album, everyone can like photos. “Most loved” puts favourites first, and “My photos” shows just yours.</p></li>
+      <li><h3 class="h4">Your photos too.</h3><p>“Event shots” finds the photos on your phone taken since the event started and adds them in one tap.</p></li>
+      <li><h3 class="h4">Videos too.</h3><p>Guests can add videos on Party and up: 90 seconds in the app, up to 200&nbsp;MB each.</p></li>
+    </ul>
+    <div class="cta-row features-cta">
+      <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
+      <p class="reassure">Free to start. Pay once per event if you need more. No subscription.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · LIVE WALL (dark band 2 of 3; the real /wall/ page on a TV at the venue) -->
+<section class="section wall band band-wall" id="wall" aria-labelledby="wall-title">
+  <div class="bleed-grid wall-grid">
+    <div class="wall-copy">
+      <h2 id="wall-title" class="h2">Put it on the big screen.</h2>
+      <p class="lead">Open sharecam.app/wall on any TV, laptop or projector. No cable, no app. New photos fade in as they arrive, with your event name, code and join QR always on screen.</p>
+      <p class="fine">Included with Unlimited, in open albums. Photos only; videos are skipped.</p>
+    </div>
+    <figure class="wall-fig">
+      <picture>
+        <source type="image/avif" srcset="assets/img/walltv-960.avif 960w, assets/img/walltv-1600.avif 1600w, assets/img/walltv-2400.avif 2400w" sizes="(min-width: 1200px) 64vw, 100vw">
+        <img src="assets/img/walltv-1600.webp" srcset="assets/img/walltv-960.webp 960w, assets/img/walltv-1600.webp 1600w, assets/img/walltv-2400.webp 2400w" sizes="(min-width: 1200px) 64vw, 100vw" width="2400" height="1340" loading="lazy" decoding="async" alt="Guests point at a TV on an easel in a stone courtyard. It shows the live wall: a guest photo full screen, with the event name, code and a QR code in the corner.">
+      </picture>
+      <figcaption class="cap">The live wall on a TV at the venue.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 7 · FIND YOUR PHOTOS (C type + B's phone in a neutral browser frame) -->
+<section class="section face" id="face-matching" aria-labelledby="face-title">
+  <div class="wrap grid face-grid">
+    <div class="face-copy">
+      <p class="label">Optional add-on · $9.99 per event</p>
+      <h2 id="face-title" class="h2">Find your photos.</h2>
+      <p class="lead">A guest takes a selfie and sees only the photos they appear in. No scrolling through hundreds.</p>
+      <h3 class="h4 face-h">How it’s handled</h3>
+      <ul class="handled">
+        <li>Off until the host turns it on and accepts the host terms.</li>
+        <li>Each guest decides for themselves. Declining costs nothing and never limits access to the album.</li>
+        <li>Selfies are processed on our servers (Amazon Web Services, Frankfurt), not on the phone. The search signature is deleted as soon as the search finishes, within 24&nbsp;hours at the latest, and the selfie is never added to the album.</li>
+        <li>There’s no list of people. Even the host searches with their own selfie.</li>
+        <li>Never sold, never used to train AI, never used to identify anyone across events.</li>
+        <li>Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can’t confirm the location.</li>
+      </ul>
+      <p class="price-line">$9.99 once per event, on any package.</p>
+      <p class="face-links">
+        <a class="text-link" href="https://sharecam.app/face-grouping">How face matching works <span aria-hidden="true">→</span></a>
+        <a class="text-link" href="https://sharecam.app/host-terms.html">Host terms <span aria-hidden="true">→</span></a>
+      </p>
+    </div>
+    <figure class="face-fig">
+      <!-- REPLACE with real screenshot: HTML re-creation of the /face/ result step (face/index.html + face/i18n.js EN) -->
+      <div class="phone phone-neutral"><img src="assets/img/screen-face-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="A guest's browser on sharecam.app/face: Found 9 photos, These are the photos you appear in, Save all to Photos, Download all as a ZIP, and nine photos of her."></div>
+      <figcaption class="cap">A guest’s own result, in the browser.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 8 · PRIVACY (C: the night plate + dark band 3 of 3) -->
+<section class="privacy band band-verde" id="privacy" aria-labelledby="privacy-title">
+  <div class="privacy-plate">
+    <picture>
+      <source media="(min-width: 900px)" type="image/avif" srcset="assets/img/night-1600.avif 1600w, assets/img/night-2400.avif 2400w" sizes="100vw">
+      <source media="(min-width: 900px)" type="image/webp" srcset="assets/img/night-1600.webp 1600w, assets/img/night-2400.webp 2400w" sizes="100vw">
+      <source type="image/avif" srcset="assets/img/night-m-900.avif">
+      <img src="assets/img/night-m-900.webp" width="900" height="640" loading="lazy" decoding="async" alt="">
+    </picture>
+    <div class="wrap"><h2 id="privacy-title" class="h2">Your photos aren’t the product.</h2></div>
+  </div>
+  <div class="wrap grid privacy-grid">
+    <ul class="privacy-list">
+      <li>We do not sell or rent your data to anyone.</li>
+      <li>We do not show ads inside the app.</li>
+      <li>We do not use your photos to train AI models.</li>
+      <li>Only the items you explicitly choose to upload leave your device.</li>
+      <li>Albums are stored in the EU: the database in Frankfurt, photos and videos in Belgium.</li>
+      <li>This website uses no cookies, analytics or trackers.</li>
+    </ul>
+    <p class="privacy-more"><a class="text-link" href="https://sharecam.app/privacy.html">Read the privacy policy <span aria-hidden="true">→</span></a></p>
+  </div>
+</section>
+
+<!-- 9 · PRICING (C: tiers that grow; two tabs, Events | Photographers, 05 §6.2).
+     Without JS both panels show one after the other under their own h3; site.js turns the strip into tabs.
+     Deep link: /#pricing-photographers selects the Photographers tab. -->
+<section class="section pricing" id="packages" aria-labelledby="packages-title">
+  <div class="wrap">
+    <div class="grid pricing-head">
+      <h2 id="packages-title" class="h2">Pay once, per event.</h2>
+      <p class="lead">No subscription, nothing renews. Every event starts free on Spark.</p>
+    </div>
+    <!-- OPTIONAL:pro -->
+    <div class="price-tabs pro-only" role="tablist" aria-label="Package type" data-tabs hidden>
+      <button type="button" role="tab" id="tab-events" aria-controls="pricing-events" aria-selected="true">Events</button>
+      <button type="button" role="tab" id="tab-pro" aria-controls="pricing-photographers" aria-selected="false" tabindex="-1">Photographers</button>
+    </div>
+    <!-- /OPTIONAL:pro -->
+    <div class="price-panel" id="pricing-events">
+      <h3 class="panel-h">Events</h3>
+<!-- PRICING:catalog1 -->
+      <ol class="tiers" aria-label="Event packages, from smallest to largest. Each is a one-time purchase for one event.">
+        <li class="tier" style="--h:10">
+          <h4 class="tier-name">Spark</h4>
+          <p class="tier-price">Free</p>
+          <dl class="tier-limits">
+            <div><dt>Guests</dt><dd>10</dd></div>
+            <div><dt>Photos</dt><dd>50</dd></div>
+            <div><dt>Videos</dt><dd>—</dd></div>
+            <div><dt>Storage</dt><dd>7&nbsp;days</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:25">
+          <h4 class="tier-name">Mini</h4>
+          <p class="tier-price">$4.99</p>
+          <dl class="tier-limits">
+            <div><dt>Guests</dt><dd>25</dd></div>
+            <div><dt>Photos</dt><dd>200</dd></div>
+            <div><dt>Videos</dt><dd>—</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;month</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:50">
+          <h4 class="tier-name">Party</h4>
+          <p class="tier-price">$14.99</p>
+          <dl class="tier-limits">
+            <div><dt>Guests</dt><dd>50</dd></div>
+            <div><dt>Photos</dt><dd>500</dd></div>
+            <div><dt>Videos</dt><dd>5</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;month</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:100">
+          <h4 class="tier-name">Wedding</h4>
+          <p class="tier-price">$24.99</p>
+          <p class="tier-note">Sized for weddings up to 100&nbsp;guests.</p>
+          <dl class="tier-limits">
+            <div><dt>Guests</dt><dd>100</dd></div>
+            <div><dt>Photos</dt><dd>1,000</dd></div>
+            <div><dt>Videos</dt><dd>20</dd></div>
+            <div><dt>Storage</dt><dd>6&nbsp;months</dd></div>
+          </dl>
+        </li>
+        <li class="tier tier-top" style="--h:115">
+          <h4 class="tier-name">Unlimited</h4>
+          <p class="tier-price">$39.99</p>
+          <p class="tier-note">For more than 100&nbsp;guests. Includes the live wall.</p>
+          <dl class="tier-limits">
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Photos</dt><dd>Unlimited</dd></div>
+            <div><dt>Videos</dt><dd>Unlimited</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;year</dd></div>
+          </dl>
+        </li>
+      </ol>
+      <p class="addon"><span class="addon-name">Face matching</span><span class="addon-desc">Add to any package, where available.</span><span class="addon-price">+$9.99</span></p>
+<!-- /PRICING -->
+      <ul class="footnotes">
+        <li>Prices in USD; the App Store charges in your local currency.</li>
+        <li>Storage is counted from your event date, not the day you create it.</li>
+        <li>The live wall is included with Unlimited (open albums, photos only).</li>
+        <li>Guest limits are per event; removing a guest frees their slot.</li>
+      </ul>
+    </div>
+    <!-- OPTIONAL:pro — photographer packages (everycam src/plans.ts PLANS + scripts/storeProProducts.mjs; Berk asked to show them, 05 §6.2).
+         No videos row (the desktop uploader takes no video yet), no "Most popular". Hide together with #photographers. -->
+    <div class="price-panel pro-only" id="pricing-photographers">
+      <h3 class="panel-h">Photographers</h3>
+      <ol class="tiers" aria-label="Photographer packages, from smallest to largest. Each is a one-time purchase for one event.">
+        <li class="tier" style="--h:40">
+          <h4 class="tier-name">Pro 500</h4>
+          <p class="tier-price">$49.99</p>
+          <dl class="tier-limits">
+            <div><dt>Photos</dt><dd>500</dd></div>
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Face matching</dt><dd>Included</dd></div>
+            <div><dt>Live wall</dt><dd>—</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;month</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:60">
+          <h4 class="tier-name">Pro 1000</h4>
+          <p class="tier-price">$79.99</p>
+          <dl class="tier-limits">
+            <div><dt>Photos</dt><dd>1,000</dd></div>
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Face matching</dt><dd>Included</dd></div>
+            <div><dt>Live wall</dt><dd>Included</dd></div>
+            <div><dt>Storage</dt><dd>3&nbsp;months</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:80">
+          <h4 class="tier-name">Pro 2000</h4>
+          <p class="tier-price">$129.99</p>
+          <dl class="tier-limits">
+            <div><dt>Photos</dt><dd>2,000</dd></div>
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Face matching</dt><dd>Included</dd></div>
+            <div><dt>Live wall</dt><dd>Included</dd></div>
+            <div><dt>Storage</dt><dd>6&nbsp;months</dd></div>
+          </dl>
+        </li>
+        <li class="tier" style="--h:100">
+          <h4 class="tier-name">Pro 5000</h4>
+          <p class="tier-price">$199.99</p>
+          <dl class="tier-limits">
+            <div><dt>Photos</dt><dd>5,000</dd></div>
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Face matching</dt><dd>Included</dd></div>
+            <div><dt>Live wall</dt><dd>Included</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;year</dd></div>
+          </dl>
+        </li>
+        <li class="tier tier-top" style="--h:115">
+          <h4 class="tier-name">Pro Unlimited</h4>
+          <p class="tier-price">$299.99</p>
+          <p class="tier-note">For more than 5,000 photos.</p>
+          <dl class="tier-limits">
+            <div><dt>Photos</dt><dd>Unlimited</dd></div>
+            <div><dt>Guests</dt><dd>Unlimited</dd></div>
+            <div><dt>Face matching</dt><dd>Included</dd></div>
+            <div><dt>Live wall</dt><dd>Included</dd></div>
+            <div><dt>Storage</dt><dd>1&nbsp;year</dd></div>
+          </dl>
+        </li>
+      </ol>
+      <p class="addon addon-pro">Originals kept · you upload from a computer · guests view and find their photos with a selfie</p>
+      <ul class="footnotes">
+        <li>One-time purchase per event, no subscription.</li>
+        <li>Bought in the Sharecam iPhone app, from the next app update.</li> <!-- PRO-SOON: remove ", from the next app update" when 1.0.5 is live -->
+        <li>Prices in USD.</li>
+        <li>Face matching where available: not in Illinois, Texas or Washington, in China, Russia or Vietnam, or where we can’t confirm the location.</li>
+      </ul>
+    </div>
+    <!-- /OPTIONAL:pro -->
+    <div class="cta-row pricing-cta">
+      <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
+      <p class="reassure">Free to start. Pay once per event if you need more. No subscription.</p>
+    </div>
+  </div>
+</section>
+
+<!-- OPTIONAL:pro — photographer mode ships with app 1.0.5 (TestFlight today). Visible in this preview only.
+     Its prices live in the Photographers pricing tab (#pricing-photographers). Hide this section, that tab and panel,
+     and the nav / menu / footer photographer links together before 1.0.5 is live: <body class="home no-pro">,
+     or delete every OPTIONAL:pro block. Copy from 02 "Photographer mode" only. -->
+<section class="section pro pro-only" id="photographers" aria-labelledby="pro-title">
+  <div class="wrap grid pro-grid">
+    <div class="pro-copy">
+      <p class="label">For photographers</p>
+      <h2 id="pro-title" class="h2">Your gallery, found by every guest.</h2>
+      <ul class="handled pro-points">
+        <li>Upload the whole gallery from a computer at sharecam.app/upload. Drag in a folder: JPEG, PNG, TIFF or WebP, up to 200&nbsp;MB each. Originals are kept.</li>
+        <li>Connect the computer by scanning its QR code with the Sharecam app, or by typing the 6-character code the app shows.</li>
+        <li>Guests scan the table QR and find the photos they’re in with a selfie, then browse the rest. No app, unlimited guests, face matching included where available.</li>
+        <li>The couple gets a one-time code for sharecam.app/album and downloads everything as ZIP parts, in 2,048&nbsp;px or originals.</li>
+      </ul>
+      <div class="cta-row">
+        <a class="btn" href="https://sharecam.app/join/upload/">Photographer login</a>
+        <a class="text-link" href="https://sharecam.app/join/album/">Couple’s album <span aria-hidden="true">→</span></a>
+        <a class="text-link" href="#pricing-photographers">See photographer prices <span aria-hidden="true">→</span></a>
+      </div>
+      <p class="reassure">Photographer packages arrive in the Sharecam iPhone app with the next update. <!-- PRO-SOON: when 1.0.5 is live → "Photographer packages are set up in the Sharecam iPhone app." --></p>
+    </div>
+    <figure class="pro-fig">
+      <div class="laptop">
+        <div class="laptop-lid">
+          <div class="browser">
+            <div class="browser-bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url">sharecam.app/upload</span></div>
+            <!-- Real capture of https://sharecam.app/join/upload/ (23 Sep 2026), cropped 16:10 around the whole card.
+                 Its one-time pairing QR was replaced by a QR to https://sharecam.app/upload (decoded to verify). -->
+            <picture>
+              <source type="image/avif" srcset="assets/img/upload-1064.avif 1064w, assets/img/upload-1600.avif 1600w" sizes="(min-width: 1200px) 52vw, 100vw">
+              <img src="assets/img/upload-1064.webp" srcset="assets/img/upload-1064.webp 1064w, assets/img/upload-1600.webp 1600w" sizes="(min-width: 1200px) 52vw, 100vw" width="1600" height="1000" loading="lazy" decoding="async" alt="The Sharecam upload page on a computer: Upload from your computer, a QR code to scan with the phone, a field for the 6-character code from the app, and a Connect this computer button.">
+            </picture>
+          </div>
+        </div>
+        <div class="laptop-base" aria-hidden="true"></div>
+      </div>
+      <div class="browser browser-mini">
+        <div class="browser-bar" aria-hidden="true"><span class="dots"><i></i><i></i><i></i></span><span class="url">sharecam.app/album</span></div>
+        <!-- Real capture of https://sharecam.app/join/album/ (23 Sep 2026). -->
+        <picture>
+          <source type="image/avif" srcset="assets/img/album-page-520.avif 520w, assets/img/album-page-800.avif 800w" sizes="(min-width: 1200px) 18vw, 40vw">
+          <img src="assets/img/album-page-520.webp" srcset="assets/img/album-page-520.webp 520w, assets/img/album-page-800.webp 800w" sizes="(min-width: 1200px) 18vw, 40vw" width="800" height="800" loading="lazy" decoding="async" alt="The couple's album page: Your album, your name and the one-time code from the photographer, and an Open the album button.">
+        </picture>
+      </div>
+      <figcaption class="cap">The upload page on the photographer’s computer<span class="cap-wide">, and the couple’s album page</span>.</figcaption>
+    </figure>
+  </div>
+</section>
+<!-- /OPTIONAL:pro -->
+
+<!-- 11 · FAQ (A: statement-voice title left, hairline list right) -->
+<section class="section faq" id="faq" aria-labelledby="faq-title">
+  <div class="wrap grid faq-grid">
+    <div class="faq-intro">
+      <h2 id="faq-title" class="statement">Questions</h2>
+      <p>Anything else, write to <a href="mailto:app.sharecam@gmail.com">app.sharecam@gmail.com</a>.</p>
+    </div>
+    <div class="faq-list">
+      <details><summary>Do guests need to download an app?</summary><p>No. The QR code opens in the phone’s browser. Guests type their name and upload. Anyone who prefers the app can use it, and everything lands in the same album.</p></details>
+      <details><summary>Do guests need an iPhone?</summary><p>No. Guests can join from any phone with a browser, Android included. To host an event, you need an iPhone (iOS 16.4 or later).</p></details>
+      <details><summary>Is it a subscription?</summary><p>No. Packages are one-time purchases for one event, and nothing renews. Every event starts on the free Spark package.</p></details>
+      <details><summary>Can I upgrade later?</summary><p>Yes, any time from the app. Upgrading charges the full price of the new package. The event name and date lock once you choose a paid package, so check them first.</p></details>
+      <details><summary>What happens if the album fills up?</summary><p>New uploads stop, and guests see a message asking the host to upgrade. You can upgrade from the app at any time.</p></details>
+      <details><summary>How long are photos kept?</summary><p>From 7 days (Spark) to 1 year (Unlimited), counted from your event date. The app sends a notification before storage ends (2 days before on Spark, 5 on Mini and Party, 14 on Wedding and Unlimited), so keep notifications on. You can save everything to Photos or download a ZIP at any time.</p></details>
+      <details><summary>Are photos saved in full resolution?</summary><p>Photos are resized on the phone to 2,048&nbsp;px on the long edge before upload. That keeps uploads quick on venue Wi-Fi, but they’re not the camera originals.</p></details>
+      <details><summary>Can guests see each other’s photos?</summary><p>Only if you want them to. An open album is shared live. In private mode, only you see everything until you reveal it, either by hand or on a schedule.</p></details>
+      <details><summary>Can I remove a photo or a guest?</summary><p>Yes. Hosts can hide or delete any photo, remove a guest and pause new joins. Guests can report a photo, and it goes straight to the host.</p></details>
+      <details><summary>Is face matching available where I live?</summary><p>It isn’t offered in Illinois, Texas or Washington, in China, Russia or Vietnam, and it stays off anywhere we can’t confirm the location. Where it is available, it’s an optional $9.99 add-on per event, and every guest chooses for themselves.</p></details>
+      <details><summary>How do refunds work?</summary><p>Purchases go through Apple, so refunds are requested at <a href="https://reportaproblem.apple.com">reportaproblem.apple.com</a>. If something went wrong on our side, write to us first.</p></details>
+      <details><summary>Can I use it for birthdays and other parties?</summary><p>Yes. Spark is free for up to 10 guests, and the smaller packages are made for dinners, birthdays and parties.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · FINAL CTA (a static printed table card hands laptop visitors to their iPhone) -->
+<section class="section closing" aria-labelledby="closing-title">
+  <div class="wrap grid closing-grid">
+    <div class="closing-copy">
+      <h2 id="closing-title" class="h2 h2-xl">Your guests are already taking the photos.</h2>
+      <div class="cta-row">
+        <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
+        <a class="text-link" href="https://sharecam.app/join/">Have a code? Join an event <span aria-hidden="true">→</span></a>
+      </div>
+      <p class="reassure">Free to start · iPhone app for hosts · guests join from any phone</p>
+    </div>
+    <!-- QR → the App Store (no public demo event yet, brief §8.2). Swap to "Scan to try it as a guest" + /e/<DEMO> when one exists. -->
+    <figure class="tablecard" aria-label="Table card: Scan to get the app">
+      <div class="crest" aria-hidden="true"><svg class="crest-laurel" viewBox="0 0 150 110"><path d="M75.0 104 Q 12 78 22 14" stroke="#6E7F5F" stroke-width="1.3" fill="none"/><path d="M75.0 104 Q 138 78 128 14" stroke="#6E7F5F" stroke-width="1.3" fill="none"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(22.0 84) rotate(-25)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(128.0 84) rotate(25)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(24.5 68) rotate(-17)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(125.5 68) rotate(17)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(27.0 52) rotate(-9)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(123.0 52) rotate(9)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(29.5 36) rotate(-1)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(120.5 36) rotate(1)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(32.0 20) rotate(7)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(118.0 20) rotate(-7)"/></svg><svg class="crest-mark"><use href="#mark"/></svg></div>
+      <p class="tc-title">Scan to get the app</p>
+      <svg class="tc-qr" viewBox="-2 -2 33 33" role="img" aria-label="QR code linking to Sharecam on the App Store" shape-rendering="crispEdges"><rect x="-2" y="-2" width="33" height="33" fill="#F7F2E7"/><path fill="#1F3D2E" d="M0 0h7v1h-7zM8 0h1v1h-1zM10 0h1v1h-1zM12 0h2v1h-2zM15 0h1v1h-1zM17 0h2v1h-2zM20 0h1v1h-1zM22 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM12 1h3v1h-3zM17 1h1v1h-1zM19 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h2v1h-2zM15 2h1v1h-1zM17 2h2v1h-2zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h3v1h-3zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h1v1h-1zM10 3h2v1h-2zM13 3h1v1h-1zM15 3h1v1h-1zM18 3h2v1h-2zM22 3h1v1h-1zM24 3h3v1h-3zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM8 4h1v1h-1zM11 4h3v1h-3zM15 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h3v1h-3zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM8 5h2v1h-2zM12 5h2v1h-2zM16 5h1v1h-1zM18 5h2v1h-2zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h7v1h-7zM8 7h3v1h-3zM12 7h1v1h-1zM16 7h5v1h-5zM0 8h1v1h-1zM4 8h1v1h-1zM6 8h4v1h-4zM11 8h2v1h-2zM14 8h1v1h-1zM16 8h2v1h-2zM20 8h6v1h-6zM28 8h1v1h-1zM0 9h3v1h-3zM4 9h2v1h-2zM7 9h1v1h-1zM15 9h1v1h-1zM22 9h1v1h-1zM24 9h5v1h-5zM1 10h2v1h-2zM6 10h1v1h-1zM9 10h1v1h-1zM11 10h2v1h-2zM15 10h1v1h-1zM17 10h1v1h-1zM20 10h1v1h-1zM24 10h1v1h-1zM28 10h1v1h-1zM0 11h4v1h-4zM5 11h1v1h-1zM9 11h1v1h-1zM11 11h2v1h-2zM14 11h2v1h-2zM17 11h1v1h-1zM19 11h1v1h-1zM21 11h1v1h-1zM23 11h1v1h-1zM25 11h1v1h-1zM27 11h2v1h-2zM0 12h1v1h-1zM4 12h3v1h-3zM13 12h2v1h-2zM16 12h2v1h-2zM19 12h3v1h-3zM23 12h1v1h-1zM27 12h1v1h-1zM0 13h1v1h-1zM9 13h1v1h-1zM11 13h2v1h-2zM14 13h2v1h-2zM22 13h7v1h-7zM0 14h2v1h-2zM3 14h2v1h-2zM6 14h1v1h-1zM9 14h1v1h-1zM13 14h3v1h-3zM17 14h1v1h-1zM21 14h3v1h-3zM25 14h2v1h-2zM28 14h1v1h-1zM2 15h4v1h-4zM11 15h1v1h-1zM13 15h1v1h-1zM15 15h3v1h-3zM19 15h2v1h-2zM22 15h2v1h-2zM27 15h2v1h-2zM1 16h1v1h-1zM3 16h4v1h-4zM8 16h1v1h-1zM12 16h2v1h-2zM16 16h3v1h-3zM20 16h2v1h-2zM23 16h1v1h-1zM27 16h1v1h-1zM0 17h1v1h-1zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM10 17h2v1h-2zM13 17h3v1h-3zM17 17h2v1h-2zM20 17h6v1h-6zM27 17h2v1h-2zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h3v1h-3zM11 18h1v1h-1zM15 18h2v1h-2zM18 18h1v1h-1zM20 18h4v1h-4zM26 18h1v1h-1zM28 18h1v1h-1zM3 19h1v1h-1zM7 19h1v1h-1zM10 19h1v1h-1zM14 19h5v1h-5zM20 19h4v1h-4zM27 19h2v1h-2zM0 20h4v1h-4zM5 20h2v1h-2zM10 20h1v1h-1zM12 20h3v1h-3zM16 20h2v1h-2zM19 20h7v1h-7zM28 20h1v1h-1zM8 21h3v1h-3zM12 21h1v1h-1zM15 21h1v1h-1zM17 21h4v1h-4zM24 21h1v1h-1zM28 21h1v1h-1zM0 22h7v1h-7zM8 22h10v1h-10zM19 22h2v1h-2zM22 22h1v1h-1zM24 22h3v1h-3zM28 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM12 23h2v1h-2zM15 23h6v1h-6zM24 23h1v1h-1zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM8 24h3v1h-3zM12 24h2v1h-2zM15 24h3v1h-3zM19 24h7v1h-7zM27 24h1v1h-1zM0 25h1v1h-1zM2 25h3v1h-3zM6 25h1v1h-1zM9 25h1v1h-1zM12 25h4v1h-4zM18 25h4v1h-4zM23 25h1v1h-1zM28 25h1v1h-1zM0 26h1v1h-1zM2 26h3v1h-3zM6 26h1v1h-1zM9 26h2v1h-2zM15 26h6v1h-6zM25 26h4v1h-4zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM11 27h1v1h-1zM13 27h1v1h-1zM17 27h1v1h-1zM20 27h3v1h-3zM25 27h1v1h-1zM27 27h2v1h-2zM0 28h7v1h-7zM8 28h7v1h-7zM16 28h3v1h-3zM20 28h1v1h-1zM24 28h2v1h-2zM27 28h1v1h-1z"/></svg>
+      <p class="tc-url">apps.apple.com/app/<br>id6801534049</p>
+    </figure>
+  </div>
+</section>
+
+</main>
+
+<!-- FOOTER (A's structure) -->
+<footer class="site-footer">
+  <div class="wrap grid footer-grid">
+    <div class="f-brand">
+      <a class="brand" href="/" aria-label="Sharecam, home"><span class="wordmark">Share<i>Cam</i></span></a>
+      <a class="btn btn-sm" href="https://apps.apple.com/app/id6801534049">Get the app</a>
+    </div>
+    <nav class="f-col f-product" aria-labelledby="f-product">
+      <h2 id="f-product" class="f-head">Product</h2>
+      <ul>
+        <li><a href="#how">How it works</a></li>
+        <li><a href="#packages">Pricing</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="https://sharecam.app/join/">Join an event</a></li>
+        <li><a href="https://sharecam.app/wall/">Live wall</a></li>
+      </ul>
+    </nav>
+    <!-- OPTIONAL:pro -->
+    <nav class="f-col f-pro pro-only" aria-labelledby="f-pro">
+      <h2 id="f-pro" class="f-head">Photographers</h2>
+      <ul>
+        <li><a href="#photographers">For photographers</a></li>
+        <li><a href="https://sharecam.app/join/upload/">Photographer login</a></li>
+        <li><a href="https://sharecam.app/join/album/">Couple’s album</a></li>
+        <li><a href="#pricing-photographers">Photographer prices</a></li>
+      </ul>
+    </nav>
+    <!-- /OPTIONAL:pro -->
+    <nav class="f-col f-legal" aria-labelledby="f-legal">
+      <h2 id="f-legal" class="f-head">Legal</h2>
+      <ul>
+        <li><a href="https://sharecam.app/privacy.html">Privacy</a></li>
+        <li><a href="https://sharecam.app/terms.html">Terms</a></li>
+        <li><a href="https://sharecam.app/host-terms.html">Host terms</a></li>
+        <li><a href="https://sharecam.app/face-grouping">Face matching notice</a></li>
+        <li><a href="https://sharecam.app/delete-account.html">Delete your account</a></li>
+        <li><a href="https://sharecam.app/support.html">Support</a></li>
+      </ul>
+    </nav>
+    <div class="f-col f-contact">
+      <h2 class="f-head">Contact</h2>
+      <ul><li><a href="mailto:app.sharecam@gmail.com">app.sharecam@gmail.com</a></li></ul>
+    </div>
+    <p class="f-copy">© 2026 Sharecam</p>
+  </div>
+</footer>
 </body>
 </html>

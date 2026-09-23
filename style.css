@@ -1,140 +1,255 @@
-/* ShareCam site — palet: Crema #F3EEE2 · Verde #1F3D2E · Dorado #C79A2E · Carbón #2B2B2B */
-:root {
-  --bg: #f3eee2;
-  --card: #fbf8f0;
-  --line: #dfd8c4;
-  --ink: #2b2b2b;
-  --ink-soft: #6f695b;
-  --verde: #1f3d2e;
-  --gold: #c79a2e;
-  --soft: #6e7f5f;
+/* Sharecam — shared styles: fonts, tokens, base, header, buttons, footer and the legal pages.
+   The home page adds assets/home.css on top. The legal pages (privacy, terms, support, host-terms,
+   face-grouping, delete-account) are styled here WITHOUT touching their HTML, through the hooks they
+   already use: header.site, .brand, .brand img, .wordmark (+ i), .wrap, .narrow, article, .updated,
+   .muted, .card, .kicker, .btn, .btn.ghost, footer, footer.site, .plans, .plans-scroll, .tag, .steps,
+   .emoji, .highlight.
+
+   One system (05 §2):
+   - two heading voices: statement (light Fraunces, hero H1 + FAQ title only) and section
+     (heavy soft Fraunces, every other heading); body is Inter.
+   - radii: 0 photos and buttons · 6 printed cards and objects inside tiles · 16 tiles and panels.
+   - shadows only on physical objects (phones, printed cards, the laptop). */
+
+/* ---------- fonts: self-hosted, latin subset (111 KB total) ---------- */
+@font-face {
+  font-family: "Fraunces";
+  src: url("assets/fonts/fraunces-var.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
 }
-* { box-sizing: border-box; }
+@font-face { /* the hero's one italic word, "collected." — 7 glyphs, 1.6 KB */
+  font-family: "Fraunces";
+  src: url("assets/fonts/fraunces-italic-collected.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+002E, U+0063-0065, U+006C, U+006F, U+0074;
+}
+@font-face {
+  font-family: "Inter";
+  src: url("assets/fonts/inter-var.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face { /* ← and →, missing from the latin subset: 2 glyphs from Inter SemiBold, <1 KB */
+  font-family: "Inter";
+  src: url("assets/fonts/inter-arrows.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+2190, U+2192;
+}
+/* width-matched fallbacks so the swap doesn't re-wrap lines (measured in work/round3/metric.cjs at the sizes
+   used: Fraunces H2/H3/FAQ 92–104 % of Georgia, the 128 px display cut 83 %, Inter body 102–104 % of Arial) */
+@font-face { font-family: "Fraunces fallback"; src: local("Georgia"); size-adjust: 94%; ascent-override: 104%; descent-override: 27%; }
+@font-face { font-family: "Fraunces display fallback"; src: local("Georgia"); size-adjust: 83%; ascent-override: 118%; descent-override: 31%; }
+@font-face { font-family: "Inter fallback"; src: local("Arial"); size-adjust: 103%; ascent-override: 94%; descent-override: 23%; }
+
+:root {
+  color-scheme: light;
+  --bg: #F3EEE2;
+  --bg-alt: #ECE5D2;
+  --surface: #FBF8F0;
+  --card: #F7F2E7;
+  --line: #DFD8C4;
+  --ink: #2B2B2B;
+  --ink-soft: #6F695B;          /* 4.71 on bg, 5.14 on surface */
+  --ink-soft-strong: #5F5A4D;   /* 5.47 on bg-alt */
+  --verde: #1F3D2E;
+  --verde-dark: #142B20;
+  --wall: #0E1310;
+  --sage: #6E7F5F;
+  --sage-text: #56664A;        /* 5.34 on bg, 4.92 on bg-alt (brief value #5E6E50 fails on bg-alt) */
+  --gold: #C79A2E;              /* text only on verde / wall; never on cream */
+  --danger: #9C3D2E;
+  --cream: #F3EEE2;
+  --on-dark-soft: #A9B59C;      /* 8.7 on wall, 7.2 on verde-dark */
+  --on-verde: #DDE2D5;          /* body text on verde-dark: 11.3 */
+  --rule: rgba(31, 61, 46, .30);
+  --rule-soft: rgba(31, 61, 46, .16);
+  --rule-dark: rgba(243, 238, 226, .2);
+
+  --serif: "Fraunces", "Fraunces fallback", Georgia, serif;
+  --serif-display: "Fraunces", "Fraunces display fallback", Georgia, serif;  /* the hero H1 at >= 900 px */
+  --sans: "Inter", "Inter fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+
+  --t-display: clamp(3.25rem, 1.4rem + 7.4vw, 8rem);
+  --t-h2: clamp(2.25rem, 1.3rem + 3.8vw, 4.5rem);
+  --t-h3: clamp(1.5rem, 1.25rem + 1vw, 2rem);
+  --t-lead: clamp(1.125rem, 1rem + .45vw, 1.375rem);
+  --t-body: 1.0625rem;
+  --t-small: .9375rem;
+  --t-label: .8125rem;
+
+  --r-sm: 6px;
+  --r-md: 16px;
+  --shadow-obj: 0 1px 1px rgba(20, 43, 32, .06), 0 10px 24px -10px rgba(20, 43, 32, .22), 0 40px 70px -30px rgba(20, 43, 32, .35);
+  --ease: cubic-bezier(.2, .7, .2, 1);
+
+  --max: 1280px;
+  --margin: 20px;
+  --gap: 16px;
+  --cols: 4;
+  --section: clamp(80px, 10vw, 160px);
+  --header-h: 72px;
+}
+@media (min-width: 768px) { :root { --margin: 32px; --gap: 20px; --cols: 8; --t-body: 1.125rem; } }
+@media (min-width: 1200px) { :root { --margin: clamp(24px, 4vw, 64px); --gap: 24px; --cols: 12; --header-h: 88px; } }
+
+/* ---------- base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; scroll-padding-top: 24px; }
+/* smooth in-page jumps; on the home page only after load (html.loaded, site.js), so a deep link like
+   /#pricing-photographers lands instantly instead of racing a smooth scroll */
+@media (prefers-reduced-motion: no-preference) { html:not(.js), html.loaded { scroll-behavior: smooth; } }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font-family: 'Inter', -apple-system, system-ui, sans-serif;
-  line-height: 1.6;
+  font: 400 var(--t-body)/1.6 var(--sans);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
 }
-h1, h2, h3, .brand { font-family: 'Fraunces', Georgia, serif; color: var(--verde); }
-a { color: var(--verde); }
-
-header.site {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 18px 20px;
+img { max-width: 100%; height: auto; }
+/* every serif element states its axes: the font's own default for WONK is 1 */
+h1, h2, h3, h4, .serif {
+  font-family: var(--serif);
+  font-variation-settings: "SOFT" var(--soft, 100), "WONK" var(--wonk, 0);
+  color: var(--verde);
+  text-wrap: balance;
 }
-.brand { font-size: 24px; font-weight: 700; text-decoration: none; letter-spacing: -0.5px; }
-.brand span { color: var(--gold); }
-header.site nav a { margin-left: 18px; font-size: 14px; text-decoration: none; color: var(--ink-soft); }
-header.site nav a:hover { color: var(--verde); }
+a { color: var(--verde); text-decoration-thickness: 1px; text-underline-offset: .2em; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 2px solid var(--verde); outline-offset: 3px; }
+.band :focus-visible, .site-footer.dark :focus-visible { outline-color: var(--cream); }
+::selection { background: var(--verde); color: var(--cream); }
+.sr-only { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 50; background: var(--verde); color: var(--cream); padding: 12px 16px; font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
 
-.wrap { max-width: 960px; margin: 0 auto; padding: 0 20px 60px; }
-.narrow { max-width: 720px; }
-
-.hero { text-align: center; padding: 56px 0 30px; }
-.hero h1 { font-size: clamp(38px, 7vw, 64px); line-height: 1.05; margin: 0 0 16px; letter-spacing: -1.5px; }
-.hero p.lead { font-size: 18px; color: var(--ink-soft); max-width: 560px; margin: 0 auto 28px; }
-
+/* ---------- buttons: one shape, square (A) ---------- */
 .btn {
-  display: inline-block;
-  background: var(--verde);
-  color: #f3eee2;
-  padding: 14px 28px;
-  border-radius: 999px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 16px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 28px;
+  border: 0; border-radius: 0;
+  background: var(--verde); color: var(--cream);
+  font: 600 .9375rem/1 var(--sans); letter-spacing: .02em;
+  text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background-color 180ms var(--ease);
 }
-.btn.ghost { background: transparent; color: var(--verde); border: 1.5px solid var(--verde); }
-.btn:hover { opacity: 0.92; }
+.btn:hover { background: var(--verde-dark); }
+.btn.btn-sm { min-height: 44px; padding: 0 18px; }
+.btn.ghost { background: transparent; color: var(--verde); box-shadow: inset 0 0 0 1.5px var(--verde); }
+.btn.ghost:hover { background: var(--verde); color: var(--cream); }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  padding: 24px;
+/* ---------- header: shared by the home page and the legal pages ---------- */
+header.site {
+  position: relative; z-index: 20;
+  display: flex; align-items: center; gap: 12px;
+  width: min(var(--max), 100% - 2 * var(--margin));
+  height: var(--header-h);
+  margin-inline: auto;
+  border-bottom: 1px solid var(--rule);
 }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin: 34px 0; }
-.grid h3 { margin: 8px 0 6px; font-size: 19px; }
-.grid p { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
-.emoji { font-size: 26px; }
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  min-height: 44px; min-width: 44px; margin-right: auto;
+  color: var(--verde); text-decoration: none; white-space: nowrap;
+}
+/* the rings mark comes from CSS, so pages whose HTML only has the wordmark get it too */
+.brand::before {
+  content: ""; flex: none; width: 30px; height: 29px;
+  background: currentColor;
+  -webkit-mask: url("assets/brand/mark.svg") center / contain no-repeat;
+  mask: url("assets/brand/mark.svg") center / contain no-repeat;
+}
+.brand img { display: none; }  /* face-grouping.html still has the old PNG */
+.wordmark {
+  font: 600 1.375rem/1 var(--serif);
+  font-variation-settings: "opsz" 36, "SOFT" 0, "WONK" 0;
+  letter-spacing: -.02em; color: var(--verde);
+}
+/* THE wordmark switch (05 §6.4). Every page, home included, writes Share<i>Cam</i> (the legal pages' markup), so
+   this one rule sets the casing and colour everywhere. Now: single-tone "Sharecam" (App Store name).
+   Two-tone "ShareCam" (Berk's in-app wordmark, 15 Aug) = replace the line below with:
+     .wordmark i { font-style: normal; text-transform: none; color: var(--gold); }
+   (gold passes as text on verde; on cream it is a logotype, exempt from 1.4.3, but #6E7F5F sage reads better:
+    color: #6E7F5F). Not "capitalize": it only uppercases a word's first letter, and "cam" is mid-word. */
+.wordmark i { font-style: normal; text-transform: none; color: #6E7F5F; }
+.band-dark .wordmark i, .site-footer.dark .wordmark i { color: var(--gold); }
+header.site > nav { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; margin-right: -10px; }
+header.site > nav a {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px;
+  color: var(--ink); text-decoration: none; white-space: nowrap;
+  font: 500 .9375rem/1 var(--sans);
+}
+header.site > nav a:hover { color: var(--verde); text-decoration: underline; }
+@media (min-width: 1200px) {
+  header.site { gap: 24px; }
+  .brand::before { width: 34px; height: 33px; }
+  .wordmark { font-size: 1.5rem; }
+}
+@media (max-width: 420px) { header.site > nav a { padding: 0 7px; font-size: .875rem; } }
+@media (max-width: 359.98px) { .brand .wordmark { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; } }
 
-.kicker {
-  text-transform: uppercase;
-  letter-spacing: 2.5px;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--gold);
+/* ---------- legal / article pages ---------- */
+.wrap { width: min(var(--max), 100% - 2 * var(--margin)); margin-inline: auto; }
+.wrap.narrow { width: min(68ch, 100% - 2 * var(--margin)); padding-bottom: 48px; }
+article { padding: clamp(40px, 7vw, 96px) 0 24px; }
+article h1, .wrap.narrow > h1 {
+  --soft: 100; --wonk: 1;
+  font-size: clamp(2.5rem, 1.5rem + 3.4vw, 4rem);
+  font-weight: 850;
+  line-height: .98;
+  letter-spacing: -.028em;
+  margin: 0 0 20px !important;  /* beats face-grouping.html's inline style="margin-top:34px" (no HTML edits) */
+}
+.wrap.narrow > h1 { padding-top: clamp(40px, 7vw, 96px); }
+article h2, .wrap.narrow > h2 {
+  font-size: 1.75rem; font-weight: 700; line-height: 1.15; letter-spacing: -.015em;
+  margin: 2.2em 0 .5em;
+}
+article h3, .wrap.narrow > h3 { font-size: 1.3125rem; font-weight: 700; line-height: 1.25; letter-spacing: -.01em; margin: 1.8em 0 .4em; }
+article p, article li, .wrap.narrow > p, .wrap.narrow li { line-height: 1.65; }
+article p, .wrap.narrow > p { margin: 0 0 1.05em; }
+article ul, article ol, .wrap.narrow > ul, .wrap.narrow > ol { padding-left: 1.25em; margin: 0 0 1.2em; }
+article li, .wrap.narrow li { margin: .35em 0; }
+article li::marker, .wrap.narrow li::marker { color: var(--sage); }
+article strong, .wrap.narrow strong { font-weight: 600; color: #1d1d1d; }
+.updated, article .updated {
+  font-size: var(--t-small); color: var(--ink-soft);
+  margin: 0 0 2.2em; padding-bottom: 1.6em; border-bottom: 1px solid var(--rule);
 }
 .muted { color: var(--ink-soft); }
+.muted[style*="font-size"] { font-size: var(--t-small) !important; }  /* face-grouping.html sets 14px inline; 15 px is the floor */
+.kicker { font: 600 var(--t-label)/1.3 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--sage-text); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-md); padding: 24px; }
+.tag { display: inline-block; font: 600 var(--t-label)/1.3 var(--sans); letter-spacing: .06em; text-transform: uppercase; color: var(--verde); background: var(--bg-alt); padding: 4px 10px; }
+.highlight { background: var(--bg-alt); padding: 0 .2em; }
+.emoji { font-style: normal; }
+.plans-scroll { overflow-x: auto; }
+.plans { width: 100%; border-collapse: collapse; font-size: var(--t-small); }
+.plans th, .plans td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+.steps { padding-left: 1.25em; }
+table { border-collapse: collapse; }
 
-.steps { counter-reset: step; margin: 26px 0; padding: 0; list-style: none; }
-.steps li { position: relative; padding: 10px 0 10px 52px; }
-.steps li::before {
-  counter-increment: step;
-  content: counter(step);
-  position: absolute;
-  left: 0;
-  top: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: var(--verde);
-  color: #f3eee2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-family: 'Fraunces', serif;
+/* ---------- footers of the legal pages (A's footer, in the words those pages already have) ---------- */
+.wrap.narrow > footer, body > footer.site {
+  margin-top: 56px; padding: 28px 0 40px;
+  border-top: 1px solid var(--rule);
+  font-size: var(--t-small); color: var(--ink-soft); line-height: 2.2;
 }
+body > footer.site { width: min(68ch, 100% - 2 * var(--margin)); margin-inline: auto; }
+.wrap.narrow > footer a, body > footer.site a { display: inline-block; min-height: 44px; padding-block: 11px 0; color: var(--ink); text-decoration: none; line-height: 1.4; }
+.wrap.narrow > footer a:hover, body > footer.site a:hover { color: var(--verde); text-decoration: underline; }
+/* !important: the legal footers carry an inline style="margin-top:10px" on this <p> */
+.wrap.narrow > footer p, body > footer.site p { margin: 16px 0 0 !important; padding-top: 16px; border-top: 1px solid var(--rule-soft); line-height: 1.5; }
 
-article h1 { font-size: 34px; margin: 30px 0 6px; }
-article h2 { font-size: 21px; margin: 30px 0 8px; }
-article p, article li { font-size: 15px; }
-article .updated { font-size: 13px; color: var(--ink-soft); margin-bottom: 24px; }
-
-footer {
-  margin-top: 48px;
-  padding-top: 22px;
-  border-top: 1px solid var(--line);
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  text-align: center;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
-footer a { color: var(--ink-soft); text-decoration: none; margin: 0 8px; }
-footer a:hover { color: var(--verde); }
-
-/* ---------- marka işareti ---------- */
-.brand { display: inline-flex; align-items: center; gap: 9px; }
-.brand img { width: 30px; height: 30px; border-radius: 9px; display: block; }
-
-/* ---------- vurgulanan kart (web yükleyici duyurusu) ---------- */
-.card.highlight { border-color: var(--gold); background: linear-gradient(180deg, rgba(199,154,46,0.07), var(--card)); }
-.card.highlight h2 { font-size: 24px; }
-
-/* ---------- paket tablosu ---------- */
-.plans { width: 100%; border-collapse: collapse; font-size: 14.5px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.plans th, .plans td { padding: 12px 10px; text-align: center; border-bottom: 1px solid var(--line); }
-.plans th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); font-weight: 600; background: rgba(31,61,46,0.04); }
-.plans td:first-child, .plans th:first-child { text-align: left; padding-left: 16px; }
-.plans tbody tr:last-child td { border-bottom: none; }
-.plans tr.pick { background: rgba(199,154,46,0.09); }
-.plans .tag { display: inline-block; margin-left: 6px; padding: 2px 8px; border-radius: 999px; background: var(--gold); color: #fff; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; vertical-align: middle; }
-
-/* Dar ekranda tablo yatay kayar — sayfanın kendisi ASLA yana kaymamalı. */
-@media (max-width: 640px) {
-  .plans-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .plans { min-width: 560px; }
-}
-
-/* Marka kelimesi TEK düğüm: flex gap yalnız işaretle metin arasına girsin.
-   "cam" rengi ALTIN DEĞİL yeşil — altın (#C79A2E) krem zeminde 2.25:1 kontrast
-   veriyor, WCAG büyük metin eşiği olan 3:1'in bile altında. Altın vurgu rengi
-   olarak rozetlerde ve tablo satırında kalıyor, okunması gereken metinde değil. */
-.brand .wordmark { font-style: normal; color: var(--verde); }
-.brand .wordmark i { font-style: normal; color: var(--soft); }
