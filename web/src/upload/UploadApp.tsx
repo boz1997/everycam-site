@@ -356,7 +356,7 @@ export function UploadApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('upTitle')}</h1>
@@ -405,7 +405,7 @@ export function UploadApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 24, margin: '14px 0 6px' }}>{t('upPickEvent')}</h1>
@@ -455,7 +455,7 @@ export function UploadApp() {
       )}
       <header>
         <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          Sharecam
+          ShareCam
         </span>
         <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button className="chip" onClick={() => setPhase('events')}>

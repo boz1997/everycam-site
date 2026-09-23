@@ -197,7 +197,7 @@ export function AlbumApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('alTitle')}</h1>
@@ -272,7 +272,7 @@ export function AlbumApp() {
     <>
       <header>
         <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          Sharecam
+          ShareCam
         </span>
         {langPicker}
       </header>

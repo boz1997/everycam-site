@@ -5,7 +5,7 @@ export function Brand({ small }: { small?: boolean }) {
     <span className={`brand${small ? ' sm' : ''}`}>
       <img className="brand-mark" src={`${import.meta.env.BASE_URL}sharemark.png`} alt="" />
       <span className="brand-name">
-        Share<span>cam</span>
+        Share<span>Cam</span>
       </span>
     </span>
   );
