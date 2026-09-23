@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="robots" content="noindex" />
-  <title>Find your photos — ShareCam</title>
+  <title>Find your photos — Sharecam</title>
   <link rel="icon" href="../sharemark.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,12 +65,12 @@
 <div class="wrap">
   <header>
     <img src="../sharemark.png" alt="" />
-    <span class="wordmark">Share<i>Cam</i></span>
+    <span class="wordmark">Share<i>cam</i></span>
   </header>
   <div id="app"><p><span class="spin"></span> <span id="boot"></span></p></div>
   <footer>
-    <a href="../face-grouping.html">How face matching works</a> ·
-    <a href="../privacy.html">Privacy</a>
+    <a href="../face-grouping.html" id="f-how">How face matching works</a> ·
+    <a href="../privacy.html" id="f-privacy">Privacy</a>
   </footer>
 </div>
 
@@ -137,7 +137,7 @@ const codeFromUrl = () =>
 /** Kod → etkinlik. Etkinlik okuması herkese açık (firestore.rules `allow read: if true`). */
 async function resolveCode(code) {
   const snap = await getDocs(query(collection(db, 'events'), where('code', '==', code), limit(1)));
-  return snap.empty ? null : { id: snap.docs[0].id, name: snap.docs[0].data().name || 'this event' };
+  return snap.empty ? null : { id: snap.docs[0].id, name: snap.docs[0].data().name || '' };
 }
 
 function askCode(msg) {
@@ -183,14 +183,14 @@ function consent() {
        <button class="primary" id="agree" disabled>${esc(tr('agree'))}</button>
        <button class="ghost" id="no">${esc(tr('decline'))}</button>
        <p class="muted" style="text-align:center;margin:6px 0 0">
-         <a class="link" href="../face-grouping.html">${esc(tr('readNotice'))}</a></p>
+         <a class="link" href="../face-grouping.html">${esc(tr('readNotice'))}</a> ${esc(tr('inEnglish'))}</p>
      </div>`);
   const box = document.getElementById('decl'), ok = document.getElementById('agree');
   box.onchange = () => { ok.disabled = !box.checked; };
   document.getElementById('no').onclick = () =>
     (location.href = `../join/?code=${encodeURIComponent(codeFromUrl())}`);
   ok.onclick = async () => {
-    ok.disabled = true; ok.textContent = 'One moment…';
+    ok.disabled = true; ok.textContent = tr('oneMoment');
     try {
       await call('faceConsentGrant')({ eventId: EVENT, declaredOutsideBlockedStates: true });
       selfie();
@@ -251,7 +251,7 @@ async function search(fileObj) {
     const m = data.matches || [];
     if (!m.length) {
       return h(`<h1>${esc(tr('noneTitle'))}</h1>
-        <p>${esc(tr('noneBody', { event: EVENT_NAME }))}</p>
+        <p>${esc(EVENT_NAME ? tr('noneBody', { event: EVENT_NAME }) : tr('noneBodyNoName'))}</p>
         <button class="ghost" onclick="location.reload()">${esc(tr('tryAnother'))}</button>`);
     }
     // IZGARADA ASIL ÇEKİLMEZ: thumbUri (~40 KB) çizilir, asıl yalnız tıklanınca
@@ -379,6 +379,10 @@ async function start(code) {
 }
 
 document.documentElement.lang = LANG;
+// Sekme başlığı ve altbilgi de seçili dilde; yasal sayfalar yalnız İngilizce olduğu için bunu söyleriz.
+document.title = `${tr('codeTitle')} — Sharecam`;
+document.getElementById('f-how').textContent = [tr('footHow'), tr('inEnglish')].filter(Boolean).join(' ');
+document.getElementById('f-privacy').textContent = [tr('footPrivacy'), tr('inEnglish')].filter(Boolean).join(' ');
 document.getElementById('boot').textContent = tr('starting');
 
 const c0 = codeFromUrl();

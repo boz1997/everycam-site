@@ -29,6 +29,10 @@ function codeFromUrl(): string {
 export default function App() {
   const [lang, setLang] = useState<Lang>(detectLang);
   const t = makeT(lang);
+  // Sekme başlığı da seçili dilde (index.html'deki İngilizce yalnız ilk boyama için).
+  useEffect(() => {
+    document.title = `${t('join')} — Sharecam`;
+  }, [lang]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const [phase, setPhase] = useState<Phase>('loading');
   const [event, setEvent] = useState<EventDoc | null>(null);
@@ -154,7 +158,7 @@ export default function App() {
   };
 
   const langPicker = (
-    <select className="lang-select" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label="Language">
+    <select className="lang-select" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('langLabel')}>
       {LANGS.map((l) => (
         <option key={l} value={l}>
           {LANG_LABEL[l]}
@@ -232,7 +236,7 @@ export default function App() {
               yüklemeden önce görür. Metin uygulamanın masa kartına bastığı bildirimle aynı. */}
           {event.aiPeopleEnabled && (
             <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>
-              {t('faceNotice')} <a href="../face-grouping.html">{t('faceNoticeLink')}</a>
+              {t('faceNotice')} <a href="../face-grouping.html">{t('faceNoticeLink')}</a> {t('inEnglish')}
             </p>
           )}
           <label

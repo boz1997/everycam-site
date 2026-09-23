@@ -55,6 +55,9 @@ async function loadEvent(eventId: string): Promise<EventDoc | null> {
 export function AlbumApp() {
   const [lang, setLang] = useState<Lang>(() => detectLang());
   const t = useMemo(() => makeT(lang), [lang]);
+  useEffect(() => {
+    document.title = `${t('alTitle')} — Sharecam`;
+  }, [t]);
   const [phase, setPhase] = useState<'checking' | 'pair' | 'album'>('checking');
   const [uid, setUid] = useState('');
   const [code, setCode] = useState('');
@@ -131,7 +134,7 @@ export function AlbumApp() {
       await enter(res.data.eventId, anonUid);
     } catch (e) {
       const msg = String((e as { message?: string })?.message ?? '') + String((e as { code?: string })?.code ?? '');
-      setPairError(/not-found/.test(msg) ? t('upCodeNotFound') : /expired/.test(msg) ? t('upCodeExpired') : /used/.test(msg) ? t('upCodeUsed') : t('upCodeError'));
+      setPairError(/not-found/.test(msg) ? t('alCodeNotFound') : /expired/.test(msg) ? t('alCodeExpired') : /used/.test(msg) ? t('alCodeUsed') : t('upCodeError'));
     } finally {
       setPairing(false);
     }
@@ -170,7 +173,7 @@ export function AlbumApp() {
   };
 
   const langPicker = (
-    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label="Language">
+    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('langLabel')}>
       {LANGS.map((l) => (
         <option key={l} value={l}>
           {LANG_LABEL[l]}
@@ -194,7 +197,7 @@ export function AlbumApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('alTitle')}</h1>
@@ -269,7 +272,7 @@ export function AlbumApp() {
     <>
       <header>
         <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          ShareCam
+          Sharecam
         </span>
         {langPicker}
       </header>

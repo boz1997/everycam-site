@@ -32,7 +32,7 @@ export function Gallery({ event, uid, media, t, onOpen }: Props) {
   return (
     <div className="grid">
       {media.map((m, i) => (
-        <button key={m.id} className="tile" onClick={() => onOpen(i)} aria-label={m.ownerName || 'photo'}>
+        <button key={m.id} className="tile" onClick={() => onOpen(i)} aria-label={m.ownerName || t('photoAlt')}>
           {/* IZGARA ASLI ÇEKMEZ (2026-08-24).
               Eskiden fotoğraf hücresi 2048px'lik aslın kendisini (~700 KB) indiriyordu
               ve video hücresi `preload="metadata"` ile mp4'e uzanıyordu. Yeni yüklemeler

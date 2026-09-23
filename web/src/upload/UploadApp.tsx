@@ -58,6 +58,9 @@ function readHostUid(): string | null {
 export function UploadApp() {
   const [lang, setLang] = useState<Lang>(() => detectLang());
   const t = useMemo(() => makeT(lang), [lang]);
+  useEffect(() => {
+    document.title = `${t('upTitle')} — Sharecam`;
+  }, [t]);
   const [phase, setPhase] = useState<'checking' | 'pair' | 'events' | 'upload'>('checking');
   const [uid, setUid] = useState<string>('');
   const [code, setCode] = useState('');
@@ -303,7 +306,7 @@ export function UploadApp() {
   }, []);
 
   const langPicker = (
-    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label="Language">
+    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('langLabel')}>
       {LANGS.map((l) => (
         <option key={l} value={l}>
           {LANG_LABEL[l]}
@@ -337,7 +340,7 @@ export function UploadApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('upTitle')}</h1>
@@ -386,7 +389,7 @@ export function UploadApp() {
       <div className="centered">
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
+            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>Sharecam</strong>
             {langPicker}
           </div>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: 24, margin: '14px 0 6px' }}>{t('upPickEvent')}</h1>
@@ -424,12 +427,12 @@ export function UploadApp() {
     <>
       {dragging && (
         <div className="dropzone" aria-hidden>
-          <div>{t('dropHere')}</div>
+          <div>{t('upDropHere')}</div>
         </div>
       )}
       <header>
         <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          ShareCam
+          Sharecam
         </span>
         <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button className="chip" onClick={() => setPhase('events')}>
@@ -458,7 +461,7 @@ export function UploadApp() {
               <IconPlus /> {t('addFolder')}
             </button>
             <button className="btn ghost" style={{ width: 'auto' }} onClick={() => fileRef.current?.click()}>
-              {t('addPhotos')}
+              {t('upAddPhotos')}
             </button>
           </div>
           <p className="muted" style={{ fontSize: 12, marginTop: 14 }}>
