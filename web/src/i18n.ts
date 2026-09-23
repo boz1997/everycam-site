@@ -32,6 +32,8 @@ const en: Dict = {
   joinError: 'We couldn’t get you in. Check your connection and try again.',
   findMyPhotos: 'Find your photos',
   findMyPhotosSub: 'Take a selfie and we’ll show the photos you appear in. Optional.',
+  faceNotice: 'Optional face matching in this album.',
+  faceNoticeLink: 'How it works',
   openBanner: 'Open gallery — everyone can see what you upload.',
   privateBanner: 'Private mode — only the host sees uploads. You see just your own.',
   addPhotos: 'Add photos or videos',
@@ -141,6 +143,8 @@ const tr: Dict = {
   joinError: 'Katılamadık. Bağlantını kontrol edip tekrar dene.',
   findMyPhotos: 'Fotoğraflarını bul',
   findMyPhotosSub: 'Bir selfie çek, çıktığın kareleri gösterelim. İsteğe bağlı.',
+  faceNotice: 'Bu albümde isteğe bağlı yüz eşleştirme var.',
+  faceNoticeLink: 'Nasıl çalışır?',
   openBanner: 'Açık galeri — yüklediklerini herkes görebilir.',
   privateBanner: 'Gizli mod — yüklenenleri yalnız etkinlik sahibi görür. Sen sadece kendininkileri görürsün.',
   addPhotos: 'Fotoğraf veya video ekle',
@@ -250,6 +254,8 @@ const es: Dict = {
   joinError: 'No hemos podido añadirte. Comprueba tu conexión e inténtalo de nuevo.',
   findMyPhotos: 'Encuentra tus fotos',
   findMyPhotosSub: 'Hazte un selfi y te mostraremos las fotos en las que apareces. Opcional.',
+  faceNotice: 'Reconocimiento facial opcional en este álbum.',
+  faceNoticeLink: 'Cómo funciona',
   openBanner: 'Galería abierta: todos pueden ver lo que subes.',
   privateBanner: 'Modo privado: solo el anfitrión ve las subidas. Tú ves solo las tuyas.',
   addPhotos: 'Añadir fotos o vídeos',
@@ -359,6 +365,8 @@ const de: Dict = {
   joinError: 'Der Beitritt hat nicht geklappt. Prüfe deine Verbindung und versuch es erneut.',
   findMyPhotos: 'Finde deine Fotos',
   findMyPhotosSub: 'Mach ein Selfie und wir zeigen dir die Fotos, auf denen du bist. Optional.',
+  faceNotice: 'Optionale Gesichtserkennung in diesem Album.',
+  faceNoticeLink: 'So funktioniert es',
   openBanner: 'Offene Galerie – alle sehen, was du hochlädst.',
   privateBanner: 'Privater Modus – nur der Gastgeber sieht die Uploads. Du siehst nur deine eigenen.',
   addPhotos: 'Fotos oder Videos hinzufügen',
@@ -468,6 +476,8 @@ const fr: Dict = {
   joinError: 'Nous n’avons pas pu vous faire entrer. Vérifiez votre connexion et réessayez.',
   findMyPhotos: 'Trouvez vos photos',
   findMyPhotosSub: 'Prenez un selfie et nous vous montrerons les photos où vous apparaissez. Facultatif.',
+  faceNotice: 'Reconnaissance faciale facultative dans cet album.',
+  faceNoticeLink: 'Comment ça marche',
   openBanner: 'Galerie ouverte — tout le monde voit ce que vous ajoutez.',
   privateBanner: 'Mode privé — seul l’organisateur voit les ajouts. Vous ne voyez que les vôtres.',
   addPhotos: 'Ajouter des photos ou vidéos',
@@ -577,6 +587,8 @@ const it: Dict = {
   joinError: 'Non siamo riusciti a farti entrare. Controlla la connessione e riprova.',
   findMyPhotos: 'Trova le tue foto',
   findMyPhotosSub: 'Scatta un selfie e ti mostreremo le foto in cui compari. Facoltativo.',
+  faceNotice: 'Riconoscimento facciale facoltativo in questo album.',
+  faceNoticeLink: 'Come funziona',
   openBanner: 'Galleria aperta: tutti vedono ciò che carichi.',
   privateBanner: 'Modalità privata: solo l’organizzatore vede i caricamenti. Tu vedi solo i tuoi.',
   addPhotos: 'Aggiungi foto o video',
@@ -686,6 +698,8 @@ const pt: Dict = {
   joinError: 'Não conseguimos adicionar-te. Verifica a ligação e tenta de novo.',
   findMyPhotos: 'Encontre as suas fotos',
   findMyPhotosSub: 'Tire uma selfie e mostramos as fotos em que aparece. Opcional.',
+  faceNotice: 'Reconhecimento facial opcional neste álbum.',
+  faceNoticeLink: 'Como funciona',
   openBanner: 'Galeria aberta — todos veem o que carregas.',
   privateBanner: 'Modo privado — só o anfitrião vê os carregamentos. Vês apenas os teus.',
   addPhotos: 'Adicionar fotos ou vídeos',
@@ -795,6 +809,8 @@ const nl: Dict = {
   joinError: 'Het is niet gelukt je toe te voegen. Controleer je verbinding en probeer het opnieuw.',
   findMyPhotos: 'Vind je foto’s',
   findMyPhotosSub: 'Maak een selfie en we laten de foto’s zien waar jij op staat. Optioneel.',
+  faceNotice: 'Optionele gezichtsherkenning in dit album.',
+  faceNoticeLink: 'Zo werkt het',
   openBanner: 'Open galerij — iedereen ziet wat je uploadt.',
   privateBanner: 'Privémodus — alleen de organisator ziet de uploads. Jij ziet alleen die van jezelf.',
   addPhotos: 'Foto’s of video’s toevoegen',
@@ -904,6 +920,8 @@ const pl: Dict = {
   joinError: 'Nie udało się Cię dodać. Sprawdź połączenie i spróbuj ponownie.',
   findMyPhotos: 'Znajdź swoje zdjęcia',
   findMyPhotosSub: 'Zrób selfie, a pokażemy zdjęcia, na których jesteś. Opcjonalne.',
+  faceNotice: 'Opcjonalne rozpoznawanie twarzy w tym albumie.',
+  faceNoticeLink: 'Jak to działa',
   openBanner: 'Otwarta galeria — wszyscy widzą to, co dodajesz.',
   privateBanner: 'Tryb prywatny — tylko organizator widzi dodane pliki. Ty widzisz wyłącznie swoje.',
   addPhotos: 'Dodaj zdjęcia lub filmy',
@@ -1011,6 +1029,9 @@ export function saveLang(lang: Lang): void {
 
 /** Eksik anahtar İngilizceye düşer — hiçbir ekran boş metinle çıkmaz. */
 export function makeT(lang: Lang) {
+  // Sayfanın dili tarayıcıya da söylenir: <html lang="en"> kalırsa Chrome Türkçe arayüze
+  // "Bu sayfayı çevir?" diye soruyor, ekran okuyucu da yanlış telaffuz ediyor.
+  if (typeof document !== 'undefined') document.documentElement.lang = lang;
   const dict = DICTS[lang] ?? en;
   return (key: string): string => dict[key] ?? en[key] ?? key;
 }

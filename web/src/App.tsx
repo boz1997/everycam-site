@@ -228,6 +228,13 @@ export default function App() {
           <p className="muted">
             {event.uploadPolicy === 'host' ? t('proBanner') : t(event.mode === 'open' ? 'openBanner' : 'privateBanner')}
           </p>
+          {/* face-grouping.html §7 söz veriyor: yüz eşleştirme açık albümde misafir bunu KATILMADAN,
+              yüklemeden önce görür. Metin uygulamanın masa kartına bastığı bildirimle aynı. */}
+          {event.aiPeopleEnabled && (
+            <p className="muted" style={{ fontSize: 14, marginTop: 8 }}>
+              {t('faceNotice')} <a href="../face-grouping.html">{t('faceNoticeLink')}</a>
+            </p>
+          )}
           <label
             style={{ display: 'block', marginTop: 20, marginBottom: 7, fontSize: 12, fontWeight: 600, color: 'var(--ink-soft)' }}
           >
