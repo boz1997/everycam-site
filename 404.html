@@ -33,6 +33,15 @@
         location.replace(a[1] + '/join/album/' + location.search + location.hash);
         return;
       }
+      // Etkinlik sahibinin web paneli: sharecam.app/host → /join/host/ (Vite dördüncü sayfa,
+      // plan D1). /host/ normalde host/index.html'e düşer; bu kural eğik çizgisiz ya da o
+      // dosyanın olmadığı durum için. ?_ptxn= (Paddle ödeme linki) ve #/… rotası aynen taşınır.
+      // /join/host kendisi 404 verirse (panel henüz derlenmemiş) /join/join/host/'a gitmesin.
+      var h = location.pathname.match(/^(.*)\/host\/?$/);
+      if (h && !/\/join$/.test(h[1])) {
+        location.replace(h[1] + '/join/host/' + location.search + location.hash);
+        return;
+      }
       var parts = location.pathname.split('/').filter(Boolean);
       var base = /\.github\.io$/.test(location.hostname) && parts.length > 0 ? '/' + parts[0] + '/' : '/';
       location.replace(base);

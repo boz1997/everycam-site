@@ -250,6 +250,40 @@ body > footer.site { width: min(68ch, 100% - 2 * var(--margin)); margin-inline: 
 /* !important: the legal footers carry an inline style="margin-top:10px" on this <p> */
 .wrap.narrow > footer p, body > footer.site p { margin: 16px 0 0 !important; padding-top: 16px; border-top: 1px solid var(--rule-soft); line-height: 1.5; }
 
+/* ---------- imprint.html: its blocks are .card panels ---------- */
+.card + .card { margin-top: 16px; }
+.card > h2:first-child { margin-top: 0; font-size: 1.3125rem; }
+.card > p:last-child { margin-bottom: 0; }
+
+/* ---------- home #packages: web buttons (plan SHARECAM-WEB §4.1). Here, not in assets/home.css, because the
+   web-purchase work package owns this file only. PENDING:web-buy = the body classes: "web-soon" shows the
+   consumer tiles' "On the web soon" and hides their "Choose …" link; "pro-web-soon" does the same for the
+   photographer tiles. Deleting a class is the whole go-live flip. ---------- */
+.web-soon .buy-live, body:not(.web-soon) .buy-soon,
+.pro-web-soon .pro-buy-live, body:not(.pro-web-soon) .pro-buy-soon { display: none !important; }
+.tier-btn, .tier-web { grid-column: 1 / -1; order: 2; margin-top: 14px; }
+.tier::after { order: 1; }  /* phones: the capacity bar stays under the limits, the button comes last */
+.tier-btn { justify-self: start; min-height: 44px; padding: 0 18px; }
+.tier-top .tier-btn { background: var(--cream); color: var(--verde-dark); }
+.tier-top .tier-btn:hover { background: #fff; }
+/* not live yet: reads as a label, not a control (a span, no href, no pointer) */
+.tier-btn.tier-soon, .tier-top .tier-btn.tier-soon {
+  background: transparent; color: var(--ink-soft); cursor: default;
+  box-shadow: inset 0 0 0 1px var(--line); font-weight: 500; letter-spacing: 0;
+}
+.tier-top .tier-btn.tier-soon { color: var(--on-dark-soft); box-shadow: inset 0 0 0 1px var(--rule-dark); }
+.tier-web { display: flex; align-items: center; min-height: 44px; font-size: var(--t-small); color: var(--ink-soft); }
+@media (min-width: 1200px) {
+  .tier-btn, .tier-web { margin-top: 20px; }
+  .tier-btn { width: 100%; padding: 8px 12px; white-space: normal; text-align: center; line-height: 1.2; }
+  .tier-web { justify-content: center; }
+}
+/* PENDING:web-cta, prepared: the header "Create your event" (commented out in index.html until D20 allows it).
+   Below 1280 px it would crowd the wordmark (measured: it overlaps at 1200), so there it lives in the menu (< 1200)
+   or only in the hero / pricing / closing links (1200–1279). */
+header.site > .nav-create { display: none; }
+@media (min-width: 1280px) { header.site > .nav-create { display: inline-flex; } }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }

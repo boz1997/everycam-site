@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Sharecam</title>
+  <script>
+    // Kısa adres: sharecam.app/host/ → /join/host/ (etkinlik sahibinin web paneli, Vite
+    // ile join/ altına üretilir; plan D1). e.html gibi 200 dönen bir köprü: sorgu
+    // (?_ptxn=… Paddle ödeme linki) ve hash (#/new?plan=… rotası) aynen taşınır.
+    // Göreli yol: özel alan adında (/host/) da github.io proje yolunda da çalışır.
+    location.replace('../join/host/' + location.search + location.hash);
+  </script>
+</head>
+<body>
+  Redirecting… <a href="../join/host/">Sharecam</a>
+</body>
+</html>
