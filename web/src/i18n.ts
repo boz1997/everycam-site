@@ -15,6 +15,8 @@ export const LANG_LABEL: Record<Lang, string> = {
 type Dict = Record<string, string>;
 
 const en: Dict = {
+  upNewEvent: 'New event',
+  upNewEventHelp: 'In the Sharecam iPhone app, tap “Create an Event” and choose a “Photographer” package. The new event shows up here on its own.',
   alCodeNotFound: 'That code isn’t valid. Check it with your photographer.',
   alCodeExpired: 'That code has expired — ask your photographer for a new one.',
   alCodeUsed: 'That code has already been used — ask your photographer for a new one.',
@@ -134,6 +136,8 @@ const en: Dict = {
 };
 
 const tr: Dict = {
+  upNewEvent: 'Yeni etkinlik',
+  upNewEventHelp: 'Sharecam iPhone uygulamasında “Etkinlik Aç”a dokun ve bir “Fotoğrafçı” paketi seç. Yeni etkinlik burada kendiliğinden görünür.',
   alCodeNotFound: 'Bu kod geçerli değil. Fotoğrafçınla kontrol et.',
   alCodeExpired: 'Bu kodun süresi doldu — fotoğrafçından yeni bir kod iste.',
   alCodeUsed: 'Bu kod zaten kullanıldı — fotoğrafçından yeni bir kod iste.',
@@ -253,6 +257,8 @@ const tr: Dict = {
 };
 
 const es: Dict = {
+  upNewEvent: 'Nuevo evento',
+  upNewEventHelp: 'En la app de Sharecam para iPhone, toca «Crear un evento» y elige un paquete «Fotógrafo». El nuevo evento aparecerá aquí automáticamente.',
   alCodeNotFound: 'Ese código no es válido. Compruébalo con tu fotógrafo.',
   alCodeExpired: 'Ese código ha caducado: pide uno nuevo a tu fotógrafo.',
   alCodeUsed: 'Ese código ya se ha usado: pide uno nuevo a tu fotógrafo.',
@@ -372,6 +378,8 @@ const es: Dict = {
 };
 
 const de: Dict = {
+  upNewEvent: 'Neues Event',
+  upNewEventHelp: 'Tippe in der Sharecam-App auf dem iPhone auf „Event erstellen“ und wähle ein „Fotograf“-Paket. Das neue Event erscheint hier von selbst.',
   alCodeNotFound: 'Dieser Code ist ungültig. Prüfe ihn mit deinem Fotografen.',
   alCodeExpired: 'Dieser Code ist abgelaufen – bitte deinen Fotografen um einen neuen.',
   alCodeUsed: 'Dieser Code wurde bereits verwendet – bitte deinen Fotografen um einen neuen.',
@@ -491,6 +499,8 @@ const de: Dict = {
 };
 
 const fr: Dict = {
+  upNewEvent: 'Nouvel événement',
+  upNewEventHelp: 'Dans l’app Sharecam sur iPhone, touchez « Créer un événement » et choisissez un forfait « Photographe ». Le nouvel événement apparaîtra ici automatiquement.',
   alCodeNotFound: 'Ce code n’est pas valide. Vérifiez-le auprès de votre photographe.',
   alCodeExpired: 'Ce code a expiré : demandez-en un nouveau à votre photographe.',
   alCodeUsed: 'Ce code a déjà été utilisé : demandez-en un nouveau à votre photographe.',
@@ -610,6 +620,8 @@ const fr: Dict = {
 };
 
 const it: Dict = {
+  upNewEvent: 'Nuovo evento',
+  upNewEventHelp: 'Nell’app Sharecam su iPhone tocca “Crea un evento” e scegli un pacchetto “Fotografo”. Il nuovo evento comparirà qui da solo.',
   alCodeNotFound: 'Questo codice non è valido. Verificalo con il tuo fotografo.',
   alCodeExpired: 'Questo codice è scaduto: chiedine uno nuovo al tuo fotografo.',
   alCodeUsed: 'Questo codice è già stato usato: chiedine uno nuovo al tuo fotografo.',
@@ -729,6 +741,8 @@ const it: Dict = {
 };
 
 const pt: Dict = {
+  upNewEvent: 'Novo evento',
+  upNewEventHelp: 'Na app Sharecam no iPhone, toque em «Criar um evento» e escolha um pacote «Fotógrafo». O novo evento aparece aqui automaticamente.',
   alCodeNotFound: 'Esse código não é válido. Confirme-o com o seu fotógrafo.',
   alCodeExpired: 'Esse código expirou: peça um novo ao seu fotógrafo.',
   alCodeUsed: 'Esse código já foi usado: peça um novo ao seu fotógrafo.',
@@ -848,6 +862,8 @@ const pt: Dict = {
 };
 
 const nl: Dict = {
+  upNewEvent: 'Nieuw evenement',
+  upNewEventHelp: 'Tik in de Sharecam-app op je iPhone op ‘Evenement maken’ en kies een ‘Fotograaf’-pakket. Het nieuwe evenement verschijnt hier vanzelf.',
   alCodeNotFound: 'Die code is niet geldig. Vraag jullie fotograaf om hem te controleren.',
   alCodeExpired: 'Die code is verlopen – vraag jullie fotograaf om een nieuwe.',
   alCodeUsed: 'Die code is al gebruikt – vraag jullie fotograaf om een nieuwe.',
@@ -967,6 +983,8 @@ const nl: Dict = {
 };
 
 const pl: Dict = {
+  upNewEvent: 'Nowe wydarzenie',
+  upNewEventHelp: 'W aplikacji Sharecam na iPhonie dotknij „Utwórz wydarzenie” i wybierz pakiet „Fotograf”. Nowe wydarzenie pojawi się tutaj samo.',
   alCodeNotFound: 'Ten kod jest nieprawidłowy. Sprawdźcie go z fotografem.',
   alCodeExpired: 'Ten kod wygasł — poproście fotografa o nowy.',
   alCodeUsed: 'Ten kod został już użyty — poproście fotografa o nowy.',

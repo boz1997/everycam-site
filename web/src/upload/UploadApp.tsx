@@ -47,6 +47,29 @@ interface Row {
   note?: string;
 }
 
+// Paket adları marka adıdır, çevrilmez (uygulamadaki paywall ile aynı).
+const PLAN_LABEL: Record<string, string> = {
+  spark: 'Spark', mini: 'Mini', party: 'Party', wedding: 'Wedding', unlimited: 'Unlimited',
+  pro500: 'Pro 500', pro1000: 'Pro 1000', pro2000: 'Pro 2000', pro5000: 'Pro 5000', proUnlimited: 'Pro Unlimited',
+};
+
+function toHostEvents(docs: { id: string; data: () => Record<string, unknown> }[]): HostEvent[] {
+  return docs
+    .map((d) => {
+      const x = d.data();
+      return {
+        id: d.id,
+        code: String(x.code ?? ''),
+        name: String(x.name ?? ''),
+        planId: String(x.planId ?? 'spark'),
+        photoCount: Number(x.photoCount ?? 0),
+        uploadPolicy: String(x.uploadPolicy ?? 'all'),
+        createdAt: Number(x.createdAt ?? 0),
+      };
+    })
+    .sort((a, b) => b.createdAt - a.createdAt);
+}
+
 function readHostUid(): string | null {
   try {
     return localStorage.getItem(HOST_KEY);
@@ -85,20 +108,7 @@ export function UploadApp() {
   // ---- Açılış: eşleşmiş host mu, yoksa kod mu bekliyoruz?
   const loadEvents = useCallback(async (hostUid: string, preferEventId?: string | null) => {
     const snap = await getDocs(query(collection(db, 'events'), where('hostId', '==', hostUid)));
-    const list: HostEvent[] = snap.docs
-      .map((d) => {
-        const x = d.data();
-        return {
-          id: d.id,
-          code: String(x.code ?? ''),
-          name: String(x.name ?? ''),
-          planId: String(x.planId ?? 'spark'),
-          photoCount: Number(x.photoCount ?? 0),
-          uploadPolicy: String(x.uploadPolicy ?? 'all'),
-          createdAt: Number(x.createdAt ?? 0),
-        };
-      })
-      .sort((a, b) => b.createdAt - a.createdAt);
+    const list = toHostEvents(snap.docs);
     setEvents(list);
     const pre = preferEventId ? list.find((e) => e.id === preferEventId) : null;
     if (pre) {
@@ -108,6 +118,12 @@ export function UploadApp() {
       setPhase('events');
     }
   }, []);
+
+  // Etkinlik seçerken liste CANLI: fotoğrafçı uygulamada yeni etkinlik açınca burada kendiliğinden belirir.
+  useEffect(() => {
+    if (phase !== 'events' || !uid) return;
+    return onSnapshot(query(collection(db, 'events'), where('hostId', '==', uid)), (snap) => setEvents(toHostEvents(snap.docs)));
+  }, [phase, uid]);
 
   useEffect(() => {
     void (async () => {
@@ -408,12 +424,19 @@ export function UploadApp() {
                 <span>
                   {e.name}
                   <span className="muted" style={{ display: 'block', fontSize: 12 }}>
-                    {e.code} · {e.planId} · {e.photoCount} {t('photos')}
+                    {e.code} · {PLAN_LABEL[e.planId] ?? e.planId} · {e.photoCount} {t('photos')}
                   </span>
                 </span>
                 <span>→</span>
               </button>
             ))}
+            <details className="new-event">
+              <summary>+ {t('upNewEvent')}</summary>
+              <p className="muted" style={{ margin: '8px 0 6px', fontSize: 14 }}>{t('upNewEventHelp')}</p>
+              <a href="https://apps.apple.com/app/id6801534049" style={{ fontSize: 14, fontWeight: 600 }}>
+                {t('getApp')} →
+              </a>
+            </details>
           </div>
           <button className="chip" style={{ marginTop: 16 }} onClick={() => void forget()}>
             {t('upSignOut')}
