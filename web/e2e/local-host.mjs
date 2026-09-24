@@ -745,7 +745,7 @@ try {
     const decl = (await getDoc(`faceHostDeclarations/${id}`)).data;
     ok(decl.declTextVersion === '2026-09-23' && decl.declLang === 'en', `declaration: text ${decl.declTextVersion}, lang ${decl.declLang}`);
     await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
-    ok(/79[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $79.99');
+    ok(/89[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $89.99');
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
     await payInMock('#pay');
@@ -754,7 +754,7 @@ try {
     ok(ev.planId === 'pro1000' && ev.uploadPolicy === 'host' && ev.aiPeopleEnabled === true && ev.mode === 'open', `applied: ${ev.planId}, uploadPolicy ${ev.uploadPolicy}, AI ${ev.aiPeopleEnabled}`);
     compareToRedeem('Pro 1000 (web) vs redeem', 'pro1000', before, ev, t0, Date.now());
     const proOrder = await lastOrderFor(id);
-    ok(proOrder?.data.status === 'applied' && Number(proOrder.data.amount) === 7999 && proOrder.data.tier === 'pro', `order ${proOrder?.id}: ${proOrder?.data.status}, ${proOrder?.data.amount} cents, tier ${proOrder?.data.tier}`);
+    ok(proOrder?.data.status === 'applied' && Number(proOrder.data.amount) === 8999 && proOrder.data.tier === 'pro', `order ${proOrder?.id}: ${proOrder?.data.status}, ${proOrder?.data.amount} cents, tier ${proOrder?.data.tier}`);
     compareLedger('Pro 1000 ledger', (await getDoc(`redemptions/pd_${proOrder?.id}`))?.data, { uid: ev.hostId, eventId: id, planId: 'pro1000', txn: proOrder?.id });
     await go(`#/e/${id}`);
     await page.locator('[data-upload-link]').waitFor();
