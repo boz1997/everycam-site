@@ -1,0 +1,527 @@
+// Sharecam host dashboard — Nederlands (plan §3.6, D15; WP-H).
+//
+// Je/jij (zoals de app), "evenement", "organisator" = host, "pakket", "upgraden",
+// "gezichtsherkenning", "Privémodus" / "Open galerij", "livemuur", "het bruidspaar"; computer
+// koppelen = "koppelen" (zoals de app en de uploadpagina). Aanhalingstekens ‘…’, gedachtestreepje
+// –, beletselteken ….
+//
+// Same keys and order as en.ts (tsc fails on a missing or stale key). A `// app: <key>`
+// comment marks a string copied verbatim from EC/src/i18n/locales/nl.ts (native-reviewed
+// 23 Sep 2026, EC 5c05c8e; {{x}} → {x}); "(adapted)" = the app wording with the same change
+// the English line makes. Every other string is new and is checked before go-live.
+// face.* declaration and notice texts are versioned (declTextVersion 2026-09-23): never edit
+// them here, only together with the app and the server.
+
+import type { Dict } from './en';
+
+const nl: Dict = {
+  // ---------------------------------------------------------------- common
+  'common.back': 'Terug',
+  'common.cancel': 'Annuleren', // app: common.cancel
+  'common.close': 'Sluiten', // app: common.close
+  'common.delete': 'Verwijderen', // app: common.delete
+  'common.on': 'Aan', // app: common.on
+  'common.off': 'Uit', // app: common.off
+  'common.ok': 'OK',
+  'common.copy': 'Kopiëren',
+  'common.copied': 'Gekopieerd', // app: face.noticeCopied
+  'common.remove': 'Verwijderen', // app: create.coverRemove
+  'common.saving': 'Opslaan…',
+  'common.loading': 'Laden…',
+  'common.loadFailed': 'Deze pagina kon niet worden geladen',
+  'common.checkConnection': 'Controleer je verbinding en probeer het opnieuw.',
+  'common.tryAgain': 'Er ging iets mis. Probeer het opnieuw.',
+  'common.prev': 'Vorige',
+  'common.next': 'Volgende',
+
+  // ---------------------------------------------------------------- page titles (browser tab)
+  'title.events': 'Jouw evenementen',
+  'title.signin': 'Inloggen',
+  'title.new': 'Maak je evenement',
+  'title.account': 'Account',
+
+  // ---------------------------------------------------------------- shell
+  'shell.tag': 'Organisator',
+  'shell.language': 'Taal',
+  'shell.accountMenu': 'Accountmenu',
+  'shell.events': 'Jouw evenementen',
+  'shell.account': 'Account',
+  'shell.signOut': 'Uitloggen', // app: account.signOut
+  'shell.signedInAs': 'Ingelogd als {who}',
+  'shell.paired': 'Gekoppeld aan de app',
+  'shell.pairedLong': 'Deze computer is gekoppeld aan de Sharecam-app. Hij heeft nog geen eigen inlogmethode.',
+  'shell.linkBannerTitle': 'Voeg een inlogmethode toe om dit account te behouden',
+  'shell.linkBannerBody': 'Deze computer is gekoppeld aan je Sharecam-app. Voeg inloggen met e-mail of Google toe, zodat je ook zonder de app terug kunt komen. Je hebt het ook nodig om op het web een pakket te kopen.',
+  'shell.linkBannerCta': 'Inlogmethode toevoegen',
+  'nav.events': 'Jouw evenementen',
+  'nav.signin': 'Inloggen',
+  'legal.webTerms': 'Voorwaarden voor webaankopen',
+  'legal.refund': 'Terugbetalingsbeleid',
+  'legal.privacy': 'Privacy', // app: legal.privacy
+  'legal.terms': 'Voorwaarden', // app: legal.terms
+  'legal.support': 'Support', // app: legal.support
+  'legacy.title': 'Koppel deze computer opnieuw',
+  'legacy.body': 'Deze browser was via de oude uploadpagina aan je evenementen gekoppeld. We hebben hem uitgelogd, zodat de gastenpagina hier weer normaal werkt. Om te uploaden koppel je hem nog een keer aan de Sharecam-app, of je logt in.',
+
+  // ---------------------------------------------------------------- sign in
+  'signin.kicker': 'Dashboard voor organisatoren',
+  'signin.title': 'Log in bij je evenementen',
+  'signin.lead': 'Gebruik dezelfde inlogmethode als in de app (Instellingen → Account). Heb je daar nog nooit ingelogd? Doe dat dan eerst.',
+  'signin.appKicker': 'Gebruik je de app al?',
+  'signin.appTitle': 'Zelfde account, zelfde evenementen',
+  'signin.appBody': 'Evenementen die je in de Sharecam-app hebt gemaakt, verschijnen hier als je inlogt met hetzelfde account als in de app (Instellingen → Account).',
+  'auth.google': 'Doorgaan met Google', // app: account.continueGoogle
+  'auth.apple': 'Doorgaan met Apple', // app: account.continueApple
+  'auth.soon': 'Binnenkort',
+  'auth.appleSoon': 'In de app ingelogd met Apple? Inloggen met Apple op het web komt binnenkort.',
+  'auth.orEmail': 'of met e-mail',
+  'auth.email': 'E-mail',
+  'auth.password': 'Wachtwoord',
+  'auth.passwordHint': 'Minstens 6 tekens.',
+  'auth.signinCta': 'Inloggen',
+  'auth.createCta': 'Account maken',
+  'auth.resetCta': 'Resetlink versturen',
+  'auth.resetTitle': 'Wachtwoord resetten',
+  'auth.resetSent': 'Als {email} een account heeft, is er een resetlink onderweg. Kijk in je inbox.',
+  'auth.toCreate': 'Nieuw hier? Maak een account',
+  'auth.toReset': 'Wachtwoord vergeten?',
+  'auth.toSignin': 'Terug naar inloggen',
+  'auth.errWrong': 'Verkeerd e-mailadres of wachtwoord.',
+  'auth.errEmailTaken': 'Dit e-mailadres heeft al een account. Log in.',
+  'auth.errWeak': 'Kies een wachtwoord van minstens 6 tekens.',
+  'auth.errEmail': 'Vul een geldig e-mailadres in.',
+  'auth.errPopupBlocked': 'Je browser heeft het inlogvenster geblokkeerd. Sta pop-ups toe voor deze site en probeer het opnieuw.',
+  'auth.errProviderOff': 'Deze inlogmethode is nog niet beschikbaar op deze site. Gebruik e-mail.',
+  'auth.errOffline': 'Geen verbinding. Controleer je internet en probeer het opnieuw.',
+  'auth.errTooMany': 'Te veel pogingen. Wacht een minuut en probeer het opnieuw.',
+  'auth.errDisabled': 'Dit account is uitgeschakeld. Schrijf ons via de supportpagina.',
+  'auth.errRecent': 'Log voor je veiligheid uit en opnieuw in, en herhaal dan deze stap.',
+  'auth.errAlreadyLinked': 'Deze inlogmethode is al aan je account toegevoegd.',
+  'auth.errGeneric': 'Inloggen mislukt. Probeer het opnieuw.', // app: account.errorGeneric
+
+  // ---------------------------------------------------------------- pair with the app
+  'pair.kicker': 'Voor fotografen',
+  'pair.title': 'Koppelen met de Sharecam-app',
+  'pair.body': 'Nog geen inlogmethode op het web? Koppel deze computer aan het account in je Sharecam-app. Dit werkt voor fotograafevenementen.',
+  'pair.open': 'Koppelen met de app',
+  'pair.qrTitle': 'Scan deze code met de app',
+  'pair.step1': 'Open je fotograafevenement in de Sharecam-app.',
+  'pair.step2': 'Tik op ‘Uploaden vanaf computer’ en dan op ‘QR op computer scannen’.',
+  'pair.step3': 'Bevestig op je telefoon. Deze pagina logt vanzelf in.',
+  'pair.qrAlt': 'Koppelcode voor de Sharecam-app',
+  'pair.qrFoot': 'De code wordt om de paar minuten vernieuwd.',
+  'pair.qrError': 'De code kon niet worden gemaakt. Gebruik de code van 6 tekens hieronder.',
+  'pair.connecting': 'Koppelen…',
+  'pair.orCode': 'of vul de code uit de app in',
+  'pair.codeLabel': 'Code uit de app',
+  'pair.codeCta': 'Koppelen',
+  'pair.foot': 'Met de code log je deze computer in op jouw account. Gebruik hem alleen op een computer die je vertrouwt.', // app: uploadLink.footer (adapted)
+  'pair.errNotFound': 'Die code is niet geldig. Controleer hem in de app.',
+  'pair.errExpired': 'Die code is verlopen. Maak een nieuwe in de app.',
+  'pair.errUsed': 'Die code is al gebruikt. Maak een nieuwe in de app.',
+  'pair.errGeneric': 'We konden deze computer niet koppelen. Controleer je verbinding en probeer het opnieuw.',
+
+  // ---------------------------------------------------------------- link a sign-in (paired accounts)
+  'link.kicker': 'Nog één stap',
+  'link.title': 'Voeg een inlogmethode toe aan dit account',
+  'link.lead': 'Je evenementen blijven waar ze zijn. Daarna kun je hier daarmee inloggen, en de app blijft gewoon werken.',
+  'link.buyLead': 'Voor een aankoop op het web heb je een account nodig waar je naar terug kunt: bonnen gaan naar een e-mailadres en het pakket hoort de hele opslagperiode bij dit evenement. Voeg eerst een inlogmethode toe; je evenementen blijven waar ze zijn.',
+  'link.google': 'Inloggen met Google toevoegen',
+  'link.apple': 'Inloggen met Apple toevoegen',
+  'link.emailCta': 'Inloggen met e-mail toevoegen',
+  'link.inUseTitle': 'Deze inlogmethode heeft al een Sharecam-account',
+  'link.inUseBody': 'Log daarmee in de app in (Instellingen → Account); de app verplaatst je evenementen daarheen. Log daarna hier in met hetzelfde account.',
+  'link.inUseBack': 'Andere inlogmethode proberen',
+
+  // ---------------------------------------------------------------- event list
+  'list.kicker': 'Dashboard voor organisatoren',
+  'list.title': 'Jouw evenementen',
+  'list.lead': 'Alles wat je organiseert, vanaf het web en vanuit de app.',
+  'list.leadEmpty': 'Maak een evenement, deel de QR, verzamel elke foto.', // app: welcome.hostDesc
+  'list.create': 'Maak je evenement',
+  'list.createPro': 'Fotograafevenement',
+  'list.groupPro': 'Fotograafevenementen',
+  'list.groupEvents': 'Evenementen',
+  'list.groupAll': 'Evenementen',
+  'list.count': '{n} in totaal',
+  'list.guestsShort': '{v} gasten',
+  'list.photosShort': '{v} foto’s',
+  'list.keptUntil': 'Bewaard tot {date}',
+  'list.deletion': 'Bewaard tot',
+  'list.waiting': 'Nog geen pakket – de QR gaat open zodra er een actief is',
+  'list.emptyTitle': 'Nog geen evenementen', // app: dashboard.emptyTitle
+  'list.emptyBody': 'Klaar in 60 seconden: naam, datum, privacy – je QR klaar om te printen. Evenementen in de app gemaakt? Log hier in met hetzelfde account als daar.', // app: dashboard.emptyBody (+ one sentence)
+  'list.findHint': 'Vind je een evenement uit de app niet? Log in met hetzelfde account als daar (Instellingen → Account). Evenementen in een app waarin nooit is ingelogd, blijven op die telefoon tot je daar inlogt.',
+
+  // ---------------------------------------------------------------- stats, units, plans
+  'stat.guests': 'Gasten',
+  'stat.photos': 'Foto’s',
+  'stat.videos': 'Video’s',
+  'unit.days': '{n} dagen',
+  'unit.month': '1 maand',
+  'unit.months': '{n} maanden',
+  'unit.year': '1 jaar',
+  'unit.years': '{n} jaar',
+  'unit.unlimited': 'Onbeperkt',
+  'unit.unlimitedShort': 'geen limiet',
+  'plan.free': 'Gratis', // app: paywall.free
+  'plan.perEvent': 'per evenement', // app: paywall.perEvent
+  'plan.popular': 'Meest gekozen', // app: plans.wedding.badge
+  'plan.storage': 'Opslag',
+  'plan.refunded': 'Terugbetaald',
+  'plan.awaiting': 'Kies een pakket',
+  'plan.webSoon': 'Binnenkort op het web',
+  'plan.none': 'Nog geen pakket',
+  'plan.wallIncluded': 'Inclusief livemuur',
+
+  // ---------------------------------------------------------------- create
+  'new.kicker': 'Nieuw evenement',
+  'new.kickerPro': 'Nieuw fotograafevenement',
+  'new.title': 'Maak je evenement',
+  'new.titlePro': 'Maak een fotograafevenement',
+  'new.lead': 'Geef het een naam, bepaal wie de foto’s ziet en kies een pakket. Elk evenement begint gratis met Spark.',
+  'new.leadPro': 'Jij uploadt vanaf je computer, originelen blijven bewaard. Gasten scannen de QR, bekijken het album en vinden hun eigen foto’s met een selfie.',
+  'new.tierLabel': 'Soort evenement',
+  'new.tierEvents': 'Evenementen',
+  'new.tierPro': 'Fotografen',
+  'new.details': 'Evenementdetails', // app: create.step1Title
+  'new.name': 'Geef je evenement een naam', // app: create.titleName
+  'new.namePlaceholder': 'De bruiloft van Anna en Michiel', // app: create.namePlaceholder
+  'new.nameRequired': 'Geef het evenement een naam.',
+  'new.date': 'Datum van het evenement (optioneel)', // app: create.dateLabel
+  'new.dateHint': 'De datum staat op je kaartjes. De opslag telt vanaf deze dag.',
+  'new.who': 'Wie ziet de foto’s?', // app: create.titleMode
+  'new.modeHint': 'Je kunt dit later in Instellingen wijzigen.', // app: create.modeHint
+  'new.cover': 'Omslagfoto (optioneel)',
+  'new.coverAdd': 'Omslagfoto toevoegen',
+  'new.coverChange': 'Wijzigen',
+  'new.locked': 'Naam en datum kun je later niet meer wijzigen: ze staan op je kaartjes.',
+  'new.package': 'Pakket',
+  'new.consumerSoon': 'Betaalde pakketten komen binnenkort naar het web. Begin nu gratis met Spark en upgrade later, hier of in de app.',
+  'new.proSoonTitle': 'Pakketten voor fotografen komen binnenkort naar het web',
+  'new.proSoonBody': 'Tot die tijd koop je ze in de Sharecam-app voor iPhone. Evenementen die je daar maakt, verschijnen hier met dezelfde inlogmethode.',
+  'new.proRegionLater': 'Na het inloggen controleren we of gezichtsherkenning op jouw locatie beschikbaar is.',
+  'new.ctaFree': 'Evenement maken',
+  'new.ctaPaid': 'Maken en betalen · {plan} {price}',
+  'new.created': 'Evenement aangemaakt.',
+  'new.createFailed': 'Het evenement kon niet worden gemaakt. Controleer je verbinding en probeer het opnieuw.',
+  'new.backToForm': 'Terug naar het formulier',
+  'new.stepAccount': 'Bijna klaar',
+  'new.accountTitle': 'Log in om je evenement te bewaren',
+  'new.accountLead': 'Je evenement heeft een account nodig waar je naar terug kunt. Heb je al een inlogmethode in de app? Gebruik dan die.',
+  'new.summary': 'Jouw evenement',
+  'mode.openTitle': 'Open galerij', // app: create.openTitle
+  'mode.openDesc': 'Iedereen ziet en liket wat er geüpload wordt. Een gedeeld album, live.', // app: create.openDesc
+  'mode.privateTitle': 'Privémodus', // app: create.privateTitle
+  'mode.privateDesc': 'Alleen jij ziet alles; gasten zien enkel hun eigen uploads. Perfect voor een verrassingsalbum.', // app: create.privateDesc
+
+  // ---------------------------------------------------------------- event page
+  'event.kicker': 'Evenement',
+  'event.kickerPro': 'Fotograafevenement', // app: hostEvent.hostOnlyTitle
+  'event.noDate': 'Geen datum', // app: hostEvent.noDate
+  'event.codeLine': 'Code {code}',
+  'event.goneTitle': 'Dit evenement is niet meer beschikbaar', // app: eventGone.title
+  'event.goneBody': 'Het is misschien verwijderd, of de bewaartermijn is voorbij.', // app: eventGone.body
+  'event.notYoursTitle': 'Dit evenement hoort bij een ander account',
+  'event.notYoursBody': 'Log in met het account waarmee het is gemaakt – hetzelfde als in de app.',
+  'tab.label': 'Onderdelen van het evenement',
+  'tab.overview': 'Overzicht',
+  'tab.gallery': 'Galerij',
+  'tab.guests': 'Gasten', // app: hostEvent.tabGuests
+  'tab.settings': 'Instellingen', // app: hostEvent.tabSettings
+  'tab.plan': 'Pakket', // app: hostEvent.planTitle
+  'tab.downloads': 'Downloads',
+
+  // overview
+  'overview.createdTitle': 'Evenement aangemaakt!', // app: qr.createdTitle
+  'overview.createdBody': 'Deel de QR-code met je gasten – elke foto komt in jouw galerij terecht.', // app: qr.createdSubtitle
+  'overview.createdBodyPro': 'Upload je foto’s vanaf deze computer. Gasten scannen de QR om het album te bekijken en zichzelf te vinden.',
+  'overview.stats': 'Tot nu toe',
+  'overview.statsPro': 'In het album',
+  'overview.package': 'Pakket', // app: hostEvent.planTitle
+  'overview.keptUntil': 'Bewaard tot',
+  'overview.face': 'Gezichtsherkenning', // app: hostEvent.aiTitle
+  'overview.faceNot': 'Niet in dit pakket',
+  'overview.wall': 'Livemuur', // app: hostEvent.wallTitle
+  'overview.included': 'Inbegrepen',
+  'overview.changePackage': 'Pakket wijzigen',
+  'overview.refundedNote': 'De betaling voor dit evenement is terugbetaald. Het album blijft tot de opslag afloopt; opnieuw een pakket kopen maakt het weer actief.',
+  'qr.kicker': 'Uitnodiging',
+  'qr.title': 'Gasten doen mee in één stap', // app: qr.title
+  'qr.body': 'Leg de QR op de tafels of stuur de link. Gasten vullen hun naam in en delen vanuit de browser op hun telefoon – geen app, geen account.',
+  'qr.titlePro': 'De QR voor gasten',
+  'qr.bodyPro': 'Gasten scannen hem om het album te bekijken, foto’s te bewaren en zichzelf te vinden met een selfie. Alleen jij uploadt.',
+  'qr.codeLabel': 'Evenementcode', // app: qr.codeLabel
+  'qr.linkLabel': 'Link voor gasten',
+  'qr.alt': 'QR-code voor evenement {code}',
+  'qr.png': 'QR downloaden (PNG)',
+  'qr.share': 'Uitnodiging delen', // app: qr.share
+  'qr.shareText': 'Doe mee met het fotoalbum ‘{name}’ (code {code})',
+  'qr.faceLine': 'Gezichtsherkenning staat aan: de geprinte QR bevat de korte mededeling voor gasten.',
+  'upload.kicker': 'Uploaden',
+  'upload.title': 'Uploaden vanaf je computer', // app: uploadLink.title
+  'upload.body': 'Sleep een hele map vanaf je computer. Originelen blijven in volle resolutie; gasten zien kleinere versies.', // app: uploadLink.subtitle
+  'upload.cta': 'Originelen uploaden',
+  'upload.countOf': 'van {cap} foto’s',
+  'upload.countUnlimited': 'foto’s, geen limiet',
+  'owner.title': 'Delen met het bruidspaar', // app: hostEvent.shareOwnerTitle
+  'owner.body': 'Geef het bruidspaar een eenmalige code. Op sharecam.app/album zien ze het hele album en downloaden ze alles – volle resolutie, in delen.', // app: hostEvent.shareOwnerBody
+  'owner.cta': 'Code voor het bruidspaar maken', // app: hostEvent.shareOwnerCta
+  'owner.newCode': 'Nieuwe code', // app: ownerLink.newCode
+  'owner.expires': 'Verloopt over {time} · eenmalig', // app: ownerLink.expiresIn
+  'owner.expired': 'Deze code is verlopen', // app: ownerLink.expired
+  'owner.link': 'Albumlink',
+  'owner.foot': 'Alleen het bruidspaar hoort deze code te krijgen – hij ontgrendelt de download van het hele album.', // app: ownerLink.footer
+  'owner.error': 'We konden geen code maken. Controleer je verbinding en probeer het opnieuw.', // app: ownerLink.error
+  'wall.title': 'Livemuur', // app: hostEvent.wallTitle
+  'wall.openBody': 'De muur is klaar. Open deze link op de tv, laptop of beamer van de locatie – geen kabel, geen app.',
+  'wall.privateWarning': 'In privémodus blijven uploads verborgen tot je ze onthult, dus de muur staat uit. Zet de privémodus uit om hem te gebruiken.', // app: wall.privateWarning
+  'await.kicker': 'Fotograafevenement',
+  'await.title': 'Kies een pakket om je QR te krijgen',
+  'await.body': 'Dit evenement heeft nog geen fotograafpakket. De QR, de code en de uploadpagina gaan open zodra er een pakket actief is. Naam en datum zijn opgeslagen.',
+  'await.cta': 'Kies een pakket',
+
+  // expiry (D19)
+  'expiry.title': 'Foto’s van ‘{name}’ worden over {n} dagen verwijderd',
+  'expiry.titleOne': 'Foto’s van ‘{name}’ worden morgen verwijderd',
+  'expiry.todayTitle': 'Foto’s van ‘{name}’ worden vandaag verwijderd',
+  'expiry.body': 'De opslag loopt af op {date}. Download het album voor die tijd – daarna is het niet meer terug te halen.',
+  'expiry.download': 'Downloaden',
+  'expiry.listTitle': 'Opslag loopt binnenkort af',
+  'expiry.listBody': 'Na deze datum worden de foto’s verwijderd en zijn ze niet meer terug te halen. Download wat je wilt bewaren.',
+  'expiry.whenDays': 'over {n} dagen',
+  'expiry.whenTomorrow': 'morgen',
+  'expiry.whenToday': 'vandaag',
+  'expiry.icsShort': 'Herinnering',
+  'expiry.ics': 'Herinnering in agenda zetten',
+  'expiry.icsTitle': 'Download je Sharecam-foto’s: {name}',
+  'expiry.icsBody': 'De foto’s van ‘{name}’ worden op {date} verwijderd. Open het dashboard voor organisatoren om ze te downloaden.',
+
+  // gallery
+  'gallery.count': '{n} items · {shown} geladen',
+  'gallery.filter': 'Tonen',
+  'gallery.all': 'Alles', // app: gallery.all
+  'gallery.reportedN': 'Gemeld ({n})', // app: hostEvent.reportedFilter
+  'gallery.hiddenN': 'Verborgen ({n})',
+  'gallery.hidden': 'Verborgen',
+  'gallery.reported': 'Gemeld',
+  'gallery.hide': 'Verbergen voor gasten',
+  'gallery.show': 'Tonen aan gasten',
+  'gallery.hiddenToast': 'Verborgen voor gasten.',
+  'gallery.shownToast': 'Weer zichtbaar voor gasten.',
+  'gallery.deleteTitle': 'Deze foto verwijderen?', // app: hostEvent.deleteTitle
+  'gallery.deleteBody': 'Hij wordt uit de galerij gehaald.', // app: hostEvent.deleteBody
+  'gallery.deletedToast': 'Verwijderd.',
+  'gallery.more': 'Meer laden',
+  'gallery.emptyTitle': 'Nog geen foto’s', // app: hostEvent.emptyTitle
+  'gallery.emptyBody': 'Leg de QR op de tafels – de eerste foto verschijnt hier.',
+  'gallery.emptyPro': 'Upload vanaf je computer – originelen blijven bewaard, gasten zien de galerij binnen enkele minuten.', // app: hostEvent.emptyProBody
+  'gallery.noneReported': 'Niets gemeld tussen de geladen items.',
+  'gallery.noneHidden': 'Niets verborgen tussen de geladen items.',
+  'gallery.viewer': 'Fotoviewer',
+  'gallery.openItem': 'Foto van {name} openen',
+  'gallery.photoAlt': 'Foto van {name}',
+  'gallery.unknownOwner': 'Gast',
+  'gallery.openFull': 'Op volle grootte openen',
+
+  // guests
+  'guests.emptyTitle': 'Nog geen gasten', // app: guests.emptyTitle
+  'guests.emptyBody': 'Iedereen die meedoet met de QR of code verschijnt hier, met naam.', // app: guests.emptyBody
+  'guests.ban': 'Verwijderen', // app: guests.ban
+  'guests.unban': 'Herstellen', // app: guests.unban
+  'guests.bannedTag': 'verwijderd', // app: guests.bannedTag
+  'guests.banTitle': '{name} verwijderen?', // app: guests.banTitle
+  'guests.banBody': 'Deze persoon kan niet opnieuw meedoen of uploaden. De foto’s blijven staan (je kunt ze uit de galerij verwijderen).', // app: guests.banBody
+  'guests.owner': 'Albumeigenaar',
+  'guests.noName': 'Gast',
+  'guests.joined': 'meegedaan {time}',
+  'guests.removedToast': '{name} is verwijderd.',
+  'guests.restoredToast': '{name} kan weer meedoen.',
+  'guests.capTitle': 'Gasten in dit evenement',
+  'guests.capBody': 'Verwijderde gasten tellen niet mee; hun plek komt weer vrij.',
+  'guests.full': 'Gastenlimiet bereikt ({limit}). Upgrade zodat er meer mee kunnen doen.', // app: guests.limitFull (adapted)
+
+  // settings
+  'settings.galleryTitle': 'Wie doet mee, wie ziet wat',
+  'settings.privateTitle': 'Privémodus', // app: hostEvent.privateTitle
+  'settings.privateOn': 'Gasten zien alleen hun eigen foto’s.', // app: hostEvent.privateOn
+  'settings.privateOff': 'Iedereen ziet de hele galerij.', // app: hostEvent.privateOff
+  'settings.statePrivate': 'Privé', // app: hostEvent.statePrivate
+  'settings.statePublic': 'Openbaar', // app: hostEvent.statePublic
+  'settings.revealTitle': 'De galerij voor iedereen openen?', // app: hostEvent.revealTitle
+  'settings.revealBody': 'Gasten zien vanaf nu elkaars foto’s. Dit is een ‘onthulling’ – zeker weten?', // app: hostEvent.revealBody
+  'settings.revealConfirm': 'Ja, openen', // app: hostEvent.revealConfirm
+  'settings.autoRevealTitle': 'Automatisch openen', // app: hostEvent.revealSchedTitle
+  'settings.autoRevealOn': 'De galerij gaat op {time} voor iedereen open.', // app: hostEvent.revealSchedOn
+  'settings.autoRevealOff': 'Uit: de galerij blijft privé tot je die zelf opent.', // app: hostEvent.revealSchedOff
+  'settings.revealPick': 'Kies datum en tijd', // app: hostEvent.revealPick
+  'settings.pauseTitle': 'Nieuwe deelnemers pauzeren', // app: hostEvent.pauseTitle
+  'settings.pauseOn': 'Er kunnen geen nieuwe gasten meedoen. Huidige gasten blijven.', // app: hostEvent.pauseOn
+  'settings.pauseOff': 'Iedereen met de QR of code kan meedoen.', // app: hostEvent.pauseOff
+  'settings.statePaused': 'Gepauzeerd', // app: hostEvent.statePaused
+  'settings.stateOpen': 'Open', // app: hostEvent.stateOpen
+  'settings.downloadTitle': 'Downloads voor gasten', // app: hostEvent.downloadTitle
+  'settings.downloadDesc': 'Gasten kunnen foto’s bewaren.', // app: hostEvent.downloadDesc
+  'settings.hostOnlyTitle': 'Fotograafevenement', // app: hostEvent.hostOnlyTitle
+  'settings.hostOnlyBody': 'Alleen jij uploadt. Gasten bekijken de galerij, bewaren foto’s en vinden zichzelf met een selfie. Dit kan niet worden gewijzigd.', // app: hostEvent.hostOnlyBody
+  'settings.detailsTitle': 'Evenementdetails', // app: hostEvent.detailsTitle
+  'settings.name': 'Naam',
+  'settings.date': 'Datum',
+  'settings.code': 'Code',
+  'settings.noCover': 'Geen omslagfoto',
+  'settings.coverAdd': 'Omslagfoto toevoegen',
+  'settings.coverChange': 'Omslag wijzigen',
+  'settings.coverSaved': 'Omslag opgeslagen.',
+  'settings.coverRemoved': 'Omslag verwijderd.',
+  'settings.lockedNote': 'Naam en datum liggen vast, zodat het scherm altijd klopt met je geprinte kaartjes.',
+  'settings.saved': 'Opgeslagen.',
+  'settings.dangerTitle': 'Gevarenzone', // app: hostEvent.dangerTitle
+  'settings.dangerBody': 'Verwijderen haalt het evenement, de foto’s en de gastenlijst weg voor iedereen – ook voor je gasten. Dit kan niet ongedaan worden gemaakt.', // app: hostEvent.dangerBody
+  'settings.deleteCta': 'Evenement verwijderen',
+  'settings.deleteTitle': 'Dit evenement verwijderen?', // app: hostEvent.deleteEventTitle
+  'settings.deleteBody': '‘{name}’ en alle foto’s erin worden definitief verwijderd.', // app: hostEvent.deleteEventBody
+  'settings.deleteConfirm': 'Verwijderen…', // app: hostEvent.deleteEventConfirm
+  'settings.deleteTitle2': 'Weet je het heel zeker?', // app: hostEvent.deleteEventTitle2
+  'settings.deleteBody2': 'Dit is definitief – het evenement kan niet worden hersteld.', // app: hostEvent.deleteEventBody2
+  'settings.deleted': 'Evenement verwijderd.',
+  'settings.deletePairedNote': 'Evenementen verwijderen kan zodra dit account een eigen inlogmethode heeft, of in de app.',
+
+  // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
+  'face.title': 'Gezichtsherkenning', // app: hostEvent.aiTitle
+  'face.tabTitle': 'Vind je foto’s', // app: face.tabTitle
+  'face.aiOn': 'Aan: gasten kunnen hun eigen foto’s vinden met een selfie.', // app: hostEvent.aiOn
+  'face.aiOff': 'Uit: gasten zien ‘Vind je foto’s’ niet.', // app: hostEvent.aiOff
+  'face.notInPackage': 'Gezichtsherkenning zit niet in dit pakket. Je kunt het toevoegen in de Sharecam-app.',
+  'face.hostConfirmTitle': 'Gezichtsherkenning aanzetten?', // app: face.hostConfirmTitle
+  'face.hostConfirmBody': 'Je gasten kunnen dan met een selfie hun eigen foto’s vinden. Jij moet hen laten weten dat het gebruikt wordt – wij geven je een tekst voor de uitnodiging en een bordje. Het mag niet gebruikt worden om aanwezigheid bij te houden of iemand te identificeren die daar niet om heeft gevraagd.', // app: face.hostConfirmBody
+  'face.hostConfirmCta': 'Aanzetten', // app: face.hostConfirmCta
+  'face.remindTitle': 'Laat je gasten het nu weten', // app: face.noticeTitle (adapted)
+  'face.remindBody': 'Kopieer de tekst hieronder naar je uitnodiging of groepschat en print de QR met de mededeling eronder.',
+  'face.noticeTitle': 'Laat je gasten het weten', // app: face.noticeTitle
+  'face.noticeSub': 'Plak dit in je uitnodiging, de groepschat of een kaartje op de tafels.', // app: face.noticeSub
+  'face.noticeText': 'De foto\'s van dit evenement komen samen in één album. Het biedt optionele gezichtsherkenning zodat je je eigen foto\'s kunt vinden. Jij kiest en je mag weigeren. Details: sharecam.app/face-grouping', // app: face.noticeText
+  'face.noticeCopy': 'Tekst kopiëren', // app: face.noticeCopy
+  'face.noticeCopied': 'Gekopieerd', // app: face.noticeCopied
+  'face.noticePrint': 'De QR die je bij Overzicht downloadt, bevat de korte mededeling voor geprinte kaartjes.',
+  'face.cardNotice': 'Optionele gezichtsherkenning in dit album · sharecam.app/face-grouping', // app: face.cardNotice
+  'face.regionTitle': 'Niet beschikbaar in jouw regio', // app: face.regionTitle
+  'face.regionBody': 'Gezichtsherkenning is op jouw locatie nog niet beschikbaar. We stellen het alleen open waar we aan de lokale regels voor gezichtsgegevens kunnen voldoen, zodat we je nooit iets verkopen dat je gasten niet kunnen gebruiken.', // app: face.regionBody
+  'face.regionSoonTitle': 'Binnenkort beschikbaar op jouw locatie', // app: face.regionSoonTitle
+  'face.regionSoonBody': 'We ronden de registratie af waarmee we gezichtsgegevens voor jouw land mogen verwerken. De rest van het album werkt gewoon.', // app: face.regionSoonBody
+  'face.regionUnknownTitle': 'We konden je locatie niet bevestigen', // app: face.regionUnknownTitle
+  'face.regionUnknownBody': 'Deze functie hangt af van lokale regels over gezichtsgegevens, dus we zetten hem alleen aan als we weten welke regels gelden. De rest van het album werkt gewoon.', // app: face.regionUnknownBody
+  'face.declTitle': 'Voordat je het toevoegt', // app: face.declTitle
+  'face.declIntro': 'Jij bent de organisator van dit event, dus dit zijn jouw keuzes. Door het vakje aan te vinken bevestig je:', // app: face.declIntro
+  'face.decl1': 'Ik bepaal wie er op dit event wordt uitgenodigd en gefotografeerd.', // app: face.decl1
+  'face.decl2': 'Ik vertel mijn gasten dat gezichtsherkenning aanstaat, via de uitnodigingstekst en de geprinte kaart in deze app.', // app: face.decl2
+  'face.decl3': 'Mijn event vindt niet plaats in de Amerikaanse staten Illinois, Texas of Washington.', // app: face.decl3
+  'face.decl4': 'Gezichtsgegevens worden verwerkt door AWS in Frankfurt (Duitsland) en verwijderd zodra ik dit uitzet of het album wordt verwijderd.', // app: face.decl4
+  'face.decl5': 'Ik ben verantwoordelijk voor het naleven van de regels die gelden waar mijn event plaatsvindt.', // app: face.decl5
+  'face.declAccept': 'Ik heb de organisatorvoorwaarden gelezen en accepteer ze', // app: face.declAccept
+  'face.declRead': 'Lees de volledige organisatorvoorwaarden', // app: face.declRead
+  'face.declError': 'We konden je akkoord niet opslaan. Controleer je verbinding en probeer het opnieuw.', // app: face.declError
+  'decl.kicker': '{plan} · gezichtsherkenning inbegrepen',
+  'decl.continue': 'Accepteren en verder naar betalen',
+
+  // ---------------------------------------------------------------- package & checkout (§3.4)
+  'checkout.kicker': 'Pakketten',
+  'checkout.kickerPro': 'Pakketten voor fotografen', // app: paywall.titlePro
+  'checkout.titleNew': 'Kies een pakket voor je evenement', // app: paywall.title
+  'checkout.titleUpgrade': 'Upgrade je pakket', // app: paywall.titleUpgrade
+  'checkout.subtitle': 'Eenmalige betaling – geen abonnement. Kies de maat die bij je gastenlijst past.', // app: paywall.subtitle
+  'checkout.subtitlePro': 'Eenmalige betaling per evenement. Jij uploadt vanaf je computer; gasten scannen de QR, bekijken het album en vinden hun foto’s met een selfie.', // app: paywall.subtitlePro
+  'checkout.current': 'Nu',
+  'checkout.upgradeRule': 'Upgraden kost de volle prijs van het grotere pakket – dezelfde regel als in de app.',
+  'checkout.choose': 'Kies een pakket',
+  'checkout.cta': '{price} betalen · {plan}',
+  'checkout.opening': 'Beveiligde betaling wordt geopend…',
+  'checkout.paying': 'Rond de betaling af in het betaalvenster.',
+  'checkout.sandbox': 'Sandbox · testbetalingen',
+  'checkout.footnote': 'Prijzen in USD, dezelfde als in de Sharecam-app. Paddle kan bij het afrekenen je lokale valuta en btw tonen. Betalingen worden verwerkt door Paddle, onze officiële wederverkoper (merchant of record).',
+  'checkout.soonTitle': 'Kopen op het web komt binnenkort',
+  'checkout.soonOff': 'Pakketten zijn nog niet op het web te koop.',
+  'checkout.soonPrices': 'Deze pakketten worden nog niet op het web verkocht.',
+  'checkout.soonApp': 'Tot die tijd koop je pakketten in de Sharecam-app voor iPhone – dit evenement verschijnt daar met dezelfde inlogmethode.',
+  'checkout.soonAppPro': 'Tot die tijd koop je pakketten voor fotografen in de Sharecam-app voor iPhone – dit evenement verschijnt daar met dezelfde inlogmethode.',
+  'checkout.maxedTitle': '{plan} is het grootste pakket',
+  'checkout.maxedBody': 'Er valt voor dit evenement niets te upgraden.',
+  'checkout.unavailableTitle': 'Dit evenement kan hier niet worden geüpgraded',
+  'checkout.unavailableBody': 'Het hoort bij een ander account of bestaat niet meer.',
+  'checkout.codeNotPro': 'Pakketten voor fotografen vragen om een evenement dat als fotograafevenement is gemaakt. Maak in plaats daarvan een nieuw fotograafevenement.',
+  'checkout.refundedTitle': 'Dit evenement is terugbetaald',
+  'checkout.refundedBody': 'Opnieuw een pakket kopen maakt het weer actief: uploads, gezichtsherkenning (als die erbij zit) en downloads komen terug.',
+  'checkout.abandonedTitle': 'Je evenement staat op Spark (gratis)',
+  'checkout.abandoned': 'Je evenement staat op Spark (gratis). Kies een pakket wanneer je wilt.',
+  'checkout.closedNote': 'De betaling is gesloten. Er is niets in rekening gebracht.',
+  'checkout.applyingTitle': 'Betaling ontvangen',
+  'checkout.applyingBody': 'We activeren {plan} voor dit evenement. Deze pagina werkt zichzelf bij.',
+  'checkout.slowTitle': 'Betaling ontvangen – bijna klaar',
+  'checkout.slowBody': 'Je betaling is binnen. {plan} wordt binnen enkele minuten actief; je kunt deze pagina verlaten. Is het na een uur nog niet actief, schrijf ons dan.',
+  'checkout.doneTitle': 'Klaar 🎉', // app: paywall.doneTitle
+  'checkout.doneBody': 'Het pakket {plan} is actief. Paddle stuurt de bon naar je e-mailadres.', // app: paywall.active (+ receipt)
+  'checkout.toOverview': 'Naar het evenement', // app: qr.goToEvent
+  'checkout.coveredTitle': 'Dit evenement heeft al {plan}',
+  'checkout.coveredBody': 'Heb je twee keer betaald? Dan betalen we de extra betaling terug. Vragen: {email}',
+  'checkout.failedTitle': 'Je betaling kon niet worden verwerkt',
+  'checkout.failedBody': 'We betalen hem terug – je hoeft niets te doen. Vragen: {email}',
+  'checkout.openFailedTitle': 'De betaling kon niet worden geopend',
+  'checkout.openFailedBody': 'Er is niets in rekening gebracht. Probeer het zo meteen opnieuw.',
+  'checkout.tooMany': 'Er zijn vandaag te veel betalingen geopend. Probeer het morgen opnieuw of schrijf ons.',
+  'checkout.backToPackages': 'Terug naar de pakketten',
+  'checkout.contact': 'Contact met support',
+  'checkout.mailSlow': 'Webbetaling nog niet verwerkt',
+  'checkout.mailDuplicate': 'Twee keer betaald',
+  'checkout.mailFailed': 'Webbetaling niet verwerkt',
+  'checkout.proIncludesTitle': 'In elk pakket voor fotografen',
+  'checkout.proInc1': 'Gezichtsherkenning inbegrepen, waar beschikbaar', // app: paywall.featAiIncluded (adapted)
+  'checkout.proInc2': 'Alleen jij uploadt – gasten kijken', // app: paywall.featHostOnly
+  'checkout.proInc3': 'Originelen bewaard in volle resolutie', // app: paywall.featOriginals
+
+  // ---------------------------------------------------------------- downloads
+  'downloads.zipTitle': 'Album downloaden',
+  'downloads.zipBody': 'Alle foto’s en video’s in één ZIP-bestand. Grote albums hebben een minuut nodig om voor te bereiden.',
+  'downloads.zipCta': 'ZIP downloaden', // app: download.zip
+  'downloads.zipWorking': 'Inpakken…', // app: download.zipWorking
+  'downloads.zipReady': 'ZIP downloaden ({n} items)',
+  'downloads.displayTitle': 'Om te delen – 2048 px',
+  'downloads.displayBody': 'Het hele album in ZIP-delen van 500 foto’s, op maat voor schermen en social media.',
+  'downloads.originalTitle': 'Originelen – volle resolutie',
+  'downloads.originalBody': 'Je uploads precies zoals ze waren, in ZIP-delen van 150 foto’s.',
+  'downloads.prepare': 'Download voorbereiden',
+  'downloads.again': 'Opnieuw voorbereiden',
+  'downloads.preparing': 'Deel {done} van {total} wordt voorbereid…',
+  'downloads.part': 'Deel {n} van {of}',
+  'downloads.items': '{n} foto’s',
+  'downloads.download': 'Downloaden',
+  'downloads.validity': 'Het hele album in ZIP-delen – 2048px om te delen, originelen in volle resolutie om te bewaren. Links blijven 7 dagen geldig en kunnen opnieuw worden gemaakt.', // app: ownerLink.step3Body
+  'downloads.refundedTitle': 'Downloads staan uit voor terugbetaalde evenementen',
+  'downloads.refunded': 'De betaling voor dit evenement is terugbetaald, dus het album kan niet als ZIP worden geëxporteerd. Opnieuw een pakket kopen schakelt het weer in.', // app: download.zipRefunded
+  'downloads.buyAgain': 'Pakketten bekijken',
+  'downloads.nothing': 'Er is nog niets om te downloaden.',
+  'downloads.failed': 'De ZIP kon niet worden gemaakt.', // app: download.zipFailed
+  'downloads.keepTitle': 'Bewaar een kopie',
+  'downloads.keepBody': 'De opslag loopt af op {date}. Download het album voor die tijd.',
+  'downloads.keepBodyNoDate': 'Download het album voordat de opslag afloopt.',
+
+  // ---------------------------------------------------------------- account
+  'account.kicker': 'Account', // app: account.title
+  'account.title': 'Jouw account',
+  'account.signins': 'Inlogmethoden',
+  'account.pairedOnly': 'Deze computer is gekoppeld aan de Sharecam-app. Het account heeft nog geen eigen inlogmethode.',
+  'account.sameAsApp': 'Je evenementen horen bij dit account – hetzelfde als in de Sharecam-app.',
+  'account.addAnother': 'Nog een inlogmethode toevoegen',
+  'account.addAnotherBody': 'Een tweede manier om binnen te komen, voor als je de eerste ooit kwijtraakt.',
+  'account.linked': 'Inlogmethode toegevoegd.',
+  'account.signOutTitle': 'Uitloggen', // app: account.signOut
+  'account.signOutBody': 'Je evenementen blijven in je account. Log in wanneer je wilt.',
+  'account.signOutPaired': 'Zonder eigen inlogmethode kan deze computer alleen terugkomen door hem opnieuw aan de app te koppelen.',
+  'account.deleteCta': 'Account en gegevens verwijderen', // app: account.deleteCta
+  'account.deleteTitle': 'Je account en gegevens verwijderen?', // app: account.deleteTitle
+  'account.deleteBody': 'Je account, alle evenementen die je hebt gemaakt, alle foto’s en gastenlijsten worden permanent verwijderd – op elk apparaat. Dit kan niet ongedaan worden gemaakt.', // app: account.deleteBody
+  'account.deleteConfirm': 'Alles verwijderen', // app: account.deleteConfirm
+  'account.deleted': 'Je account en gegevens zijn verwijderd.', // app: account.deleted
+  'account.deleteFailed': 'Je account kon niet worden verwijderd. Probeer het opnieuw.', // app: account.deleteFailed
+  'account.deletePairedNote': 'Het account verwijderen kan zodra het een eigen inlogmethode heeft, of in de app (Instellingen → Account).',
+};
+
+export default nl;
