@@ -6,11 +6,13 @@ import { logError } from '../lib/errorLog';
 import { isLinked } from '../lib/auth';
 import { WEB_LADDER, isPlanId, type PlanId, type Tier } from '../lib/plans';
 import { hrefFor, navigate } from '../lib/router';
-import { fmtDate, fmtUsd, t } from '../i18n';
-import { PRO_IN_APP, planName, retentionEndFor } from '../lib/plans';
+import { fmtUsd, t } from '../i18n';
+import { PRO_IN_APP, planName } from '../lib/plans';
+import { isoDay, today } from '../lib/dates';
 import { LinkForm, SignInForm } from '../components/AuthForms';
 import { CheckoutFootnote, PlanTile, fromOption, sparkTile, type TileModel } from '../components/PlanTiles';
 import { Button, IconArrowLeft, IconFace, Loading, Notice, useToast } from '../components/ui';
+import { DatePicker } from '../components/date/DatePicker';
 
 // CREATE (+ BUY) — #/new (plan D8, §3.2, §3.3).
 // Form → account step if signed out (the draft waits in sessionStorage) → create
@@ -257,11 +259,12 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
               />
               {nameErr && <span className="err" id="new-name-err" role="alert">{t('new.nameRequired')}</span>}
             </label>
-            <label className="field">
-              <span className="label">{t('new.date')}</span>
-              <input className="input" type="date" value={date} onChange={(e) => setDate(e.target.value)} style={{ maxWidth: 260 }} />
-              <span className="hint">{t('new.dateHint')}</span>
-            </label>
+            {/* The site's own calendar, not the browser's (components/date): today or later, like the app's minimumDate. */}
+            <div className="field">
+              <span className="label" id="new-date-label">{t('new.date')}</span>
+              <DatePicker value={date} onChange={setDate} min={isoDay(today())} labelId="new-date-label" hintId="new-date-hint" />
+              <span className="hint" id="new-date-hint">{t('new.dateHint')}</span>
+            </div>
             {tier === 'consumer' && (
               <div className="field" role="radiogroup" aria-labelledby="new-who">
                 <span className="label" id="new-who">{t('new.who')}</span>
@@ -331,18 +334,6 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
               </div>
             )}
             {tier === 'pro' && !user && <p className="tiny muted">{t('new.proRegionLater')}</p>}
-            {paidPick && selected && (() => {
-              // Storage counts from max(today, event day) — show the date before paying,
-              // and warn when there is no date: it can never be added later (review P1).
-              const end = retentionEndFor({ date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null, retentionDays: selected.limits.retentionDays });
-              return date ? (
-                <p className="small" data-kept-until>{t('list.keptUntil', { date: fmtDate(end) })}</p>
-              ) : (
-                <Notice tone="gold" icon={<IconClockSmall />}>
-                  <span data-no-date-warn>{t('new.noDateWarn', { date: fmtDate(end) })}</span>
-                </Notice>
-              );
-            })()}
             {err && <p className="err" role="alert">{err}</p>}
             {/* pro + signed in: submit() waits for the region gate, so the button waits too (busy = disabled): a click before faceGateCheck answered did nothing */}
             <Button type="submit" block busy={busy || (tier === 'pro' && !!user && region === null)} disabled={!pv || !selected || soonFor(selected) || proClosed}>
@@ -353,15 +344,6 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
         </div>
       </form>
     </>
-  );
-}
-
-function IconClockSmall() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 7v5l3 2" />
-    </svg>
   );
 }
 

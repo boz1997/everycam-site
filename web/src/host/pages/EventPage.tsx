@@ -3,9 +3,9 @@ import type { User } from 'firebase/auth';
 import type { HostEvent } from '../lib/types';
 import { watchEvent } from '../lib/data';
 import { logError } from '../lib/errorLog';
-import { awaitingProPackage, deletionAt, tierOf, type PlanId } from '../lib/plans';
+import { tierOf, type PlanId } from '../lib/plans';
 import { TABS, type Tab } from '../lib/router';
-import { fmtDate, fmtDay, fmtNumber, t, type Key } from '../i18n';
+import { fmtDay, fmtNumber, t, type Key } from '../i18n';
 import { ExpiryBanner, PlanTags, expiringSoon } from '../components/EventBits';
 import { IconArrowLeft, Loading, Notice } from '../components/ui';
 import { Overview } from './tabs/Overview';
@@ -24,7 +24,7 @@ const TAB_LABEL: Record<Tab, Key> = {
   downloads: 'tab.downloads',
 };
 
-export function EventPage({ user, id, tab, plan, fresh }: { user: User; id: string; tab: Tab; plan?: PlanId; fresh: boolean }) {
+export function EventPage({ user, id, tab, plan, fresh, paid }: { user: User; id: string; tab: Tab; plan?: PlanId; fresh: boolean; paid?: PlanId }) {
   const [event, setEvent] = useState<HostEvent | null | undefined>(undefined);
   const [failed, setFailed] = useState(false);
   // Phones: the tab row scrolls sideways — fade whichever edge has more tabs behind
@@ -76,7 +76,9 @@ export function EventPage({ user, id, tab, plan, fresh }: { user: User; id: stri
     );
   }
 
-  const del = deletionAt(event);
+  // No "Kept until" line under the title (owner feedback, 24 Sep 2026). The
+  // date stays a plain fact in the package card and the list; the 14 / 5 / 2-day
+  // banners (D19) still warn before anything is deleted.
   const pro = tierOf(event) === 'pro';
   const tabs = TABS;
   return (
@@ -89,8 +91,6 @@ export function EventPage({ user, id, tab, plan, fresh }: { user: User; id: stri
           <span className="row" style={{ gap: 6 }}><PlanTags event={event} /></span>
           <span>{event.date ? fmtDay(event.date) : t('event.noDate')}</span>
           {!(pro && event.planId === 'spark' && !event.planBeforeRefund) && <span className="num">{t('event.codeLine', { code: event.code })}</span>}
-          {/* no "kept until" before a photographer event has a package (its Spark date means nothing yet) */}
-          {del && !awaitingProPackage(event) && <span>{t('list.keptUntil', { date: fmtDate(del) })}</span>}
         </div>
       </div>
       <nav className="tabs" aria-label={t('tab.label')} ref={tabsRef} onScroll={measureTabs} data-left={edges.left ? '1' : undefined} data-right={edges.right ? '1' : undefined}>
@@ -107,7 +107,7 @@ export function EventPage({ user, id, tab, plan, fresh }: { user: User; id: stri
           <ExpiryBanner event={event} />
         </div>
       )}
-      {tab === 'overview' && <Overview event={event} fresh={fresh} />}
+      {tab === 'overview' && <Overview event={event} fresh={fresh} paid={paid} />}
       {tab === 'gallery' && <Gallery event={event} />}
       {tab === 'guests' && <Guests event={event} />}
       {tab === 'settings' && <Settings event={event} user={user} />}

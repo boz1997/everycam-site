@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { migrateLegacyHostSession } from '../hostSession';
 import { checkoutDriver, dropPaymentLink, orderStatus, paymentLinkTxn } from './lib/checkout';
 import { hrefFor, navigate, parseHash, useRoute } from './lib/router';
+import { isPlanId } from './lib/plans';
 import { useHostUser } from './hooks/useHostUser';
 import { getLang, t, useLang } from './i18n';
 import { Shell } from './components/Shell';
@@ -33,6 +34,10 @@ export default function App() {
   // someone else's event). Signed out, the gate below sends the visitor to sign in
   // first (the query string survives the hash navigation); an order that isn't
   // theirs (or no order at all) → the parameter is dropped and nothing opens.
+  // Such a link opens /join/host/ — the event list. Land on THAT order's event
+  // instead (owner feedback, 24 Sep 2026: after a payment, the list is the wrong
+  // place): an order still open resumes its checkout there; a paid one is not
+  // opened again ("{plan} is active" when it was applied).
   const resumed = useRef(false);
   useEffect(() => {
     if (!ready || !user || resumed.current) return;
@@ -40,7 +45,17 @@ export default function App() {
     if (!txn) return;
     resumed.current = true;
     orderStatus(txn)
-      .then(() => checkoutDriver.resumePaymentLink(getLang()))
+      .then((s) => {
+        const onList = parseHash(window.location.hash).name === 'events';
+        const id = s.eventId && /^[A-Za-z0-9_-]{1,128}$/.test(s.eventId) ? s.eventId : null;
+        if (s.status !== 'created') {
+          dropPaymentLink();
+          if (onList && id) navigate({ name: 'event', id, tab: 'overview', ...(s.status === 'applied' && isPlanId(s.planId) ? { paid: s.planId } : {}) }, true);
+          return;
+        }
+        if (onList && id) navigate({ name: 'event', id, tab: 'overview' }, true);
+        checkoutDriver.resumePaymentLink(getLang());
+      })
       .catch(() => dropPaymentLink());
   }, [ready, user]);
 
@@ -101,7 +116,7 @@ export default function App() {
   else if (!user) page = <Loading />;
   else if (route.name === 'events') page = <EventList user={user} />;
   else if (route.name === 'account') page = <Account user={user} />;
-  else page = <EventPage key={route.id} user={user} id={route.id} tab={route.tab} plan={route.plan} fresh={!!route.fresh} />;
+  else page = <EventPage key={route.id} user={user} id={route.id} tab={route.tab} plan={route.plan} fresh={!!route.fresh} paid={route.paid} />;
 
   return (
     <ToastProvider>

@@ -198,13 +198,18 @@ const es: Dict = {
   'new.nameRequired': 'Ponle un nombre al evento.',
   'new.date': 'Fecha del evento (opcional)', // app: create.dateLabel
   'new.dateHint': 'El almacenamiento empieza ese día (u hoy si lo dejas vacío).',
-  'new.noDateWarn': 'Sin fecha, el almacenamiento empieza hoy y termina el {date}. Añade la fecha de tu evento: no se puede añadir después.',
+  'date.pick': 'Elige una fecha',
+  'date.clear': 'Quitar fecha', // app: create.clearDate
+  'date.today': 'Hoy',
+  'date.prevMonth': 'Mes anterior',
+  'date.nextMonth': 'Mes siguiente',
+  'date.help': 'Las flechas te mueven entre los días, Re Pág y Av Pág cambian de mes, Intro elige el día y Esc cierra.',
   'new.who': '¿Quién ve las fotos?', // app: create.titleMode
   'new.modeHint': 'Puedes cambiarlo después en Ajustes.', // app: create.modeHint
   'new.cover': 'Foto de portada (opcional)',
   'new.coverAdd': 'Añadir foto de portada',
   'new.coverChange': 'Cambiar',
-  'new.locked': 'El nombre y la fecha no se pueden cambiar después (la misma regla que en la app).',
+  'new.locked': 'El nombre y la fecha no se pueden cambiar después.',
   'new.package': 'Paquete',
   'new.consumerSoon': 'Los paquetes de pago llegarán pronto a la web. Empieza gratis con Spark y mejora más tarde, aquí o en la app.',
   'new.proSoonTitle': 'Los paquetes para fotógrafos llegarán pronto a la web',
@@ -388,7 +393,7 @@ const es: Dict = {
   'settings.coverChange': 'Cambiar portada',
   'settings.coverSaved': 'Portada guardada.',
   'settings.coverRemoved': 'Portada quitada.',
-  'settings.lockedNote': 'El nombre y la fecha están bloqueados, igual que en la app.',
+  'settings.lockedNote': 'El nombre y la fecha están bloqueados.',
   'settings.saved': 'Guardado.',
   'settings.dangerTitle': 'Zona de peligro', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Eliminar borra el evento, sus fotos y su lista de invitados para todos, incluidos tus invitados. No se puede deshacer.', // app: hostEvent.dangerBody
@@ -448,7 +453,7 @@ const es: Dict = {
   'checkout.subtitle': 'Pago único: no es una suscripción. Elige el tamaño que encaje con tu lista de invitados.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Pago único por evento. Subes las fotos desde tu ordenador; los invitados escanean el QR, ven el álbum y encuentran sus fotos con un selfi.', // app: paywall.subtitlePro
   'checkout.current': 'Ahora',
-  'checkout.upgradeRule': 'Mejorar cuesta el precio completo del paquete mayor: la misma regla que en la app.',
+  'checkout.upgradeRule': 'Mejorar cuesta el precio completo del paquete mayor.',
   'checkout.choose': 'Elige un paquete',
   'checkout.cta': 'Pagar {price} · {plan}',
   'checkout.opening': 'Abriendo el pago seguro…',

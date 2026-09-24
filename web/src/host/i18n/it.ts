@@ -198,13 +198,18 @@ const it: Dict = {
   'new.nameRequired': 'Dai un nome all’evento.',
   'new.date': 'Data dell’evento (facoltativa)', // app: create.dateLabel
   'new.dateHint': 'L’archiviazione parte da questo giorno (o da oggi se lo lasci vuoto).',
-  'new.noDateWarn': 'Senza data, l’archiviazione parte da oggi e finisce il {date}. Aggiungi la data dell’evento: non si può aggiungere dopo.',
+  'date.pick': 'Scegli una data',
+  'date.clear': 'Rimuovi la data', // app: create.clearDate
+  'date.today': 'Oggi',
+  'date.prevMonth': 'Mese precedente',
+  'date.nextMonth': 'Mese successivo',
+  'date.help': 'Le frecce ti spostano tra i giorni, Pag su e Pag giù cambiano mese, Invio sceglie il giorno ed Esc chiude.',
   'new.who': 'Chi vede le foto?', // app: create.titleMode
   'new.modeHint': 'Puoi cambiarlo dopo nelle Impostazioni.', // app: create.modeHint
   'new.cover': 'Foto di copertina (facoltativa)',
   'new.coverAdd': 'Aggiungi una foto di copertina',
   'new.coverChange': 'Cambia',
-  'new.locked': 'Nome e data non si possono cambiare in seguito (la stessa regola dell’app).',
+  'new.locked': 'Nome e data non si possono cambiare in seguito.',
   'new.package': 'Pacchetto',
   'new.consumerSoon': 'I pacchetti a pagamento arriveranno presto sul web. Inizia ora gratis con Spark e passa a un pacchetto superiore più tardi, qui o nell’app.',
   'new.proSoonTitle': 'I pacchetti per fotografi arriveranno presto sul web',
@@ -388,7 +393,7 @@ const it: Dict = {
   'settings.coverChange': 'Cambia copertina',
   'settings.coverSaved': 'Copertina salvata.',
   'settings.coverRemoved': 'Copertina rimossa.',
-  'settings.lockedNote': 'Nome e data sono bloccati, come nell’app.',
+  'settings.lockedNote': 'Nome e data sono bloccati.',
   'settings.saved': 'Salvato.',
   'settings.dangerTitle': 'Zona pericolosa', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'L’eliminazione rimuove l’evento, le sue foto e l’elenco ospiti per tutti, inclusi i tuoi ospiti. Azione irreversibile.', // app: hostEvent.dangerBody
@@ -448,7 +453,7 @@ const it: Dict = {
   'checkout.subtitle': 'Pagamento unico — non è un abbonamento. Scegli la misura adatta alla tua lista ospiti.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Pagamento unico per evento. Carichi dal computer; gli ospiti scansionano il QR, sfogliano l’album e trovano le loro foto con un selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Attuale',
-  'checkout.upgradeRule': 'Passare a un pacchetto superiore costa il prezzo pieno del pacchetto più grande — la stessa regola dell’app.',
+  'checkout.upgradeRule': 'Passare a un pacchetto superiore costa il prezzo pieno del pacchetto più grande.',
   'checkout.choose': 'Scegli un pacchetto',
   'checkout.cta': 'Paga {price} · {plan}',
   'checkout.opening': 'Apertura del pagamento sicuro…',

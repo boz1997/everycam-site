@@ -199,13 +199,18 @@ const pl: Dict = {
   'new.nameRequired': 'Nadaj wydarzeniu nazwę.',
   'new.date': 'Data wydarzenia (opcjonalnie)', // app: create.dateLabel
   'new.dateHint': 'Przechowywanie liczy się od tego dnia (albo od dziś, jeśli zostawisz puste).',
-  'new.noDateWarn': 'Bez daty przechowywanie zaczyna się dziś i kończy się {date}. Dodaj datę wydarzenia – później nie da się jej dodać.',
+  'date.pick': 'Wybierz datę',
+  'date.clear': 'Usuń datę', // app: create.clearDate
+  'date.today': 'Dzisiaj',
+  'date.prevMonth': 'Poprzedni miesiąc',
+  'date.nextMonth': 'Następny miesiąc',
+  'date.help': 'Strzałkami zmieniasz dzień, klawiszami Page Up i Page Down miesiąc; Enter wybiera dzień, Esc zamyka.',
   'new.who': 'Kto widzi zdjęcia?', // app: create.titleMode
   'new.modeHint': 'Możesz to zmienić później w Ustawieniach.', // app: create.modeHint
   'new.cover': 'Zdjęcie okładki (opcjonalnie)',
   'new.coverAdd': 'Dodaj zdjęcie okładki',
   'new.coverChange': 'Zmień',
-  'new.locked': 'Nazwy i daty nie można później zmienić (ta sama zasada co w aplikacji).',
+  'new.locked': 'Nazwy i daty nie można później zmienić.',
   'new.package': 'Pakiet',
   'new.consumerSoon': 'Płatne pakiety wkrótce pojawią się na stronie. Zacznij teraz za darmo od Spark i ulepsz później — tutaj albo w aplikacji.',
   'new.proSoonTitle': 'Pakiety dla fotografów wkrótce na stronie',
@@ -389,7 +394,7 @@ const pl: Dict = {
   'settings.coverChange': 'Zmień okładkę',
   'settings.coverSaved': 'Okładka zapisana.',
   'settings.coverRemoved': 'Okładka usunięta.',
-  'settings.lockedNote': 'Nazwa i data są zablokowane – tak samo jak w aplikacji.',
+  'settings.lockedNote': 'Nazwa i data są zablokowane.',
   'settings.saved': 'Zapisano.',
   'settings.dangerTitle': 'Strefa zagrożenia', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Usunięcie kasuje wydarzenie, jego zdjęcia i listę gości dla wszystkich — również dla Twoich gości. Tej operacji nie można cofnąć.', // app: hostEvent.dangerBody
@@ -449,7 +454,7 @@ const pl: Dict = {
   'checkout.subtitle': 'Płatność jednorazowa — to nie subskrypcja. Wybierz rozmiar pasujący do listy gości.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Jednorazowa płatność za wydarzenie. Wgrywasz z komputera; goście skanują QR, przeglądają album i znajdują swoje zdjęcia dzięki selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Obecnie',
-  'checkout.upgradeRule': 'Ulepszenie kosztuje pełną cenę większego pakietu — tak samo jak w aplikacji.',
+  'checkout.upgradeRule': 'Ulepszenie kosztuje pełną cenę większego pakietu.',
   'checkout.choose': 'Wybierz pakiet',
   'checkout.cta': 'Zapłać {price} · {plan}',
   'checkout.opening': 'Otwieranie bezpiecznej płatności…',

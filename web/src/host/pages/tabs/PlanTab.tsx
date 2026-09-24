@@ -5,6 +5,7 @@ import { backend } from '../../../backend/active';
 import { useCheckout, type Phase } from '../../hooks/useCheckout';
 import { HIGHLIGHT, PRO_IN_APP, awaitingProPackage, capsOf, planName, type PlanId } from '../../lib/plans';
 import { fmtNumber, fmtUsd, t, type Key } from '../../i18n';
+import { navigate } from '../../lib/router';
 import { LinkForm } from '../../components/AuthForms';
 import { CheckoutFootnote, PlanTile, fromOption, storageLabel } from '../../components/PlanTiles';
 import { Button, IconAlert, IconCheck, IconClock, IconFace, Loading, Notice, Spinner } from '../../components/ui';
@@ -114,6 +115,14 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
     const featured = options.find((o) => HIGHLIGHT.has(o.planId));
     setPick((featured ?? options[0]).planId);
   }, [options, pick]);
+
+  // Paid and applied (create-and-buy or an upgrade): straight to the event's own
+  // page, where the package card already shows the new package (owner feedback,
+  // 24 Sep 2026). Replace, so Back does not return to a finished checkout.
+  useEffect(() => {
+    if (phase.at !== 'done') return;
+    navigate({ name: 'event', id: event.id, tab: 'overview', paid: phase.plan, ...(fresh ? { fresh: true } : {}) }, true);
+  }, [phase, event.id, fresh]);
 
   const selected = options.find((o) => o.planId === pick) ?? null;
   const pickable = phase.at === 'pick';

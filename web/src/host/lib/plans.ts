@@ -117,7 +117,8 @@ function eventDayEnd(date: string | null): number | null {
 }
 
 /**
- * The deletion date shown on every event (D19) — functions/src/plans.ts
+ * The deletion date (D19): the list's column, the package card, the downloads tab
+ * and the 14 / 5 / 2-day banners — functions/src/plans.ts
  * retentionExpiryAt with the same inputs the purge uses (cleanup.ts): plan,
  * createdAt, event day, refund anchor, frozen retentionDays. The purge adds a
  * 7-day grace on top; the dashboard shows the earlier date on purpose.
@@ -127,11 +128,4 @@ export function deletionAt(e: HostEvent): number | null {
   const days = capsOf(e).retentionDays;
   const anchor = Math.max(e.createdAt, eventDayEnd(e.date) ?? 0, Number(e.retentionAnchorAt) || 0);
   return anchor + days * 86_400_000;
-}
-
-/** The deletion date of an event that is being CREATED now with `retentionDays`
- *  (the create page, before paying): same rule as deletionAt — max(now, end of the
- *  event day) + retention. */
-export function retentionEndFor({ date, retentionDays }: { date: string | null; retentionDays: number }, now = Date.now()): number {
-  return Math.max(now, eventDayEnd(date) ?? 0) + retentionDays * 86_400_000;
 }

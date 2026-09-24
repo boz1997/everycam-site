@@ -197,13 +197,18 @@ const de: Dict = {
   'new.nameRequired': 'Bitte gib dem Event einen Namen.',
   'new.date': 'Event-Datum (optional)', // app: create.dateLabel
   'new.dateHint': 'Die Speicherdauer beginnt an diesem Tag (oder heute, wenn du nichts einträgst).',
-  'new.noDateWarn': 'Ohne Datum beginnt die Speicherdauer heute und endet am {date}. Trag dein Eventdatum ein – später lässt es sich nicht mehr hinzufügen.',
+  'date.pick': 'Datum wählen',
+  'date.clear': 'Datum entfernen', // app: create.clearDate
+  'date.today': 'Heute',
+  'date.prevMonth': 'Vorheriger Monat',
+  'date.nextMonth': 'Nächster Monat',
+  'date.help': 'Mit den Pfeiltasten wechselst du den Tag, mit Bild auf und Bild ab den Monat; die Eingabetaste wählt den Tag, Esc schließt.',
   'new.who': 'Wer sieht die Fotos?', // app: create.titleMode
   'new.modeHint': 'Das kannst du später in den Einstellungen ändern.', // app: create.modeHint
   'new.cover': 'Titelbild (optional)',
   'new.coverAdd': 'Titelbild hinzufügen',
   'new.coverChange': 'Ändern',
-  'new.locked': 'Name und Datum lassen sich später nicht ändern (dieselbe Regel wie in der App).',
+  'new.locked': 'Name und Datum lassen sich später nicht ändern.',
   'new.package': 'Paket',
   'new.consumerSoon': 'Kostenpflichtige Pakete kommen bald ins Web. Starte jetzt gratis mit Spark und upgrade später – hier oder in der App.',
   'new.proSoonTitle': 'Pakete für Fotografen kommen bald ins Web',
@@ -387,7 +392,7 @@ const de: Dict = {
   'settings.coverChange': 'Titelbild ändern',
   'settings.coverSaved': 'Titelbild gespeichert.',
   'settings.coverRemoved': 'Titelbild entfernt.',
-  'settings.lockedNote': 'Name und Datum sind gesperrt – dieselbe Regel wie in der App.',
+  'settings.lockedNote': 'Name und Datum sind gesperrt.',
   'settings.saved': 'Gespeichert.',
   'settings.dangerTitle': 'Gefahrenzone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Beim Löschen verschwinden das Event, seine Fotos und die Gästeliste für alle – auch für deine Gäste. Das lässt sich nicht rückgängig machen.', // app: hostEvent.dangerBody
@@ -447,7 +452,7 @@ const de: Dict = {
   'checkout.subtitle': 'Einmalzahlung – kein Abo. Wähle die Größe, die zu deiner Gästeliste passt.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Einmalzahlung pro Event. Du lädst vom Computer hoch; Gäste scannen den QR-Code, sehen das Album und finden ihre Fotos per Selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Aktuell',
-  'checkout.upgradeRule': 'Ein Upgrade kostet den vollen Preis des größeren Pakets – dieselbe Regel wie in der App.',
+  'checkout.upgradeRule': 'Ein Upgrade kostet den vollen Preis des größeren Pakets.',
   'checkout.choose': 'Paket wählen',
   'checkout.cta': '{price} bezahlen · {plan}',
   'checkout.opening': 'Der sichere Checkout wird geöffnet…',

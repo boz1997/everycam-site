@@ -258,8 +258,14 @@ export const IconAlert = ({ s = 20 }: { s?: number }) => (
 export const IconArrowLeft = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" {...S} aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
 );
-export const IconChevron = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" {...S} aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+export const IconChevron = ({ s = 18 }: { s?: number }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" {...S} aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
+);
+export const IconChevronLeft = ({ s = 18 }: { s?: number }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" {...S} aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
+);
+export const IconX = ({ s = 18 }: { s?: number }) => (
+  <svg width={s} height={s} viewBox="0 0 24 24" {...S} aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" /></svg>
 );
 export const IconPlus = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" {...S} strokeWidth={2} aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>

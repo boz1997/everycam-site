@@ -10,7 +10,8 @@
     "check-dist": "node scripts/check-dist.mjs",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
-    "e2e:local": "node e2e/local-host.mjs"
+    "e2e:local": "node e2e/local-host.mjs",
+    "test:dates": "node --test scripts/dates.test.mjs"
   },
   "dependencies": {
     "firebase": "^12.0.0",

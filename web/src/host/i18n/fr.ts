@@ -198,13 +198,18 @@ const fr: Dict = {
   'new.nameRequired': 'Veuillez donner un nom à l’événement.',
   'new.date': 'Date de l’événement (facultatif)', // app: create.dateLabel
   'new.dateHint': 'Le stockage commence ce jour-là (ou aujourd’hui si vous laissez vide).',
-  'new.noDateWarn': 'Sans date, le stockage commence aujourd’hui et se termine le {date}. Ajoutez la date de votre événement : elle ne pourra pas être ajoutée plus tard.',
+  'date.pick': 'Choisir une date',
+  'date.clear': 'Retirer la date', // app: create.clearDate
+  'date.today': 'Aujourd’hui',
+  'date.prevMonth': 'Mois précédent',
+  'date.nextMonth': 'Mois suivant',
+  'date.help': 'Les flèches changent de jour, Page précédente et Page suivante changent de mois, Entrée choisit le jour et Échap ferme.',
   'new.who': 'Qui voit les photos ?', // app: create.titleMode
   'new.modeHint': 'Vous pourrez le changer plus tard dans les réglages.', // app: create.modeHint
   'new.cover': 'Photo de couverture (facultatif)',
   'new.coverAdd': 'Ajouter une photo de couverture',
   'new.coverChange': 'Changer',
-  'new.locked': 'Le nom et la date ne pourront plus être modifiés (même règle que dans l’app).',
+  'new.locked': 'Le nom et la date ne pourront plus être modifiés.',
   'new.package': 'Formule',
   'new.consumerSoon': 'Les formules payantes arrivent bientôt sur le web. Commencez gratuitement avec Spark et passez à une formule supérieure plus tard, ici ou dans l’app.',
   'new.proSoonTitle': 'Les formules photographe arrivent bientôt sur le web',
@@ -388,7 +393,7 @@ const fr: Dict = {
   'settings.coverChange': 'Changer la couverture',
   'settings.coverSaved': 'Couverture enregistrée.',
   'settings.coverRemoved': 'Couverture retirée.',
-  'settings.lockedNote': 'Le nom et la date sont verrouillés, comme dans l’app.',
+  'settings.lockedNote': 'Le nom et la date sont verrouillés.',
   'settings.saved': 'Enregistré.',
   'settings.dangerTitle': 'Zone dangereuse', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'La suppression retire l’événement, ses photos et sa liste d’invités pour tout le monde, y compris vos invités. Action irréversible.', // app: hostEvent.dangerBody
@@ -448,7 +453,7 @@ const fr: Dict = {
   'checkout.subtitle': 'Paiement unique — pas d’abonnement. Choisissez la taille adaptée à votre liste d’invités.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Paiement unique par événement. Vous importez depuis votre ordinateur ; les invités scannent le QR, parcourent l’album et retrouvent leurs photos avec un selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Actuelle',
-  'checkout.upgradeRule': 'Passer à une formule supérieure coûte son prix complet — la même règle que dans l’app.',
+  'checkout.upgradeRule': 'Passer à une formule supérieure coûte son prix complet.',
   'checkout.choose': 'Choisir une formule',
   'checkout.cta': 'Payer {price} · {plan}',
   'checkout.opening': 'Ouverture du paiement sécurisé…',

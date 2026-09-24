@@ -3,7 +3,7 @@ import type { HostEvent } from '../../lib/types';
 import { backend } from '../../../backend/active';
 import { callableError, fn } from '../../lib/data';
 import { logError } from '../../lib/errorLog';
-import { aiAvailable, awaitingProPackage, capsOf, deletionAt, flagsOf, hasUpgrade, planName, tierOf } from '../../lib/plans';
+import { aiAvailable, awaitingProPackage, capsOf, deletionAt, flagsOf, hasUpgrade, planName, tierOf, type PlanId } from '../../lib/plans';
 import { fmtDate, fmtNumber, t } from '../../i18n';
 import { downloadIcs } from '../../components/EventBits';
 import { FaceNotice } from '../../components/FaceNotice';
@@ -176,9 +176,12 @@ function UploadCard({ event }: { event: HostEvent }) {
   );
 }
 
-export function Overview({ event, fresh }: { event: HostEvent; fresh: boolean }) {
+export function Overview({ event, fresh, paid }: { event: HostEvent; fresh: boolean; paid?: PlanId }) {
   const pro = tierOf(event) === 'pro';
   const waiting = awaitingProPackage(event);
+  // "{plan} is active" only while it is true (a reloaded or bookmarked ?paid= link
+  // after a refund or another package says nothing).
+  const paidNow = paid && event.planId === paid && !event.refunded ? paid : undefined;
 
   if (waiting) {
     // A web pro-intent event without a package: no QR, code or share yet (D8).
@@ -199,10 +202,20 @@ export function Overview({ event, fresh }: { event: HostEvent; fresh: boolean })
 
   return (
     <div className="stack" style={{ ['--gap' as string]: '20px' }}>
-      {fresh && (
-        <Notice icon={<span style={{ color: 'var(--verde)' }}><IconCheck s={20} /></span>} title={t('overview.createdTitle')}>
-          {pro ? t('overview.createdBodyPro') : t('overview.createdBody')}
-        </Notice>
+      {paidNow ? (
+        // Landed here from the package page after a payment (PlanTab → ?paid=).
+        <div data-paid-notice={paidNow}>
+          <Notice icon={<span style={{ color: 'var(--verde)' }}><IconCheck s={20} /></span>} title={t('checkout.doneTitle')}>
+            {t('checkout.doneBody', { plan: planName(paidNow) })}
+            {fresh && ` ${pro ? t('overview.createdBodyPro') : t('overview.createdBody')}`}
+          </Notice>
+        </div>
+      ) : (
+        fresh && (
+          <Notice icon={<span style={{ color: 'var(--verde)' }}><IconCheck s={20} /></span>} title={t('overview.createdTitle')}>
+            {pro ? t('overview.createdBodyPro') : t('overview.createdBody')}
+          </Notice>
+        )
       )}
       <div className="grid-main">
         <div className="col">

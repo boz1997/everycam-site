@@ -198,13 +198,18 @@ const pt: Dict = {
   'new.nameRequired': 'Dê um nome ao evento.',
   'new.date': 'Data do evento (opcional)', // app: create.dateLabel
   'new.dateHint': 'O armazenamento começa neste dia (ou hoje, se deixar em branco).',
-  'new.noDateWarn': 'Sem data, o armazenamento começa hoje e termina a {date}. Adicione a data do evento: não pode ser adicionada depois.',
+  'date.pick': 'Escolher uma data',
+  'date.clear': 'Remover data', // app: create.clearDate
+  'date.today': 'Hoje',
+  'date.prevMonth': 'Mês anterior',
+  'date.nextMonth': 'Mês seguinte',
+  'date.help': 'As setas mudam de dia, Page Up e Page Down mudam de mês, Enter escolhe o dia e Esc fecha.',
   'new.who': 'Quem vê as fotos?', // app: create.titleMode
   'new.modeHint': 'Pode mudar isto mais tarde nas Definições.', // app: create.modeHint
   'new.cover': 'Foto de capa (opcional)',
   'new.coverAdd': 'Adicionar foto de capa',
   'new.coverChange': 'Alterar',
-  'new.locked': 'O nome e a data não podem ser alterados depois (a mesma regra da app).',
+  'new.locked': 'O nome e a data não podem ser alterados depois.',
   'new.package': 'Pacote',
   'new.consumerSoon': 'Os pacotes pagos chegam em breve à web. Comece já grátis com o Spark e melhore mais tarde, aqui ou na app.',
   'new.proSoonTitle': 'Os pacotes para fotógrafos chegam em breve à web',
@@ -388,7 +393,7 @@ const pt: Dict = {
   'settings.coverChange': 'Alterar capa',
   'settings.coverSaved': 'Capa guardada.',
   'settings.coverRemoved': 'Capa removida.',
-  'settings.lockedNote': 'O nome e a data estão bloqueados, tal como na app.',
+  'settings.lockedNote': 'O nome e a data estão bloqueados.',
   'settings.saved': 'Guardado.',
   'settings.dangerTitle': 'Zona de perigo', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Ao eliminar, o evento, as fotos e a lista de convidados desaparecem para todos, incluindo os seus convidados. Esta ação é irreversível.', // app: hostEvent.dangerBody
@@ -448,7 +453,7 @@ const pt: Dict = {
   'checkout.subtitle': 'Pagamento único — não é uma subscrição. Escolha o tamanho certo para a sua lista de convidados.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Pagamento único por evento. O fotógrafo envia as fotos a partir do computador; os convidados leem o QR, veem o álbum e encontram as suas fotos com uma selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Agora',
-  'checkout.upgradeRule': 'Melhorar custa o preço total do pacote maior — a mesma regra da app.',
+  'checkout.upgradeRule': 'Melhorar custa o preço total do pacote maior.',
   'checkout.choose': 'Escolher pacote',
   'checkout.cta': 'Pagar {price} · {plan}',
   'checkout.opening': 'A abrir o pagamento seguro…',

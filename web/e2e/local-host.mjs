@@ -16,11 +16,15 @@
 //   list          event list (groups, deletion dates, storage-ends-soon panel)
 //   c1            C1 overview / gallery (hide, show, delete) / guests (remove, restore)
 //                 / settings (pause joins, read back) / package / downloads
-//   buy           create "Web party" as Party via #/new → declaration-free checkout
-//                 → mock Pay → applied: every event field equal to what redeemEventPlan
+//   buy           create "Web party" as Party via #/new (no kept-until / no-date line, the
+//                 date through the site's date picker: keyboard contract, no past days)
+//                 → declaration-free checkout
+//                 → mock Pay → applied → the event's own page (?paid=party), not the list;
+//                 every event field equal to what redeemEventPlan
 //                 writes for the same product (EC main's inline code), ledger row the
 //                 same shape, D8 create shape → done → redeliver (duplicate) → an
-//                 AllShots transaction + adjustment: silent 200, no write, no alert
+//                 AllShots transaction + adjustment: silent 200, no write, no alert →
+//                 ?_ptxn=<that order> on the list lands on the event
 //   upgrade       Party → Wedding on the package page: full $24.99 price (not the
 //                 difference), fields again equal to redeem's
 //   refund        refund the Wedding order (Party still paid → marked only), then the
@@ -259,6 +263,21 @@ async function lastOrderFor(eventId) {
   return rows.sort((a, b) => (b.data.at ?? 0) - (a.data.at ?? 0))[0] ?? null;
 }
 const run = (step) => !ONLY || ONLY.has(step);
+// Local calendar days (the picker's value is 'YYYY-MM-DD' in the browser's time zone = this machine's).
+const isoLocal = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const plusDays = (n) => { const t = new Date(); return new Date(t.getFullYear(), t.getMonth(), t.getDate() + n, 12); };
+const plusMonthsIso = (iso, n) => {
+  const [y, m, d] = iso.split('-').map(Number);
+  const last = new Date(y, m - 1 + n + 1, 0, 12).getDate();
+  return isoLocal(new Date(y, m - 1 + n, Math.min(d, last), 12));
+};
+const focusedDay = () => page.evaluate(() => document.activeElement?.getAttribute('data-day') ?? null);
+const pickerClosed = () => page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5_000 });
+/** After a payment the package page takes the host to the event's own page (?paid=<plan>). */
+async function landedPaid(id, plan, timeout = 45_000) {
+  await page.waitForURL((u) => u.hash.startsWith(`#/e/${id}?`) && new URLSearchParams(u.hash.split('?')[1]).get('paid') === plan, { timeout });
+  await page.locator(`[data-paid-notice="${plan}"]`).waitFor({ timeout });
+}
 
 // ---------------------------------------------------------------- steps
 const ctxState = {};
@@ -422,14 +441,60 @@ try {
     await page.locator('form button[type=submit]').click();
     await page.locator('#new-name-err').waitFor();
     ok(await page.evaluate(() => !!document.activeElement?.matches('[data-name-input]')) && (await page.locator('[data-name-input]').getAttribute('aria-describedby')) === 'new-name-err', 'empty name → focus on the name field, error tied to it (aria-describedby, role=alert)');
-    // Paid package without a date: storage starts today — say so, with the date (review P1).
-    await page.locator('[data-no-date-warn]').waitFor();
-    ok(/Without a date, storage starts today and ends on/.test(await page.locator('[data-no-date-warn]').innerText()), `no date + Party: "${await page.locator('[data-no-date-warn]').innerText()}"`);
-    await shot('new-consumer-nodate');
+    // No "Kept until …" / no-date storage line next to the package, and no "(the same
+    // rule as in the app)" aside (owner feedback, 24 Sep 2026).
+    const newText = await page.locator('main').innerText();
+    ok((await page.locator('[data-kept-until], [data-no-date-warn]').count()) === 0 && !/Kept until|storage starts today and ends on/.test(newText), 'create page: no "Kept until …" / no-date storage warning next to the package');
+    ok(/Name and date can’t be changed later\./.test(newText) && !/same rule as in the app/.test(newText), 'create page: "Name and date can’t be changed later." without "(the same rule as in the app)"');
     await page.locator('input.input').first().fill('Web party (e2e)');
-    await page.locator('input[type=date]').fill('2026-11-14');
-    await page.locator('[data-kept-until]').waitFor();
-    ok(/Kept until/.test(await page.locator('[data-kept-until]').innerText()) && (await page.locator('[data-no-date-warn]').count()) === 0, `with a date: "${await page.locator('[data-kept-until]').innerText()}"`);
+    // The date: the site's own calendar, not the browser's (WAI-ARIA date picker contract).
+    ok(await page.locator('input[type=date]').count() === 0, 'no native <input type=date> on the create page');
+    const TODAY = isoLocal(plusDays(0));
+    await page.locator('[data-date-field]').click();
+    await page.locator('dialog[open][data-date-dialog="popover"] [role=grid]').waitFor();
+    ok(await focusedDay() === TODAY && (await page.locator(`button[data-day="${TODAY}"]`).getAttribute('aria-current')) === 'date', `picker (popover at 1440) opens on today ${TODAY}, marked aria-current=date`);
+    ok((await page.locator('.dp-grid th').first().getAttribute('abbr')) === 'Sunday' && (await page.locator('dialog[open]').getAttribute('aria-labelledby')) === 'new-date-label', 'en: week starts on Sunday; the dialog is named by the field label');
+    await page.keyboard.press('ArrowLeft');
+    ok(await focusedDay() === TODAY, 'no past days (the app\'s minimumDate): ArrowLeft from today stays on today');
+    await page.keyboard.press('ArrowRight');
+    ok(await focusedDay() === isoLocal(plusDays(1)), 'ArrowRight → tomorrow');
+    await page.keyboard.press('ArrowDown');
+    ok(await focusedDay() === isoLocal(plusDays(8)), 'ArrowDown → a week later');
+    await page.keyboard.press('Home');
+    const wkStart = await focusedDay();
+    await page.keyboard.press('End');
+    const wkEnd = await focusedDay();
+    ok(new Date(`${wkStart}T12:00:00`).getDay() === 0 && new Date(`${wkEnd}T12:00:00`).getDay() === 6, `Home / End → Sunday ${wkStart} / Saturday ${wkEnd}`);
+    const m0 = await page.locator('.dp-month').innerText();
+    await page.keyboard.press('PageDown');
+    const m1 = await page.locator('.dp-month').innerText();
+    ok(m1 !== m0 && await focusedDay() === plusMonthsIso(wkEnd, 1), `PageDown → next month (${m0} → ${m1})`);
+    await page.keyboard.press('Shift+PageDown');
+    ok(await focusedDay() === plusMonthsIso(wkEnd, 13), 'Shift+PageDown → a year on');
+    await page.keyboard.press('Shift+PageUp');
+    await page.keyboard.press('PageUp');
+    ok(await focusedDay() === wkEnd, 'Shift+PageUp, PageUp → back');
+    await page.keyboard.press('Escape');
+    await pickerClosed();
+    ok(await page.evaluate(() => !!document.activeElement?.matches('[data-date-field]')) && (await page.locator('[data-date-value]').getAttribute('data-date-value')) === '', 'Escape closes, focus back on the field, nothing picked');
+    const TARGET = isoLocal(plusDays(51));
+    await page.locator('[data-date-field]').click();
+    await page.locator('dialog[open] [role=grid]').waitFor();
+    for (let i = 0; i < 7; i += 1) await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('Enter');
+    await pickerClosed();
+    ok((await page.locator('[data-date-value]').getAttribute('data-date-value')) === TARGET && await page.evaluate(() => !!document.activeElement?.matches('[data-date-field]')), `Enter picks ${TARGET} ("${await page.locator('[data-date-value]').innerText()}"), focus back on the field`);
+    await page.locator('[data-date-clear]').click();
+    ok((await page.locator('[data-date-value]').getAttribute('data-date-value')) === '', 'Remove date (×) clears it');
+    await page.locator('[data-date-field]').click();
+    await page.locator('dialog[open] [role=grid]').waitFor();
+    for (let i = 0; i < 3 && (await page.locator(`button[data-day="${TARGET}"]`).count()) === 0; i += 1) await page.locator('[data-dp-next]').click();
+    await shot('new-date-picker');
+    await page.locator(`button[data-day="${TARGET}"]`).click();
+    await pickerClosed();
+    ok((await page.locator('[data-date-value]').getAttribute('data-date-value')) === TARGET, `mouse: next month → ${TARGET}`);
     await shot('new-consumer');
     await page.locator('form button[type=submit]').click();
     await page.waitForURL((u) => /#\/e\/[^/]+\/plan/.test(u.hash), { timeout: 20_000 });
@@ -437,7 +502,7 @@ try {
     ctxState.buyId = id;
     const created = await getDoc(`events/${id}`);
     ok(isInt(created.raw.createdAt), 'D8: createdAt is a NUMBER');
-    ok(created.data.date === '2026-11-14', 'D8: date written');
+    ok(created.data.date === TARGET, `D8: date written as before ('${created.data.date}', YYYY-MM-DD)`);
     ok(created.data.origin === 'web' && created.data.planId === 'spark' && created.data.code && !created.data.code.startsWith('P'), 'created as Spark, origin web, consumer code');
     await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
     ok(true, 'fresh create with ?plan=party opens the checkout by itself');
@@ -446,9 +511,10 @@ try {
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
     await payInMock('#pay');
-    await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    await landedPaid(id, 'party');
     const t1 = Date.now();
-    ok(true, 'UI: applying → done');
+    ok(/Party package is active/.test(await page.locator('[data-paid-notice]').innerText()) && (await page.locator('#pkg-h').innerText()).trim() === 'Party', 'UI: applying → done → the event\'s own page (not the list): "Party package is active", package card Party');
+    ok(!/Kept until/.test(await page.locator('.ev-head').innerText()) && (await page.locator('[data-deletion]').count()) === 1, 'event header: no "Kept until …" line; the package card keeps its plain "Kept until" fact');
     await shot('buy-done');
     const ev = (await getDoc(`events/${id}`)).data;
     compareToRedeem('Party (web) vs redeem', 'party', before, ev, t0, t1);
@@ -474,6 +540,11 @@ try {
     await go(`#/e/${id}`);
     await page.locator('[data-code]').waitFor();
     await shot('buy-overview');
+    // A Paddle payment link / return (…/join/host/?_ptxn=…, D13) opens the list: it
+    // lands on the order's event instead, and a paid order is not opened again.
+    await page.goto(`${WEB}/host/?_ptxn=${order.id}`);
+    await landedPaid(id, 'party', 20_000);
+    ok(!new URL(page.url()).searchParams.has('_ptxn'), `?_ptxn=<applied order> → #/e/${id} ("Party package is active"), the parameter dropped`);
   }
 
   if (run('upgrade')) {
@@ -499,8 +570,9 @@ try {
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
     await payInMock('#pay');
-    await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    await landedPaid(id, 'wedding');
     const t1 = Date.now();
+    ok((await page.locator('#pkg-h').innerText()).trim() === 'Wedding', 'upgrade done → the event\'s own page, package card Wedding');
     const ev = (await getDoc(`events/${id}`)).data;
     compareToRedeem('Party → Wedding (web) vs redeem', 'wedding', before, ev, t0, t1);
     const order = await getDoc(`webOrders/${pending.id}`);
@@ -563,7 +635,7 @@ try {
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
     await payInMock('#pay');
-    await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    await landedPaid(id, 'party');
     const back = (await getDoc(`events/${id}`)).data;
     compareToRedeem('repurchase after refund (web) vs redeem', 'party', before, back, t0, Date.now());
     ok((await getDoc(`refundState/${id}`)) === null, 'repurchase deleted refundState');
@@ -677,7 +749,7 @@ try {
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
     await payInMock('#pay');
-    await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    await landedPaid(id, 'pro1000');
     const ev = (await getDoc(`events/${id}`)).data;
     ok(ev.planId === 'pro1000' && ev.uploadPolicy === 'host' && ev.aiPeopleEnabled === true && ev.mode === 'open', `applied: ${ev.planId}, uploadPolicy ${ev.uploadPolicy}, AI ${ev.aiPeopleEnabled}`);
     compareToRedeem('Pro 1000 (web) vs redeem', 'pro1000', before, ev, t0, Date.now());
@@ -832,8 +904,8 @@ try {
     const order = await lastOrderFor('c6-mini-legacy');
     const del = await mock(`/api/orders/${order.id}/deliver`);
     ok(del.status === 200 && /applied/.test(del.body ?? ''), `held webhook delivered → ${del.body}`);
-    await page.locator('.status.done').waitFor({ timeout: 30_000 });
-    ok((await getDoc('events/c6-mini-legacy')).data.planId === 'party', 'slow → done (C6 Mini → Party)');
+    await landedPaid('c6-mini-legacy', 'party', 30_000);
+    ok((await getDoc('events/c6-mini-legacy')).data.planId === 'party', 'slow → done (C6 Mini → Party) → the event\'s own page');
   }
 
   if (run('covered')) {

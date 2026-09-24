@@ -202,13 +202,18 @@ export const en = {
   'new.nameRequired': 'Please give the event a name.',
   'new.date': 'Event date (optional)', // app: create.dateLabel
   'new.dateHint': 'Storage starts on this day (or today if left empty).',
-  'new.noDateWarn': 'Without a date, storage starts today and ends on {date}. Add your event date — it can’t be added later.',
+  'date.pick': 'Pick a date',
+  'date.clear': 'Remove date', // app: create.clearDate
+  'date.today': 'Today',
+  'date.prevMonth': 'Previous month',
+  'date.nextMonth': 'Next month',
+  'date.help': 'Arrow keys move between days, Page Up and Page Down change the month, Enter picks the day, Escape closes.',
   'new.who': 'Who sees the photos?', // app: create.titleMode
   'new.modeHint': 'You can change this later in Settings.', // app: create.modeHint
   'new.cover': 'Cover photo (optional)',
   'new.coverAdd': 'Add a cover photo',
   'new.coverChange': 'Change',
-  'new.locked': 'Name and date can’t be changed later (the same rule as in the app).',
+  'new.locked': 'Name and date can’t be changed later.',
   'new.package': 'Package',
   'new.consumerSoon': 'Paid packages come to the web soon. Start free on Spark now and upgrade later, here or in the app.',
   'new.proSoonTitle': 'Photographer packages come to the web soon',
@@ -392,7 +397,7 @@ export const en = {
   'settings.coverChange': 'Change cover',
   'settings.coverSaved': 'Cover saved.',
   'settings.coverRemoved': 'Cover removed.',
-  'settings.lockedNote': 'Name and date are locked — the same rule as in the app.',
+  'settings.lockedNote': 'Name and date are locked.',
   'settings.saved': 'Saved.',
   'settings.dangerTitle': 'Danger zone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Deleting removes the event, its photos and its guest list for everyone — your guests included. This cannot be undone.', // app: hostEvent.dangerBody
@@ -452,7 +457,7 @@ export const en = {
   'checkout.subtitle': 'One-time payment — not a subscription. Pick the size that fits your guest list.', // app: paywall.subtitle
   'checkout.subtitlePro': 'One-time payment per event. You upload from your computer; guests scan the QR, browse and find their own photos with a selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Now',
-  'checkout.upgradeRule': 'Upgrading costs the full price of the bigger package — the same rule as in the app.',
+  'checkout.upgradeRule': 'Upgrading costs the full price of the bigger package.',
   'checkout.choose': 'Choose a package',
   'checkout.cta': 'Pay {price} · {plan}',
   'checkout.opening': 'Opening the secure checkout…',

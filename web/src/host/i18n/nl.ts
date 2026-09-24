@@ -198,13 +198,18 @@ const nl: Dict = {
   'new.nameRequired': 'Geef het evenement een naam.',
   'new.date': 'Datum van het evenement (optioneel)', // app: create.dateLabel
   'new.dateHint': 'De opslag begint op deze dag (of vandaag als je niets invult).',
-  'new.noDateWarn': 'Zonder datum begint de opslag vandaag en eindigt op {date}. Vul de datum van je evenement in – die kun je later niet meer toevoegen.',
+  'date.pick': 'Kies een datum',
+  'date.clear': 'Datum verwijderen', // app: create.clearDate
+  'date.today': 'Vandaag',
+  'date.prevMonth': 'Vorige maand',
+  'date.nextMonth': 'Volgende maand',
+  'date.help': 'Met de pijltjestoetsen ga je naar een andere dag, met Page Up en Page Down naar een andere maand; Enter kiest de dag, Esc sluit.',
   'new.who': 'Wie ziet de foto’s?', // app: create.titleMode
   'new.modeHint': 'Je kunt dit later in Instellingen wijzigen.', // app: create.modeHint
   'new.cover': 'Omslagfoto (optioneel)',
   'new.coverAdd': 'Omslagfoto toevoegen',
   'new.coverChange': 'Wijzigen',
-  'new.locked': 'Naam en datum kun je later niet meer wijzigen (dezelfde regel als in de app).',
+  'new.locked': 'Naam en datum kun je later niet meer wijzigen.',
   'new.package': 'Pakket',
   'new.consumerSoon': 'Betaalde pakketten komen binnenkort naar het web. Begin nu gratis met Spark en upgrade later, hier of in de app.',
   'new.proSoonTitle': 'Pakketten voor fotografen komen binnenkort naar het web',
@@ -388,7 +393,7 @@ const nl: Dict = {
   'settings.coverChange': 'Omslag wijzigen',
   'settings.coverSaved': 'Omslag opgeslagen.',
   'settings.coverRemoved': 'Omslag verwijderd.',
-  'settings.lockedNote': 'Naam en datum liggen vast, net als in de app.',
+  'settings.lockedNote': 'Naam en datum liggen vast.',
   'settings.saved': 'Opgeslagen.',
   'settings.dangerTitle': 'Gevarenzone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Verwijderen haalt het evenement, de foto’s en de gastenlijst weg voor iedereen – ook voor je gasten. Dit kan niet ongedaan worden gemaakt.', // app: hostEvent.dangerBody
@@ -448,7 +453,7 @@ const nl: Dict = {
   'checkout.subtitle': 'Eenmalige betaling – geen abonnement. Kies de maat die bij je gastenlijst past.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Eenmalige betaling per evenement. Jij uploadt vanaf je computer; gasten scannen de QR, bekijken het album en vinden hun foto’s met een selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Nu',
-  'checkout.upgradeRule': 'Upgraden kost de volle prijs van het grotere pakket – dezelfde regel als in de app.',
+  'checkout.upgradeRule': 'Upgraden kost de volle prijs van het grotere pakket.',
   'checkout.choose': 'Kies een pakket',
   'checkout.cta': '{price} betalen · {plan}',
   'checkout.opening': 'Beveiligde betaling wordt geopend…',

@@ -197,13 +197,18 @@ const tr: Dict = {
   'new.nameRequired': 'Lütfen etkinliğe bir ad ver.',
   'new.date': 'Etkinlik tarihi (isteğe bağlı)', // app: create.dateLabel
   'new.dateHint': 'Saklama bu günden başlar (boş bırakırsan bugünden).',
-  'new.noDateWarn': 'Tarih olmadan saklama bugün başlar ve {date} tarihinde biter. Etkinlik tarihini ekle; sonradan eklenemez.',
+  'date.pick': 'Tarih seç',
+  'date.clear': 'Tarihi kaldır', // app: create.clearDate
+  'date.today': 'Bugün',
+  'date.prevMonth': 'Önceki ay',
+  'date.nextMonth': 'Sonraki ay',
+  'date.help': 'Ok tuşlarıyla günler arasında gez, Page Up ve Page Down ile ayı değiştir; Enter günü seçer, Escape kapatır.',
   'new.who': 'Fotoğrafları kim görsün?', // app: create.titleMode
   'new.modeHint': 'Bunu sonra Ayarlar’dan değiştirebilirsin.', // app: create.modeHint
   'new.cover': 'Kapak fotoğrafı (isteğe bağlı)',
   'new.coverAdd': 'Kapak fotoğrafı ekle',
   'new.coverChange': 'Değiştir',
-  'new.locked': 'Ad ve tarih sonradan değiştirilemez (uygulamadaki kuralın aynısı).',
+  'new.locked': 'Ad ve tarih sonradan değiştirilemez.',
   'new.package': 'Paket',
   'new.consumerSoon': 'Ücretli paketler yakında web’de. Şimdi Spark ile ücretsiz başla, sonra burada ya da uygulamada yükselt.',
   'new.proSoonTitle': 'Fotoğrafçı paketleri yakında web’de',
@@ -387,7 +392,7 @@ const tr: Dict = {
   'settings.coverChange': 'Kapağı değiştir',
   'settings.coverSaved': 'Kapak kaydedildi.',
   'settings.coverRemoved': 'Kapak kaldırıldı.',
-  'settings.lockedNote': 'Ad ve tarih kilitli; uygulamadaki kuralın aynısı.',
+  'settings.lockedNote': 'Ad ve tarih kilitli.',
   'settings.saved': 'Kaydedildi.',
   'settings.dangerTitle': 'Tehlikeli bölge', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Silmek; etkinliği, fotoğraflarını ve misafir listesini herkes için kaldırır — misafirlerin dahil. Bu işlem geri alınamaz.', // app: hostEvent.dangerBody
@@ -447,7 +452,7 @@ const tr: Dict = {
   'checkout.subtitle': 'Tek seferlik ödeme — abonelik değil. Misafir listene uyan boyutu seç.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Etkinlik başına tek seferlik ödeme. Bilgisayarından yüklersin; misafirler QR’ı okutur, albüme göz atar ve selfie ile kendi fotoğraflarını bulur.', // app: paywall.subtitlePro
   'checkout.current': 'Şu an',
-  'checkout.upgradeRule': 'Yükseltme, büyük paketin tam fiyatına olur — uygulamadaki kuralın aynısı.',
+  'checkout.upgradeRule': 'Yükseltme, büyük paketin tam fiyatına olur.',
   'checkout.choose': 'Paket seç',
   'checkout.cta': '{price} öde · {plan}',
   'checkout.opening': 'Güvenli ödeme sayfası açılıyor…',

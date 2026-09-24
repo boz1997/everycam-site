@@ -11,6 +11,7 @@ import { isPlanId, type PlanId, type Tier } from './plans';
 //   #/new?tier=&plan=      create (+ buy)
 //   #/e/:id[/tab]          an event: overview · gallery · guests · settings · plan · downloads
 //   #/e/:id/plan?plan=&new=1   package page, a plan pre-picked; new=1 = straight from create
+//   #/e/:id?paid=<plan>[&new=1] the event after a payment: its own page, "{plan} is active"
 //   #/account              account
 
 export const TABS = ['overview', 'gallery', 'guests', 'settings', 'plan', 'downloads'] as const;
@@ -20,7 +21,7 @@ export type Route =
   | { name: 'events' }
   | { name: 'signin'; next?: string }
   | { name: 'new'; tier: Tier; plan?: PlanId }
-  | { name: 'event'; id: string; tab: Tab; plan?: PlanId; fresh?: boolean }
+  | { name: 'event'; id: string; tab: Tab; plan?: PlanId; fresh?: boolean; paid?: PlanId }
   | { name: 'account' };
 
 const ID_RE = /^[A-Za-z0-9_-]{1,128}$/;
@@ -33,7 +34,13 @@ export function parseHash(hash: string): Route {
   const plan = isPlanId(planQ) ? planQ : undefined;
   if (parts[0] === 'e' && parts[1] && ID_RE.test(parts[1])) {
     const tab = (TABS as readonly string[]).includes(parts[2] ?? '') ? (parts[2] as Tab) : 'overview';
-    return { name: 'event', id: parts[1], tab, ...(tab === 'plan' && plan ? { plan } : {}), ...(q.get('new') === '1' ? { fresh: true } : {}) };
+    const paidQ = q.get('paid');
+    return {
+      name: 'event', id: parts[1], tab,
+      ...(tab === 'plan' && plan ? { plan } : {}),
+      ...(q.get('new') === '1' ? { fresh: true } : {}),
+      ...(tab === 'overview' && isPlanId(paidQ) ? { paid: paidQ } : {}),
+    };
   }
   if (parts[0] === 'new') {
     const tier: Tier = q.get('tier') === 'pro' || (plan && plan.startsWith('pro')) ? 'pro' : 'consumer';
@@ -65,6 +72,7 @@ export function hrefFor(r: Route): string {
       const q = new URLSearchParams();
       if (r.tab === 'plan' && r.plan) q.set('plan', r.plan);
       if (r.fresh) q.set('new', '1');
+      if (r.tab === 'overview' && r.paid) q.set('paid', r.paid);
       const s = q.toString();
       return s ? `${base}?${s}` : base;
     }
