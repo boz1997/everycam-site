@@ -1,0 +1,44 @@
+/* Shared page header (Header.tsx) — the site's header.site in miniature: hairline
+   under the bar, the rings mark + two-tone Share<i>Cam</i> wordmark (Cam in sage
+   #6E7F5F, as on sharecam.app), no fill. Colours are literal so the header looks
+   the same whatever stylesheet the page carries. */
+.sc-h { background: transparent; }
+.sc-h-inner {
+  display: flex; align-items: center; gap: 12px;
+  width: min(1200px, 100% - 32px); min-height: 64px; margin-inline: auto;
+  border-bottom: 1px solid rgba(31, 61, 46, .30);
+}
+.sc-h-brand {
+  display: inline-flex; align-items: center; gap: 9px; min-height: 44px;
+  color: #1F3D2E; text-decoration: none; white-space: nowrap;
+}
+.sc-h-mark { flex: none; color: #1F3D2E; display: block; }
+.sc-h-wordmark {
+  font-family: "Fraunces", "Fraunces fallback", Georgia, serif;
+  font-weight: 600; font-size: 1.3125rem; line-height: 1; letter-spacing: -.02em;
+  font-variation-settings: "opsz" 36, "SOFT" 0, "WONK" 0;
+  color: #1F3D2E;
+}
+.sc-h-wordmark i { font-style: normal; color: #6E7F5F; }
+.sc-h-tag {
+  font: 600 .75rem/1 "Inter", "Inter fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  letter-spacing: .08em; text-transform: uppercase; color: #56664A;
+  padding: 5px 8px; box-shadow: inset 0 0 0 1px rgba(31, 61, 46, .30);
+}
+.sc-h-space { flex: 1; }
+.sc-h-lang { position: relative; display: inline-flex; }
+.sc-h-lang select {
+  appearance: none; -webkit-appearance: none;
+  min-height: 36px; padding: 0 28px 0 10px; border: 0; border-radius: 0;
+  box-shadow: inset 0 0 0 1px #DFD8C4; background: #FBF8F0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%231F3D2E' stroke-width='1.5'/%3E%3C/svg%3E") no-repeat right 10px center;
+  color: #2B2B2B; font: 600 .8125rem/1 "Inter", "Inter fallback", -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; letter-spacing: .04em;
+  cursor: pointer;
+}
+.sc-h-lang select:focus-visible { outline: 2px solid #1F3D2E; outline-offset: 2px; }
+.sc-h-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (max-width: 420px) {
+  .sc-h-inner { gap: 8px; min-height: 58px; }
+  .sc-h-wordmark { font-size: 1.1875rem; }
+  .sc-h-tag { display: none; }
+}
+@media (max-width: 359.98px) { .sc-h-wordmark { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); } }

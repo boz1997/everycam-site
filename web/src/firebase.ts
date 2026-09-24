@@ -2,29 +2,30 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
+import { backend } from './backend/active';
 
 // Firebase web SDK — mobil uygulamanın AYNI projesi.
 //
-// Buradaki değerler İSTEMCİ YAPILANDIRMASIDIR, gizli değildir (uygulamanın
-// app.json'ında da açıkta duruyor). Güvenliği firestore.rules ve storage.rules
-// sağlıyor: kota, ban, gizli mod ve paket kilidi hep orada zorlanıyor, bu yüzden
-// web istemcisinin mobil istemciden daha fazla yetkisi yok.
+// Yapılandırma src/backend/'den gelir (plan §3.1): üretim build'inde prod.ts
+// (değerler bu dosyanın eski hâliyle BİREBİR aynı; istemci yapılandırması, gizli
+// değil — güvenliği firestore.rules ve storage.rules sağlıyor). Yalnız yerel
+// yığının dev sunucusu (`vite --mode localstack`) bunu local.ts'e çevirir:
+// demo-sharecam emülatörleri. Bu dosyada ortam dallanması YOK.
+//
+// Bu VARSAYILAN uygulama misafir istemcisinin (/join) ve çiftin
+// albümünün (/join/album) anonim oturumudur. Etkinlik sahibinin oturumu (panel
+// /join/host ve yükleyici /join/upload) ayrı, İSİMLİ 'host' uygulamasındadır
+// (src/hostSession.ts, plan D2): biri diğerinin oturumunu asla ezmez.
 //
 // NOT: mobil taraf @react-native-firebase (native) kullanıyor çünkü JS SDK RN'de
 // JS thread'ini kilitliyordu. Tarayıcıda öyle bir sorun yok — JS SDK burada
 // doğru seçim.
-const app = initializeApp({
-  apiKey: 'AIzaSyCEFM3WDbee5oR7jW4JXKF-lhQUCUR9P8c',
-  authDomain: 'sharecam-1997boz.firebaseapp.com',
-  projectId: 'sharecam-1997boz',
-  storageBucket: 'sharecam-1997boz.firebasestorage.app',
-  messagingSenderId: '299822660999',
-  appId: '1:299822660999:ios:7bedf621b740f80d846722',
-});
+const app = initializeApp(backend.firebaseConfig);
 
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+backend.connect({ app, auth, db, storage });
 
 /**
  * KİMLİĞİ İSPATLANMIŞ anonim oturum. Bu üç adımın üçü de sahada yaşanmış bir

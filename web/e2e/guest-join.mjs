@@ -31,8 +31,9 @@ const SITE = process.env.SITE || 'https://sharecam.app';
 const args = process.argv.slice(2);
 const keep = args.includes('--keep');
 
-// İstemci anahtarı gizli değil; web/src/firebase.ts içinde duruyor.
-const key = readFileSync(join(HERE, '..', 'src/firebase.ts'), 'utf8').match(/apiKey:\s*'([^']+)'/)[1];
+// İstemci anahtarı gizli değil; web/src/backend/prod.ts içinde duruyor (24 Eyl 2026'dan
+// önce web/src/firebase.ts'teydi — panelin backend dikişi onu oraya taşıdı, değer aynı).
+const key = readFileSync(join(HERE, '..', 'src/backend/prod.ts'), 'utf8').match(/apiKey:\s*'([^']+)'/)[1];
 const admin = { Authorization: `Bearer ${await accessToken()}`, 'Content-Type': 'application/json' };
 const s = (v) => ({ stringValue: v }), b = (v) => ({ booleanValue: v }), n = (v) => ({ integerValue: String(v) }), nul = { nullValue: null };
 const val = (v) => v?.stringValue ?? (v?.integerValue !== undefined ? Number(v.integerValue) : v?.booleanValue ?? null);
