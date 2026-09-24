@@ -5,11 +5,14 @@
 // kopyayı ve hafif thumb'ı sunucu üretir (functions/src/derive.ts) ve medya
 // dokümanını o açar. Bu sayfa medya dokümanı YAZMAZ.
 //
-// Kimlik: sayfa host'un custom token'ıyla oturum açmıştır (uploadLink.ts);
-// storage.rules `orig/` yolunu yalnız klasör sahibine (uid == ownerId) açar.
+// Kimlik: sayfa etkinlik sahibinin oturumuyla çalışır — isimli 'host' Firebase
+// uygulaması (src/hostSession.ts, plan D2): uygulamayla eşleştirme (custom token,
+// uploadLink.ts) ya da panelde (/join/host) açılmış oturum. storage.rules `orig/`
+// yolunu yalnız klasör sahibine (uid == ownerId) açar; misafir (varsayılan,
+// anonim) oturumu buraya hiç dokunmaz.
 import { doc, getDoc } from 'firebase/firestore';
 import { ref as storageRef, uploadBytesResumable } from 'firebase/storage';
-import { db, storage } from '../firebase';
+import { hostDb as db, hostStorage as storage } from '../hostSession';
 
 /**
  * İÇERİK kimliği: ilk 4 MB'ın SHA-256'sı + boyut. Misafir yükleyicisi ad|boyut|mtime

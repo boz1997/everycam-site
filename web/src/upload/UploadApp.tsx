@@ -1,26 +1,43 @@
 // FOTOĞRAFÇININ MASAÜSTÜ YÜKLEYİCİSİ — sharecam.app/upload (21 Eyl 2026).
 //
-// Akış: uygulamadaki 6 haneli kod → redeemUploadCode → host custom token →
-// bu tarayıcı HOST olur (kalıcı) → etkinlik seç → klasörü bırak → orijinaller
-// 4 paralel kanaldan Storage'a; sunucu 2048px kopya + thumb üretip galeriye
-// düşürür. Sayfa medya dokümanı yazmaz, kural gevşetilmedi.
+// Akış: uygulamadaki 6 haneli kod ya da QR → host custom token → bu tarayıcı
+// HOST olur (kalıcı) → etkinlik seç → klasörü bırak → orijinaller 4 paralel
+// kanaldan Storage'a; sunucu 2048px kopya + thumb üretip galeriye düşürür. Sayfa
+// medya dokümanı yazmaz, kural gevşetilmedi.
 //
-// Aynı origin'de (sharecam.app) misafir sayfasının anonim oturumu da yaşar;
-// host olup olmadığımızı auth'a değil, eşleştirmede sakladığımız uid'e
-// (localStorage) bakarak anlarız — misafir oturumu asla host sayılmaz.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { signInWithCustomToken, signOut } from 'firebase/auth';
+// OTURUM (plan D2, §3.5 — 24 Eyl 2026): etkinlik sahibi İSİMLİ 'host' Firebase
+// uygulamasında oturum açar (src/hostSession.ts) — panel (/join/host) ile AYNI
+// oturum. Panelde giriş yapmış biri buraya eşleştirmesiz gelir (panel "Upload
+// originals" → ../upload/?event=<id>); eşleştirme de hâlâ çalışır ve açtığı oturum
+// panelde de geçerlidir. Misafir sayfasının anonim oturumu varsayılan uygulamada
+// kalır; ikisi birbirini asla ezmez. Eski sürüm host'u VARSAYILAN uygulamaya
+// açıp uid'i localStorage 'sharecam.uploadHostUid'e yazıyordu: ilk açılışta o
+// oturum misafir uygulamasından çıkarılır, anahtar silinir, tek satırlık "yeniden
+// eşleştir" notu çıkar (migrateLegacyHostSession). "Çıkış" yalnız host
+// uygulamasından çıkar. Bu sayfa panele bağlantı VERMEZ (D20: uygulamanın
+// paylaştığı sayfalarda satış yok); "+ Yeni etkinlik" yalnız App Store'a gider.
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { onAuthStateChanged, signInWithCustomToken, signOut } from 'firebase/auth';
 import { collection, doc, getDocs, onSnapshot, query, where } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
-import { auth, db } from '../firebase';
+import { httpsCallable } from 'firebase/functions';
+import { guestFunctions, hostAuth, hostDb, migrateLegacyHostSession } from '../hostSession';
 import { detectLang, LANG_LABEL, LANGS, makeT, saveLang, type Lang } from '../i18n';
 import { asMedia, collectDrop, hasFiles } from '../intake';
 import { fileSeed } from '../events';
 import { originalVerdict, uploadOriginal, ORIGINAL_MAX_BYTES } from './originals';
 import { IconPlus } from '../components/Brand';
+import { Header } from '../components/Header';
 import { QrPairing, type PairResult } from './QrPairing';
+import { withUploadStrings } from './strings';
 
-const HOST_KEY = 'sharecam.uploadHostUid';
+// Eski oturumun göçü sayfa başına BİR kez (StrictMode'un çift efekti iki kez
+// çıkış denemesin, ikinci deneme "zaten çıkmış" görüp notu yutmasın).
+let legacyMigration: Promise<boolean> | null = null;
+const migrateLegacyOnce = () => (legacyMigration ??= migrateLegacyHostSession().catch(() => false));
+
+// Üst bar sayfanın üstünde, kart kalan alanın ortasında.
+const PAGE: CSSProperties = { minHeight: '100%', display: 'flex', flexDirection: 'column' };
+const FILL: CSSProperties = { flex: '1 0 auto', minHeight: 'auto' };
 // QR ONAYI (uploadLink.ts): okuyuculu uygulama build'i (1.0.5) TestFlight'a çıktı
 // (23 Eyl 2026) → herkese açık. Eski build'ler QR'ı okuyamaz; kod yolu hemen altında.
 const QR_PAIRING_LIVE = true;
@@ -70,22 +87,22 @@ function toHostEvents(docs: { id: string; data: () => Record<string, unknown> }[
     .sort((a, b) => b.createdAt - a.createdAt);
 }
 
-function readHostUid(): string | null {
-  try {
-    return localStorage.getItem(HOST_KEY);
-  } catch {
-    return null;
-  }
+/** Seçili etkinlik adreste durur: sayfa yenilenince aynı etkinlikte kalınır. */
+function syncUrl(eventId: string | null) {
+  history.replaceState(null, '', eventId ? `${location.pathname}?event=${encodeURIComponent(eventId)}` : location.pathname);
 }
 
 export function UploadApp() {
   const [lang, setLang] = useState<Lang>(() => detectLang());
-  const t = useMemo(() => makeT(lang), [lang]);
+  const t = useMemo(() => withUploadStrings(lang, makeT(lang)), [lang]);
   useEffect(() => {
     document.title = `${t('upTitle')} — Sharecam`;
   }, [t]);
   const [phase, setPhase] = useState<'checking' | 'pair' | 'events' | 'upload'>('checking');
   const [uid, setUid] = useState<string>('');
+  const uidRef = useRef('');
+  const [email, setEmail] = useState<string | null>(null);
+  const [repair, setRepair] = useState(false); // eski oturum çıkarıldı → "yeniden eşleştir"
   const [code, setCode] = useState('');
   const [pairing, setPairing] = useState(false);
   const [pairError, setPairError] = useState('');
@@ -105,53 +122,87 @@ export function UploadApp() {
     saveLang(next);
   };
 
-  // ---- Açılış: eşleşmiş host mu, yoksa kod mu bekliyoruz?
-  const loadEvents = useCallback(async (hostUid: string, preferEventId?: string | null) => {
-    const snap = await getDocs(query(collection(db, 'events'), where('hostId', '==', hostUid)));
+  const signedIn = (hostUid: string, mail: string | null) => {
+    uidRef.current = hostUid;
+    setUid(hostUid);
+    setEmail(mail);
+  };
+
+  // ---- Etkinlikler; `prefer` sırayla denenir (adresteki ?event=, eşleştirmenin etkinliği)
+  const loadEvents = useCallback(async (hostUid: string, ...prefer: (string | null | undefined)[]) => {
+    const snap = await getDocs(query(collection(hostDb, 'events'), where('hostId', '==', hostUid)));
     const list = toHostEvents(snap.docs);
     setEvents(list);
-    const pre = preferEventId ? list.find((e) => e.id === preferEventId) : null;
+    const pre = prefer.map((id) => (id ? list.find((e) => e.id === id) : undefined)).find(Boolean);
     if (pre) {
       setEvent(pre);
       setPhase('upload');
+      syncUrl(pre.id);
     } else {
       setPhase('events');
+      syncUrl(null);
     }
   }, []);
 
   // Etkinlik seçerken liste CANLI: fotoğrafçı uygulamada yeni etkinlik açınca burada kendiliğinden belirir.
   useEffect(() => {
     if (phase !== 'events' || !uid) return;
-    return onSnapshot(query(collection(db, 'events'), where('hostId', '==', uid)), (snap) => setEvents(toHostEvents(snap.docs)));
+    return onSnapshot(query(collection(hostDb, 'events'), where('hostId', '==', uid)), (snap) => setEvents(toHostEvents(snap.docs)));
   }, [phase, uid]);
 
+  // ---- Açılış: önce eski oturumun göçü, sonra host oturumu var mı (panel ya da
+  // önceki eşleştirme)? Varsa eşleştirme atlanır; ?code= gelmişse (uygulamanın
+  // paylaştığı bağlantı) yine kod ekranı, kod dolu.
   useEffect(() => {
+    let alive = true;
     void (async () => {
-      await auth.authStateReady();
-      const stored = readHostUid();
-      const urlCode = new URLSearchParams(location.search).get('code');
-      if (stored && auth.currentUser?.uid === stored && !urlCode) {
-        setUid(stored);
-        await loadEvents(stored);
+      const legacy = await migrateLegacyOnce();
+      await hostAuth.authStateReady();
+      if (!alive) return;
+      const params = new URLSearchParams(location.search);
+      const urlCode = params.get('code');
+      const user = hostAuth.currentUser;
+      // ?pair= : bilgisayardaki QR telefonun kamerasıyla açıldı → aşağıdaki yol gösterici not.
+      if (user && !urlCode && !OPENED_FROM_PHONE_QR) {
+        signedIn(user.uid, user.email);
+        await loadEvents(user.uid, params.get('event'));
         return;
       }
+      setRepair(legacy);
       if (urlCode) setCode(urlCode.toUpperCase());
       setPhase('pair');
     })();
+    return () => {
+      alive = false;
+    };
   }, [loadEvents]);
 
-  // ---- Eşleştirmenin son adımı (kod da QR da buraya iner): custom token → host oturumu
+  // Oturum başka sekmede (panelde) kapatılırsa buradaki de kapanır → kod ekranı.
+  useEffect(
+    () =>
+      onAuthStateChanged(hostAuth, (user) => {
+        if (user || !uidRef.current) return;
+        uidRef.current = '';
+        setUid('');
+        setEmail(null);
+        setEvent(null);
+        setEvents([]);
+        setPhase('pair');
+        syncUrl(null);
+      }),
+    [],
+  );
+
+  // ---- Eşleştirmenin son adımı (kod da QR da buraya iner): custom token → 'host' oturumu
   const finishPairing = useCallback(
     async (res: PairResult) => {
-      await signInWithCustomToken(auth, res.token);
-      try {
-        localStorage.setItem(HOST_KEY, res.hostId);
-      } catch {
-        /* özel pencere: oturum yine de bu sekmede geçerli */
-      }
-      setUid(res.hostId);
-      history.replaceState(null, '', location.pathname);
-      await loadEvents(res.hostId, res.eventId);
+      const { user } = await signInWithCustomToken(hostAuth, res.token);
+      // Custom token yanıtı sağlayıcı listesi taşımaz; panel (isLinked) aynı
+      // oturumu okuyacağı için hesabın e-postası/sağlayıcıları şimdi tazelenir.
+      await user.reload().catch(() => undefined);
+      signedIn(res.hostId, user.email);
+      setRepair(false);
+      await loadEvents(res.hostId, res.eventId, new URLSearchParams(location.search).get('event'));
     },
     [loadEvents],
   );
@@ -163,10 +214,8 @@ export function UploadApp() {
     setPairing(true);
     setPairError('');
     try {
-      const fn = httpsCallable<{ code: string }, { token: string; eventId: string; hostId: string }>(
-        getFunctions(auth.app, 'europe-west3'),
-        'redeemUploadCode',
-      );
+      // Kimlik istemez; misafir uygulamasının çağrısı (panelle aynı sunucu yolu).
+      const fn = httpsCallable<{ code: string }, { token: string; eventId: string; hostId: string }>(guestFunctions(), 'redeemUploadCode');
       const res = await fn({ code: clean });
       await finishPairing(res.data);
     } catch (e) {
@@ -186,23 +235,28 @@ export function UploadApp() {
     }
   };
 
+  // Yalnız host uygulamasından çıkar (panel de çıkar: aynı oturum); misafir oturumu kalır.
   const forget = async () => {
-    try {
-      localStorage.removeItem(HOST_KEY);
-    } catch {
-      /* yok say */
-    }
-    await signOut(auth).catch(() => undefined);
+    uidRef.current = '';
+    await signOut(hostAuth).catch(() => undefined);
     setUid('');
+    setEmail(null);
     setEvent(null);
     setEvents([]);
     setPhase('pair');
+    syncUrl(null);
+  };
+
+  const pickEvent = (e: HostEvent | null) => {
+    setEvent(e);
+    setPhase(e ? 'upload' : 'events');
+    syncUrl(e?.id ?? null);
   };
 
   // ---- Seçili etkinliğin canlı sayacı: "galeride kaç kare var" (tek doküman)
   useEffect(() => {
     if (!event) return;
-    return onSnapshot(doc(db, 'events', event.id), (snap) => setLiveCount(Number(snap.get('photoCount') ?? 0)));
+    return onSnapshot(doc(hostDb, 'events', event.id), (snap) => setLiveCount(Number(snap.get('photoCount') ?? 0)));
   }, [event?.id]);
 
   // ---- Kuyruk
@@ -321,14 +375,18 @@ export function UploadApp() {
     return () => window.removeEventListener('beforeunload', onBefore);
   }, []);
 
-  const langPicker = (
-    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('langLabel')}>
-      {LANGS.map((l) => (
-        <option key={l} value={l}>
-          {LANG_LABEL[l]}
-        </option>
-      ))}
-    </select>
+  // Ortak üst bar: marka + dil; panele bağlantı YOK (D20).
+  const header = (right?: ReactNode) => (
+    <Header lang={lang} langs={LANGS} langLabel={(l) => LANG_LABEL[l]} onLang={changeLang} languageName={t('langLabel')} right={right} />
+  );
+  // Kod / etkinlik seçimi: üst bar + ortada tek kart.
+  const centered = (children: ReactNode) => (
+    <div style={PAGE}>
+      {header()}
+      <div className="centered" style={FILL}>
+        <div className="card">{children}</div>
+      </div>
+    </div>
   );
 
   const counts = rows.reduce(
@@ -341,108 +399,95 @@ export function UploadApp() {
   const total = rows.length - counts.skipped;
   const finished = counts.done + counts.exists;
 
-  if (phase === 'checking') {
-    return (
-      <div className="centered">
-        <div className="card">
-          <p className="muted">{t('upChecking')}</p>
-        </div>
-      </div>
-    );
-  }
+  if (phase === 'checking') return centered(<p className="muted">{t('upChecking')}</p>);
 
   if (phase === 'pair') {
-    return (
-      <div className="centered">
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
-            {langPicker}
-          </div>
-          <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('upTitle')}</h1>
-          {OPENED_FROM_PHONE_QR && (
-            <p className="muted" style={{ color: 'var(--gold)', margin: '0 0 10px' }}>
-              {t('upQrFromPhone')}
-            </p>
-          )}
-          {QR_PAIRING && !OPENED_FROM_PHONE_QR && (
-            <>
-              <QrPairing t={t} onPaired={finishPairing} />
-              <p className="muted" style={{ textAlign: 'center', margin: '14px 0 0' }}>
-                {t('upQrOr')}
-              </p>
-            </>
-          )}
-          <p className="muted">{t('upPairIntro')}</p>
-          <input
-            className="field"
-            style={{ marginTop: 16, textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
-            value={code}
-            maxLength={6}
-            autoFocus
-            placeholder="ABC123"
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === 'Enter' && void pair()}
-          />
-          {pairError && (
-            <p className="muted" style={{ color: 'var(--danger)', marginTop: 8 }}>
-              {pairError}
-            </p>
-          )}
-          <button className="btn" style={{ marginTop: 12 }} disabled={pairing || code.replace(/[^A-Z0-9]/g, '').length !== 6} onClick={() => void pair()}>
-            {pairing ? t('upPairing') : t('upPairCta')}
-          </button>
-          <p className="muted" style={{ marginTop: 14, fontSize: 12.5 }}>
-            {t('upPairHelp')}
+    return centered(
+      <>
+        <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '0 0 6px' }}>{t('upTitle')}</h1>
+        {repair && (
+          <p className="banner private" role="status" style={{ margin: '10px 0 4px', textAlign: 'left' }} data-repair-notice>
+            {t('upRepair')}
           </p>
-        </div>
-      </div>
+        )}
+        {OPENED_FROM_PHONE_QR && (
+          <p className="muted" style={{ color: 'var(--gold)', margin: '0 0 10px' }}>
+            {t('upQrFromPhone')}
+          </p>
+        )}
+        {QR_PAIRING && !OPENED_FROM_PHONE_QR && (
+          <>
+            <QrPairing t={t} onPaired={finishPairing} />
+            <p className="muted" style={{ textAlign: 'center', margin: '14px 0 0' }}>
+              {t('upQrOr')}
+            </p>
+          </>
+        )}
+        <p className="muted">{t('upPairIntro')}</p>
+        <input
+          className="field"
+          style={{ marginTop: 16, textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
+          value={code}
+          maxLength={6}
+          autoFocus
+          placeholder="ABC123"
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          onKeyDown={(e) => e.key === 'Enter' && void pair()}
+        />
+        {pairError && (
+          <p className="muted" style={{ color: 'var(--danger)', marginTop: 8 }}>
+            {pairError}
+          </p>
+        )}
+        <button className="btn" style={{ marginTop: 12 }} disabled={pairing || code.replace(/[^A-Z0-9]/g, '').length !== 6} onClick={() => void pair()}>
+          {pairing ? t('upPairing') : t('upPairCta')}
+        </button>
+        <p className="muted" style={{ marginTop: 14, fontSize: 12.5 }}>
+          {t('upPairHelp')}
+        </p>
+      </>,
     );
   }
 
   if (phase === 'events' || !event) {
-    return (
-      <div className="centered">
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
-            {langPicker}
-          </div>
-          <h1 style={{ fontFamily: 'var(--serif)', fontSize: 24, margin: '14px 0 6px' }}>{t('upPickEvent')}</h1>
-          {events.length === 0 && <p className="muted">{t('upNoEvents')}</p>}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
-            {events.map((e) => (
-              <button
-                key={e.id}
-                className="btn ghost"
-                style={{ justifyContent: 'space-between', textAlign: 'left' }}
-                onClick={() => {
-                  setEvent(e);
-                  setPhase('upload');
-                }}
-              >
-                <span>
-                  {e.name}
-                  <span className="muted" style={{ display: 'block', fontSize: 12 }}>
-                    {e.code} · {PLAN_LABEL[e.planId] ?? e.planId} · {e.photoCount} {t('photos')}
-                  </span>
+    return centered(
+      <>
+        <h1 style={{ fontFamily: 'var(--serif)', fontSize: 24, margin: '0 0 6px' }}>{t('upPickEvent')}</h1>
+        {email && (
+          <p className="muted" style={{ fontSize: 13, margin: '0 0 4px', overflowWrap: 'anywhere' }} data-signed-in-as>
+            {t('upSignedInAs').replace('{email}', email)}
+          </p>
+        )}
+        {events.length === 0 && <p className="muted">{t('upNoEvents')}</p>}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 10 }}>
+          {events.map((e) => (
+            <button
+              key={e.id}
+              className="btn ghost"
+              style={{ justifyContent: 'space-between', textAlign: 'left' }}
+              onClick={() => pickEvent(e)}
+            >
+              <span>
+                {e.name}
+                <span className="muted" style={{ display: 'block', fontSize: 12 }}>
+                  {e.code} · {PLAN_LABEL[e.planId] ?? e.planId} · {e.photoCount} {t('photos')}
                 </span>
-                <span>→</span>
-              </button>
-            ))}
-            <details className="new-event">
-              <summary>+ {t('upNewEvent')}</summary>
-              <p className="muted" style={{ margin: '8px 0 6px', fontSize: 14 }}>{t('upNewEventHelp')}</p>
-              <a href="https://apps.apple.com/app/id6801534049" style={{ fontSize: 14, fontWeight: 600 }}>
-                {t('getApp')} →
-              </a>
-            </details>
-          </div>
-          <button className="chip" style={{ marginTop: 16 }} onClick={() => void forget()}>
-            {t('upSignOut')}
-          </button>
+              </span>
+              <span>→</span>
+            </button>
+          ))}
+          <details className="new-event">
+            <summary>+ {t('upNewEvent')}</summary>
+            <p className="muted" style={{ margin: '8px 0 6px', fontSize: 14 }}>{t('upNewEventHelp')}</p>
+            <a href="https://apps.apple.com/app/id6801534049" style={{ fontSize: 14, fontWeight: 600 }}>
+              {t('getApp')} →
+            </a>
+          </details>
         </div>
-      </div>
+        <button className="chip" style={{ marginTop: 16 }} onClick={() => void forget()}>
+          {t('upSignOut')}
+        </button>
+      </>,
     );
   }
 
@@ -453,17 +498,11 @@ export function UploadApp() {
           <div>{t('upDropHere')}</div>
         </div>
       )}
-      <header>
-        <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          ShareCam
-        </span>
-        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-          <button className="chip" onClick={() => setPhase('events')}>
-            {t('upSwitchEvent')}
-          </button>
-          {langPicker}
-        </span>
-      </header>
+      {header(
+        <button className="chip" onClick={() => pickEvent(null)}>
+          {t('upSwitchEvent')}
+        </button>,
+      )}
       <div className="hero">
         <h1>{event.name}</h1>
         <p className="date">

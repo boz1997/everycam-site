@@ -1,16 +1,20 @@
 // QR İLE EŞLEŞTİRME — bilgisayardaki sayfa, uygulamanın okuyacağı QR'ı gösterir
 // (WhatsApp Web deseni, 22 Eyl 2026). Sunucu tarafı: functions/src/uploadLink.ts.
 //
-//   1. Anonim oturumla createUploadPairing → { pairingId } ; QR = sharecam.app/upload/?pair=…
-//   2. uploadPairings/{id} dinlenir (kural: yalnız bu tarayıcının uid'i okur)
+//   1. MİSAFİR (varsayılan, anonim) oturumla createUploadPairing → { pairingId } ;
+//      QR = sharecam.app/upload/?pair=…
+//   2. uploadPairings/{id} dinlenir (kural: yalnız bu tarayıcının misafir uid'i okur)
 //   3. Fotoğrafçı uygulamada okutup onaylayınca status 'approved' → claimUploadPairing
-//      → host custom token → UploadApp oturumu açar (kodla eşleştirmeyle aynı son adım).
+//      → host custom token → UploadApp onu İSİMLİ 'host' uygulamasında açar
+//      (src/hostSession.ts, plan D2; kodla eşleştirmeyle aynı son adım). Misafir
+//      oturumu olduğu gibi kalır: bu tarayıcıdaki /join/ misafir sayfası host olmaz.
 // QR 5 dakikada bir kendini yeniler; token dokümanda durmaz, yalnız claim verir.
 import { useEffect, useRef, useState } from 'react';
 import { doc, onSnapshot } from 'firebase/firestore';
-import { getFunctions, httpsCallable } from 'firebase/functions';
+import { httpsCallable } from 'firebase/functions';
 import qrcode from 'qrcode-generator';
-import { auth, db, ensureAnon } from '../firebase';
+import { db, ensureAnon } from '../firebase';
+import { guestFunctions } from '../hostSession';
 import { logError } from '../errorLog';
 
 const PAIR_PAGE = 'https://sharecam.app/upload/';
@@ -39,6 +43,16 @@ function QrSvg({ text, size }: { text: string; size: number }) {
   );
 }
 
+// Aynı anda iki ensureAnon() iki AYRI anonim hesap açabilir (ikisi de currentUser'ı
+// boş görür); sonuncusu currentUser olur ve öbürünün açtığı eşleştirmeyi bu tarayıcı
+// artık okuyamaz. Eşzamanlı çağrılar tek sözü paylaşır (geliştirmede StrictMode'un
+// çift efekti tam bunu yapıyordu).
+let anonInFlight: Promise<string> | null = null;
+const guestSession = () =>
+  (anonInFlight ??= ensureAnon().finally(() => {
+    anonInFlight = null;
+  }));
+
 export function QrPairing({ t, onPaired }: { t: (key: string) => string; onPaired: (res: PairResult) => Promise<void> }) {
   const [pairing, setPairing] = useState<{ id: string; expiresAt: number } | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'claiming' | 'error'>('loading');
@@ -52,9 +66,10 @@ export function QrPairing({ t, onPaired }: { t: (key: string) => string; onPaire
     setState('loading');
     void (async () => {
       try {
-        await ensureAnon();
+        await guestSession();
+        if (cancelled) return; // iptal edilen tur boşuna eşleştirme açmasın
         const fn = httpsCallable<Record<string, never>, { pairingId: string; expiresAt: number }>(
-          getFunctions(auth.app, 'europe-west3'),
+          guestFunctions(),
           'createUploadPairing',
         );
         const res = await fn({});
@@ -88,7 +103,7 @@ export function QrPairing({ t, onPaired }: { t: (key: string) => string; onPaire
         setState('claiming');
         void (async () => {
           try {
-            const fn = httpsCallable<{ pairingId: string }, PairResult>(getFunctions(auth.app, 'europe-west3'), 'claimUploadPairing');
+            const fn = httpsCallable<{ pairingId: string }, PairResult>(guestFunctions(), 'claimUploadPairing');
             const res = await fn({ pairingId });
             await onPaired(res.data);
           } catch (e) {
@@ -98,7 +113,7 @@ export function QrPairing({ t, onPaired }: { t: (key: string) => string; onPaire
           }
         })();
       },
-      // Host oturumu açılınca bu uid dokümanı okuyamaz (kural) — beklenen, sessiz.
+      // Dinleme hatası (ağ, süresi dolmuş eşleştirme) sessiz: QR turu kendini yeniler.
       () => undefined,
     );
   }, [pairingId, onPaired]);

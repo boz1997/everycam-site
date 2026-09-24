@@ -5,8 +5,14 @@
 // misafir olur (functions/src/ownerAccess.ts; custom token yok, host değil).
 // Sahip: tam albümü sayfalı görür, tek tek kaydeder ve HEPSİNİ parçalı ZIP olarak
 // indirir — 2048px (paylaşım) ve orijinal (tam çözünürlük). Parçalar sunucuda
-// sırayla üretilir (createAlbumArchive), hazır olanlar listelenir; linkler 7 gün.
-import { useCallback, useEffect, useMemo, useState } from 'react';
+// sırayla üretilir (createAlbumArchive), hazır olanlar listelenir; linkler 7 gün
+// (ortak bileşen: components/ArchiveParts.tsx, plan §3.3/§3.5).
+//
+// OTURUM (plan D2, 24 Eyl 2026): DEĞİŞMEDİ — varsayılan (misafir) uygulamanın
+// anonim oturumu, sahip rolü. Etkinlik sahibinin 'host' oturumu (panel /join/host,
+// yükleyici /join/upload) burada kullanılmaz; aynı tarayıcıda ikisi yan yana
+// yaşar. Bu sayfa panele bağlantı VERMEZ (D20).
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { doc, getDoc } from 'firebase/firestore';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { db, ensureAnon } from '../firebase';
@@ -15,10 +21,14 @@ import { detectLang, LANG_LABEL, LANGS, makeT, saveLang, type Lang } from '../i1
 import type { EventDoc, MediaDoc } from '../types';
 import { Gallery } from '../components/Gallery';
 import { Lightbox } from '../components/Lightbox';
+import { Header } from '../components/Header';
+import { ArchiveParts, type ArchiveCall, type ArchiveLabels, type ArchivePart, type ArchiveRequest } from '../components/ArchiveParts';
 
 const OWNER_KEY = 'sharecam.ownerEvent'; // { eventId, uid } — hızlı devam
-type Kind = 'display' | 'original';
-interface Part { part: number; parts: number; url: string; count: number }
+
+// Tek parça üretimi uzun sürebilir (büyük albümde dakikalar): sunucu 540 sn.
+const archiveCall: ArchiveCall = (req) =>
+  httpsCallable<ArchiveRequest, ArchivePart & { total: number }>(getFunctions(db.app, 'europe-west3'), 'createAlbumArchive', { timeout: 540_000 })(req);
 
 function readOwner(): { eventId: string; uid: string } | null {
   try {
@@ -70,10 +80,6 @@ export function AlbumApp() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [lightbox, setLightbox] = useState<number | null>(null);
-  const [archives, setArchives] = useState<Record<Kind, { running: boolean; parts: Part[]; total: number; error: string }>>({
-    display: { running: false, parts: [], total: 0, error: '' },
-    original: { running: false, parts: [], total: 0, error: '' },
-  });
 
   const changeLang = (next: Lang) => {
     setLang(next);
@@ -150,132 +156,70 @@ export function AlbumApp() {
     setLoading(false);
   };
 
-  // Parçaları SIRAYLA iste: her çağrı bir parça üretir (ya da önbellekten döner).
-  // Her parça hazır oldukça listelenir; büyük albümde çift sayfada bekler.
-  const buildArchive = async (kind: Kind) => {
-    if (!event) return;
-    setArchives((a) => ({ ...a, [kind]: { running: true, parts: [], total: 0, error: '' } }));
-    const fn = httpsCallable<{ eventId: string; kind: Kind; part: number }, Part & { total: number }>(getFunctions(db.app, 'europe-west3'), 'createAlbumArchive', { timeout: 540_000 });
-    try {
-      let part = 0;
-      let parts = 1;
-      while (part < parts) {
-        const res = await fn({ eventId: event.id, kind, part });
-        parts = res.data.parts;
-        const p: Part = { part: res.data.part, parts, url: res.data.url, count: res.data.count };
-        setArchives((a) => ({ ...a, [kind]: { ...a[kind], parts: [...a[kind].parts, p], total: res.data.total } }));
-        part += 1;
-      }
-      setArchives((a) => ({ ...a, [kind]: { ...a[kind], running: false } }));
-    } catch (e) {
-      setArchives((a) => ({ ...a, [kind]: { ...a[kind], running: false, error: String((e as { message?: string })?.message ?? 'error') } }));
-    }
-  };
-
-  const langPicker = (
-    <select className="lang" value={lang} onChange={(e) => changeLang(e.target.value as Lang)} aria-label={t('langLabel')}>
-      {LANGS.map((l) => (
-        <option key={l} value={l}>
-          {LANG_LABEL[l]}
-        </option>
-      ))}
-    </select>
+  // Arşiv bloğunun metinleri (bu sayfanın sözlüğünden; hata her durumda aynı cümle).
+  const archiveLabels = useMemo<ArchiveLabels>(
+    () => ({
+      title: (kind) => t(kind === 'display' ? 'alZipDisplay' : 'alZipOriginal'),
+      sub: (kind) => t(kind === 'display' ? 'alZipDisplaySub' : 'alZipOriginalSub'),
+      prepare: t('alPrepare'),
+      preparing: (done, total) => t('alPreparing').replace('{done}', String(done)).replace('{total}', String(total)),
+      part: (n, of) => t('alPart').replace('{n}', String(n)).replace('{of}', String(of)),
+      count: (n) => `${n} ${t('photos')}`,
+      linksValid: t('alLinksValid'),
+      error: () => t('alZipError'),
+      retry: t('retry'),
+    }),
+    [t],
   );
 
-  if (phase === 'checking') {
-    return (
-      <div className="centered">
-        <div className="card">
-          <p className="muted">{t('upChecking')}</p>
-        </div>
+  // Ortak üst bar: marka + dil; panele bağlantı YOK (D20).
+  const header = (
+    <Header lang={lang} langs={LANGS} langLabel={(l) => LANG_LABEL[l]} onLang={changeLang} languageName={t('langLabel')} />
+  );
+  const centered = (children: ReactNode) => (
+    <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+      {header}
+      <div className="centered" style={{ flex: '1 0 auto', minHeight: 'auto' }}>
+        <div className="card">{children}</div>
       </div>
-    );
-  }
+    </div>
+  );
+
+  if (phase === 'checking') return centered(<p className="muted">{t('upChecking')}</p>);
 
   if (phase === 'pair' || !event) {
-    return (
-      <div className="centered">
-        <div className="card">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>ShareCam</strong>
-            {langPicker}
-          </div>
-          <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '14px 0 6px' }}>{t('alTitle')}</h1>
-          <p className="muted">{t('alPairIntro')}</p>
-          <input className="field" style={{ marginTop: 14 }} value={ownerName} placeholder={t('alNamePlaceholder')} onChange={(e) => setOwnerName(e.target.value)} />
-          <input
-            className="field"
-            style={{ marginTop: 10, textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
-            value={code}
-            maxLength={6}
-            placeholder="ABC123"
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-            onKeyDown={(e) => e.key === 'Enter' && void pair()}
-          />
-          {pairError && (
-            <p className="muted" style={{ color: 'var(--danger)', marginTop: 8 }}>
-              {pairError}
-            </p>
-          )}
-          <button className="btn" style={{ marginTop: 12 }} disabled={pairing || code.replace(/[^A-Z0-9]/g, '').length !== 6} onClick={() => void pair()}>
-            {pairing ? t('upPairing') : t('alPairCta')}
-          </button>
-          <p className="muted" style={{ marginTop: 14, fontSize: 12.5 }}>
-            {t('alPairHelp')}
+    return centered(
+      <>
+        <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '0 0 6px' }}>{t('alTitle')}</h1>
+        <p className="muted">{t('alPairIntro')}</p>
+        <input className="field" style={{ marginTop: 14 }} value={ownerName} placeholder={t('alNamePlaceholder')} onChange={(e) => setOwnerName(e.target.value)} />
+        <input
+          className="field"
+          style={{ marginTop: 10, textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
+          value={code}
+          maxLength={6}
+          placeholder="ABC123"
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+          onKeyDown={(e) => e.key === 'Enter' && void pair()}
+        />
+        {pairError && (
+          <p className="muted" style={{ color: 'var(--danger)', marginTop: 8 }}>
+            {pairError}
           </p>
-        </div>
-      </div>
+        )}
+        <button className="btn" style={{ marginTop: 12 }} disabled={pairing || code.replace(/[^A-Z0-9]/g, '').length !== 6} onClick={() => void pair()}>
+          {pairing ? t('upPairing') : t('alPairCta')}
+        </button>
+        <p className="muted" style={{ marginTop: 14, fontSize: 12.5 }}>
+          {t('alPairHelp')}
+        </p>
+      </>,
     );
   }
-
-  const archiveBlock = (kind: Kind) => {
-    const a = archives[kind];
-    return (
-      <div className="card" style={{ marginTop: 10 }}>
-        <strong>{t(kind === 'display' ? 'alZipDisplay' : 'alZipOriginal')}</strong>
-        <p className="muted" style={{ marginTop: 4 }}>{t(kind === 'display' ? 'alZipDisplaySub' : 'alZipOriginalSub')}</p>
-        {a.parts.length === 0 && !a.running && (
-          <button className="btn ghost" style={{ marginTop: 10 }} onClick={() => void buildArchive(kind)}>
-            {t('alPrepare')}
-          </button>
-        )}
-        {a.running && (
-          <p className="muted" style={{ marginTop: 10 }}>
-            {t('alPreparing').replace('{done}', String(a.parts.length)).replace('{total}', String(a.parts[0]?.parts ?? '…'))}
-          </p>
-        )}
-        {a.error && (
-          <p className="muted" style={{ color: 'var(--danger)', marginTop: 8 }}>
-            {t('alZipError')}
-          </p>
-        )}
-        {a.parts.length > 0 && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 10 }}>
-            {a.parts.map((p) => (
-              <a key={p.part} className="btn ghost" href={p.url} download style={{ justifyContent: 'space-between' }}>
-                <span>{t('alPart').replace('{n}', String(p.part + 1)).replace('{of}', String(p.parts))}</span>
-                <span className="muted">{p.count} {t('photos')}</span>
-              </a>
-            ))}
-            {!a.running && (
-              <p className="muted" style={{ fontSize: 12 }}>
-                {t('alLinksValid')}
-              </p>
-            )}
-          </div>
-        )}
-      </div>
-    );
-  };
 
   return (
     <>
-      <header>
-        <span className="brand" style={{ fontFamily: 'var(--serif)' }}>
-          ShareCam
-        </span>
-        {langPicker}
-      </header>
+      {header}
       {event.coverUri && (
         <div className="cover">
           <img src={event.coverUri} alt="" />
@@ -286,11 +230,10 @@ export function AlbumApp() {
         <p className="date">{t('alOwnerBanner').replace('{n}', String(event.photoCount))}</p>
       </div>
       <div className="wrap">
-        <div className="card">
+        <div className="card" style={{ maxWidth: 'none' }}>
           <strong style={{ fontFamily: 'var(--serif)', fontSize: 20 }}>{t('alDownloadAll')}</strong>
           <p className="muted" style={{ marginTop: 4 }}>{t('alDownloadIntro')}</p>
-          {archiveBlock('display')}
-          {archiveBlock('original')}
+          <ArchiveParts eventId={event.id} call={archiveCall} labels={archiveLabels} />
         </div>
         {event.aiPeopleEnabled && (
           <a className="facecta" style={{ marginTop: 14 }} href={`../../face/?code=${encodeURIComponent(event.code)}`}>
