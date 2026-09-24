@@ -53,6 +53,11 @@ export const plan = (id: string): PlanRow => (isPlanId(id) ? PLANS[id] : PLANS.s
 export const planName = (id: string): string => (isPlanId(id) ? PLANS[id].name : id);
 export const rankOf = (id: string): number => (isPlanId(id) ? PLANS[id].rank : 0);
 
+/** The app sells photographer packages (go-live G, or the D26 fallback): a build
+ *  flag, like VITE_APPLE_WEB, so the "photographer packages come …" wording flips
+ *  in the same push. Until then the web says they come with the next app update. */
+export const PRO_IN_APP = import.meta.env.VITE_PRO_IN_APP === '1';
+
 /** The ladder anchor (D28): the plan before a refund, else the plan. */
 export const anchorOf = (e: Pick<HostEvent, 'planId' | 'planBeforeRefund'>): string => e.planBeforeRefund ?? e.planId;
 
@@ -122,4 +127,11 @@ export function deletionAt(e: HostEvent): number | null {
   const days = capsOf(e).retentionDays;
   const anchor = Math.max(e.createdAt, eventDayEnd(e.date) ?? 0, Number(e.retentionAnchorAt) || 0);
   return anchor + days * 86_400_000;
+}
+
+/** The deletion date of an event that is being CREATED now with `retentionDays`
+ *  (the create page, before paying): same rule as deletionAt — max(now, end of the
+ *  event day) + retention. */
+export function retentionEndFor({ date, retentionDays }: { date: string | null; retentionDays: number }, now = Date.now()): number {
+  return Math.max(now, eventDayEnd(date) ?? 0) + retentionDays * 86_400_000;
 }

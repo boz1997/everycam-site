@@ -275,11 +275,24 @@ try {
     await page.getByRole('button', { name: /Continue with Apple/ }).waitFor();
     ok(await page.getByRole('button', { name: /Continue with Apple/ }).isDisabled(), 'Apple sign-in shown as "coming" (no Services ID yet, D3)');
     await shot('signin');
+    // Fix pass (review P1): a web-first host is never sent to the app first.
+    ok((await page.locator('[data-new-cta]').getAttribute('href')) === '#/new', 'sign-in page: "Create your event — no app needed" → #/new');
+    ok(!/do that first/.test(await page.locator('main').innerText()), 'no "sign in to the app first" advice on the sign-in page');
+    await page.locator('[data-new-account]').click();
+    await page.locator('form button[type=submit]', { hasText: 'Create account' }).waitFor();
+    ok((await page.locator('[data-to-signin]').innerText()).trim() === 'Already have an account? Sign in', '"Create an account" → the form in create mode, "Already have an account? Sign in"');
+    await page.locator('[data-to-signin]').click();
     await page.locator('input[type=email]').fill('host@sharecam.local');
     await page.locator('input[type=password]').fill('wrong-password');
     await page.locator('form button[type=submit]').click();
     await page.locator('.err').waitFor({ timeout: 10_000 });
     ok(/Wrong email or password/.test(await page.locator('.err').innerText()), 'wrong password → "Wrong email or password."');
+    // An email with no account (the emulator says user-not-found; production's
+    // enumeration protection says invalid-credential for both): offer to create it.
+    await page.locator('input[type=email]').fill(`nobody-${Date.now()}@sharecam.local`);
+    await page.locator('form button[type=submit]').click();
+    await page.locator('[data-create-with-email]').waitFor({ timeout: 10_000 });
+    ok(true, 'no account for this email → "Create an account with this email" offered');
     await shot('signin-error', { both: false });
     await page.getByRole('button', { name: 'Pair with the app' }).click();
     await page.locator('.pair-qr svg').waitFor({ timeout: 20_000 });
@@ -320,6 +333,19 @@ try {
     await until(async () => (await getDoc(`events/c1-spark-web/media/${firstId}`)).data.hidden === true);
     ok((await getDoc(`events/c1-spark-web/media/${firstId}`)).data.hidden === true, 'hide → media.hidden = true');
     await shot('c1-gallery');
+    // Lightbox by keyboard (review P1): focus goes in, Tab stays in, Escape returns it.
+    await page.locator('.gcell').nth(1).locator('button.open').focus();
+    await page.keyboard.press('Enter');
+    await page.locator('.lb').waitFor();
+    const inLb = () => page.evaluate(() => !!document.activeElement?.closest('.lb'));
+    ok(await inLb(), 'lightbox opened by keyboard: focus is inside');
+    for (let i = 0; i < 9; i += 1) await page.keyboard.press('Tab');
+    ok(await inLb(), 'lightbox: Tab stays inside (focus trap)');
+    await page.keyboard.press('Shift+Tab');
+    ok(await inLb(), 'lightbox: Shift+Tab stays inside');
+    await page.keyboard.press('Escape');
+    await page.locator('.lb').waitFor({ state: 'detached' });
+    ok(await page.evaluate(() => !!document.activeElement?.matches('.gcell button.open')), 'lightbox closed: focus back on the photo that opened it');
     await page.locator('.gcell').first().locator('button.open').click();
     await page.locator('.lb').waitFor();
     await shot('c1-lightbox');
@@ -392,8 +418,18 @@ try {
     await go('#/new?plan=party');
     await page.locator('input.input').first().waitFor();
     await page.locator('.tile[data-plan="party"]').waitFor();
+    // Empty name → the button takes you to the error (review P1).
+    await page.locator('form button[type=submit]').click();
+    await page.locator('#new-name-err').waitFor();
+    ok(await page.evaluate(() => !!document.activeElement?.matches('[data-name-input]')) && (await page.locator('[data-name-input]').getAttribute('aria-describedby')) === 'new-name-err', 'empty name → focus on the name field, error tied to it (aria-describedby, role=alert)');
+    // Paid package without a date: storage starts today — say so, with the date (review P1).
+    await page.locator('[data-no-date-warn]').waitFor();
+    ok(/Without a date, storage starts today and ends on/.test(await page.locator('[data-no-date-warn]').innerText()), `no date + Party: "${await page.locator('[data-no-date-warn]').innerText()}"`);
+    await shot('new-consumer-nodate');
     await page.locator('input.input').first().fill('Web party (e2e)');
     await page.locator('input[type=date]').fill('2026-11-14');
+    await page.locator('[data-kept-until]').waitFor();
+    ok(/Kept until/.test(await page.locator('[data-kept-until]').innerText()) && (await page.locator('[data-no-date-warn]').count()) === 0, `with a date: "${await page.locator('[data-kept-until]').innerText()}"`);
     await shot('new-consumer');
     await page.locator('form button[type=submit]').click();
     await page.waitForURL((u) => /#\/e\/[^/]+\/plan/.test(u.hash), { timeout: 20_000 });
@@ -487,11 +523,18 @@ try {
     await mock(`/api/events/${id}/photo`);
     const inv0 = await until(async () => { const i = await inventory(id); return i.media >= 2 && i.files >= 2 ? i : null; });
     ok(!!inv0, `before the refunds: ${JSON.stringify(inv0)}`);
-    // 1) the Wedding order only: the Party payment still stands → not net-zero → marked, plan kept.
+    // 1) the Wedding order only: the Party payment still stands → not net-zero → the
+    //    upgrade is ROLLED BACK to Party (fix pass, review P1): Party's quota, the paid
+    //    storage kept, no refunded mark (Party's ZIP stays open), refundState 'rollback'.
     const r1 = await mock(`/api/orders/${upTxn}/refund`);
-    ok(r1.approved?.status === 200, `refund of the Wedding order → ${r1.approved?.status} ${r1.approved?.body}`);
-    const m = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.refunded === true ? d : null; });
-    ok(m?.planId === 'wedding' && m?.limits?.photos === 500 && (await getDoc(`refundState/${id}`)) === null, `not net-zero (Party still paid): marked refunded, plan ${m?.planId} kept, no refundState`);
+    ok(r1.approved?.status === 200 && /rolled-back/.test(r1.approved?.body ?? ''), `refund of the Wedding order → ${r1.approved?.status} ${r1.approved?.body}`);
+    const m = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.planId === 'party' ? d : null; });
+    const rs = await getDoc(`refundState/${id}`);
+    ok(m?.planId === 'party' && m?.limits?.photos === 200 && m?.limits?.retentionDays === 180 && m?.refunded !== true && rs?.data.mode === 'rollback' && rs?.data.planBeforeRefund === 'wedding',
+      `not net-zero (Party still paid): rolled back to ${m?.planId}, limits ${JSON.stringify(m?.limits)}, refunded ${m?.refunded ?? false}, refundState ${rs?.data.mode}/${rs?.data.planBeforeRefund}`);
+    await go(`#/e/${id}/downloads`);
+    await page.locator('[data-zip]').waitFor();
+    ok(true, 'rolled back: downloads stay on for the Party still paid');
     // 2) the Party order too → net-zero → suspended.
     const a0 = (await alerts()).count;
     const r = await mock(`/api/orders/${txn}/refund`);
@@ -499,7 +542,7 @@ try {
     const ev = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.planId === 'spark' ? d : null; });
     ok(ev?.refunded === true && ev?.planId === 'spark' && ev?.limits?.photos === 50 && ev?.limits?.guests === 10 && ev?.limits?.retentionDays === 180 && ev?.aiPeopleEnabled === false && !ev?.retentionAnchorAt, `suspended: plan ${ev?.planId}, limits ${JSON.stringify(ev?.limits)}, AI ${ev?.aiPeopleEnabled}, no retentionAnchorAt`);
     const st = await getDoc(`refundState/${id}`);
-    ok(st?.data.planBeforeRefund === 'wedding' && st?.data.limitsBeforeRefund?.photos === 500, `refundState stash: ${st?.data.planBeforeRefund} ${JSON.stringify(st?.data.limitsBeforeRefund)}`);
+    ok(st?.data.mode === 'suspend' && st?.data.planBeforeRefund === 'party' && st?.data.limitsBeforeRefund?.photos === 200, `refundState stash: ${st?.data.mode} ${st?.data.planBeforeRefund} ${JSON.stringify(st?.data.limitsBeforeRefund)}`);
     const inv1 = await inventory(id);
     ok(same(inv0, inv1), `nothing deleted: ${JSON.stringify(inv1)}`);
     const al = (await alerts()).alerts.slice(a0);
@@ -689,10 +732,12 @@ try {
     const uidBefore = (await getDoc('events/p5-anon-pro500')).data.hostId;
     await go('#/e/p5-anon-pro500/settings');
     await page.locator('.setting').first().waitFor();
-    ok(await page.locator('[data-delete-event]').count() === 0, 'paired, not linked: no Delete event');
+    await page.getByText('To delete this event, sign in on this computer').waitFor({ timeout: 10_000 });
+    ok(await page.locator('[data-delete-event]').count() === 0, 'paired, not linked: no Delete event (note instead)');
     await go('#/account');
     await page.locator('#acc-signins').waitFor();
-    ok(await page.locator('[data-delete-account]').count() === 0, 'paired, not linked: no Delete account');
+    await page.getByText('To delete the account, sign in on this computer').waitFor({ timeout: 10_000 });
+    ok(await page.locator('[data-delete-account]').count() === 0, 'paired, not linked: no Delete account (note instead)');
     await go('#/e/p5-anon-pro500/plan');
     await page.locator('[data-link-account]').waitFor({ timeout: 20_000 });
     ok(true, 'package page → link-account first');
@@ -712,6 +757,36 @@ try {
     ok(true, 'linked → the package page opens (pick)');
     ok((await getDoc('events/p5-anon-pro500')).data.hostId === uidBefore, 'uid unchanged (the event stays with the account)');
     await shot('paired-linked-plan');
+    // The account is linked now. A computer PAIRED to it later (custom token, from a
+    // new app code) still must not delete anything (fix pass, review P2): hidden in
+    // the UI, refused by the server (deleteAccountAndData checks sign_in_provider).
+    await signOutAll();
+    const code2 = await mock('/api/events/p5-anon-pro500/upload-code');
+    const pairCode2 = /([A-Z0-9]{6})/.exec(code2.body ?? '')?.[1];
+    ok(!!pairCode2, `a new upload code for the (now linked) account: ${pairCode2}`);
+    await go('#/signin');
+    await page.getByRole('button', { name: 'Pair with the app' }).click();
+    await page.locator('input.code').fill(pairCode2);
+    await page.locator('.pair form button[type=submit]').click();
+    await page.waitForURL((u) => !u.hash.startsWith('#/signin'), { timeout: 20_000 });
+    ok(await page.locator('.notice.dark').count() === 0, 'paired to a linked account: no "add a sign-in" banner');
+    await go('#/account');
+    await page.getByText('To delete the account, sign in on this computer').waitFor({ timeout: 10_000 });
+    ok(await page.locator('[data-delete-account]').count() === 0, 'paired session of a LINKED account: no Delete account (custom-token session)');
+    await go('#/e/p5-anon-pro500/settings');
+    await page.getByText('To delete this event, sign in on this computer').waitFor({ timeout: 10_000 });
+    ok(await page.locator('[data-delete-event]').count() === 0, 'paired session of a LINKED account: no Delete event');
+    const del = await page.evaluate(async () => {
+      try {
+        const m = await import('/src/host/lib/data.ts');
+        await m.fn.deleteAccountAndData({});
+        return 'deleted';
+      } catch (e) {
+        return String(e?.code ?? e?.message ?? e);
+      }
+    });
+    ok(/permission-denied/.test(del), `server: deleteAccountAndData from a paired session → ${del}`);
+    ok((await getDoc('events/p5-anon-pro500')) !== null, 'the paired account and its event still exist');
   }
 
   if (run('newsignedout')) {
@@ -722,15 +797,18 @@ try {
     await page.locator('input.input').first().fill('Garden brunch (e2e)');
     await page.locator('form button[type=submit]').click();
     await page.locator('.auth input[type=email]').first().waitFor();
-    ok(/Sign in to save your event/.test(await page.locator('main').innerText()), 'signed out: the account step keeps the draft');
+    ok(/Save your event to an account/.test(await page.locator('main').innerText()), 'signed out: the account step keeps the draft');
+    // A new host (the bride) types a NEW email here: the form opens in create mode (review P1).
+    ok((await page.locator('.auth form button[type=submit]').first().innerText()).trim() === 'Create account' && (await page.locator('.auth [data-to-signin]').innerText()).trim() === 'Already have an account? Sign in', 'account step opens in "Create account" (+ "Already have an account? Sign in")');
     await shot('new-account-step');
-    await page.locator('.auth input[type=email]').first().fill('host@sharecam.local');
+    const bride = `bride-${Date.now()}@sharecam.local`;
+    await page.locator('.auth input[type=email]').first().fill(bride);
     await page.locator('.auth input[type=password]').first().fill(PASSWORD);
     await page.locator('.auth form button[type=submit]').first().click();
     await page.waitForURL((u) => /#\/e\/[^/?]+(\?new=1)?$/.test(u.hash), { timeout: 30_000 });
     const id = /#\/e\/([^/?]+)/.exec(page.url())[1];
     const d = (await getDoc(`events/${id}`)).data;
-    ok(d.name === 'Garden brunch (e2e)' && d.planId === 'spark' && d.date === null, 'draft carried over: Spark event created after sign-in (date null, present)');
+    ok(d.name === 'Garden brunch (e2e)' && d.planId === 'spark' && d.date === null, `draft carried over: new account ${bride} → Spark event created (date null, present)`);
     await page.locator('[data-code]').waitFor();
     await shot('new-created');
   }
@@ -793,7 +871,8 @@ try {
     await signIn('host');
     await go('#/account');
     await page.locator('#acc-signins').waitFor();
-    ok(await page.locator('[data-delete-account]').count() === 1, 'linked account: Delete account & data offered');
+    ok(await page.locator('[data-delete-account]').waitFor({ timeout: 10_000 }).then(() => true).catch(() => false), 'email session: Delete account & data offered');
+    ok(await page.locator('#acc-link').innerText().then((s) => !/Add email sign-in/.test(s)).catch(() => true), 'email account: no "Add email sign-in" offered again (only missing sign-ins)');
     await shot('account');
   }
 

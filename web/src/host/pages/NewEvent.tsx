@@ -6,8 +6,8 @@ import { logError } from '../lib/errorLog';
 import { isLinked } from '../lib/auth';
 import { WEB_LADDER, isPlanId, type PlanId, type Tier } from '../lib/plans';
 import { hrefFor, navigate } from '../lib/router';
-import { fmtUsd, t } from '../i18n';
-import { planName } from '../lib/plans';
+import { fmtDate, fmtUsd, t } from '../i18n';
+import { PRO_IN_APP, planName, retentionEndFor } from '../lib/plans';
 import { LinkForm, SignInForm } from '../components/AuthForms';
 import { CheckoutFootnote, PlanTile, fromOption, sparkTile, type TileModel } from '../components/PlanTiles';
 import { Button, IconArrowLeft, IconFace, Loading, Notice, useToast } from '../components/ui';
@@ -68,6 +68,7 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [nameErr, setNameErr] = useState(false);
+  const nameRef = useRef<HTMLInputElement>(null);
   const continueAfterAuth = useRef(false);
   const uid = user?.uid ?? null;
   const linked = isLinked(user);
@@ -126,7 +127,11 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
     setErr('');
     const clean = name.trim().replace(/\s+/g, ' ');
     if (!clean) {
+      // The error sits next to the name field, far above the button: take the
+      // person there (review P1 — the button looked broken at 390 and 1440).
       setNameErr(true);
+      nameRef.current?.focus({ preventScroll: true });
+      nameRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
       return;
     }
     if (!selected || soonFor(selected) || (tier === 'pro' && (regionBlocked || region === null && !!user))) return;
@@ -190,7 +195,8 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
             <h1 className="h1">{step === 'account' ? t('new.accountTitle') : t('link.title')}</h1>
             <p className="lead">{step === 'account' ? t('new.accountLead') : t('link.lead')}</p>
           </div>
-          <section className="panel">{step === 'account' ? <SignInForm /> : <LinkForm />}</section>
+          {/* Most people reaching this step are new: the form opens in "create" (review P1). */}
+          <section className="panel">{step === 'account' ? <SignInForm initialMode="create" /> : <LinkForm linked={user?.providerData.map((p) => p.providerId) ?? []} />}</section>
         </div>
         <aside className="panel flat">
           <p className="kicker">{t('new.summary')}</p>
@@ -236,17 +242,20 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
             <label className="field">
               <span className="label">{t('new.name')}</span>
               <input
+                ref={nameRef}
                 className="input"
                 value={name}
                 maxLength={80}
                 placeholder={t('new.namePlaceholder')}
                 aria-invalid={nameErr || undefined}
+                aria-describedby={nameErr ? 'new-name-err' : undefined}
+                data-name-input
                 onChange={(e) => {
                   setName(e.target.value);
                   setNameErr(false);
                 }}
               />
-              {nameErr && <span className="err">{t('new.nameRequired')}</span>}
+              {nameErr && <span className="err" id="new-name-err" role="alert">{t('new.nameRequired')}</span>}
             </label>
             <label className="field">
               <span className="label">{t('new.date')}</span>
@@ -304,7 +313,7 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
               </Notice>
             )}
             {pv && tier === 'pro' && !canSell && !regionBlocked && (
-              <Notice title={t('new.proSoonTitle')}>{t('new.proSoonBody')}</Notice>
+              <Notice title={t('new.proSoonTitle')}>{PRO_IN_APP ? t('new.proSoonBodyApp') : t('new.proSoonBody')}</Notice>
             )}
             {pv && tier === 'consumer' && !canSell && pv.reason !== 'link-account' && <p className="small muted">{t('new.consumerSoon')}</p>}
             {pv && (
@@ -314,7 +323,26 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
                 ))}
               </div>
             )}
+            {pv && tier === 'pro' && (
+              <div className="small muted stack" style={{ ['--gap' as string]: '4px' }} data-pro-includes>
+                <p>{t('checkout.proIncludesTitle')} {t('checkout.proInc1')} · {t('checkout.proInc2')} · {t('checkout.proInc3')}</p>
+                {tiles.some((m) => m.limits.videos !== 0) && <p className="tiny">{t('plan.videosFromApp')}</p>}
+                {canSell && !regionBlocked && <p className="tiny" data-next-decl>{t('new.proNextDecl')}</p>}
+              </div>
+            )}
             {tier === 'pro' && !user && <p className="tiny muted">{t('new.proRegionLater')}</p>}
+            {paidPick && selected && (() => {
+              // Storage counts from max(today, event day) — show the date before paying,
+              // and warn when there is no date: it can never be added later (review P1).
+              const end = retentionEndFor({ date: /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : null, retentionDays: selected.limits.retentionDays });
+              return date ? (
+                <p className="small" data-kept-until>{t('list.keptUntil', { date: fmtDate(end) })}</p>
+              ) : (
+                <Notice tone="gold" icon={<IconClockSmall />}>
+                  <span data-no-date-warn>{t('new.noDateWarn', { date: fmtDate(end) })}</span>
+                </Notice>
+              );
+            })()}
             {err && <p className="err" role="alert">{err}</p>}
             {/* pro + signed in: submit() waits for the region gate, so the button waits too (busy = disabled): a click before faceGateCheck answered did nothing */}
             <Button type="submit" block busy={busy || (tier === 'pro' && !!user && region === null)} disabled={!pv || !selected || soonFor(selected) || proClosed}>
@@ -325,6 +353,15 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
         </div>
       </form>
     </>
+  );
+}
+
+function IconClockSmall() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
   );
 }
 

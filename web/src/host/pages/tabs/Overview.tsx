@@ -9,18 +9,20 @@ import { downloadIcs } from '../../components/EventBits';
 import { FaceNotice } from '../../components/FaceNotice';
 import { QrCard } from '../../components/QrCard';
 import { storageLabel } from '../../components/PlanTiles';
-import { Button, CopyField, IconCalendar, IconCheck, IconUpload, Meter, Notice } from '../../components/ui';
+import { Button, CopyField, IconCalendar, IconCheck, IconLock, IconUpload, Meter, Notice } from '../../components/ui';
 
 // Overview (plan §3.2 consumer, §3.3 photographer).
 
 function Stats({ event }: { event: HostEvent }) {
   const caps = capsOf(event);
   const pro = flagsOf(event).hostOnly;
+  // A cap of 0 is "not in this package", not an unknown number: no "0 —" meter
+  // (review P2). Videos already uploaded under an earlier package still show.
   const cells = [
     { k: 'guests', used: event.activeGuestCount, cap: caps.guests, label: t('stat.guests') },
     { k: 'photos', used: event.photoCount, cap: caps.photos, label: t('stat.photos') },
     { k: 'videos', used: event.videoCount, cap: caps.videos, label: t('stat.videos') },
-  ];
+  ].filter((c) => !(c.k === 'videos' && c.cap === 0 && c.used === 0));
   return (
     <section className="panel" aria-labelledby="stats-h">
       <h2 id="stats-h" className="h3" style={{ marginBottom: 14 }}>{pro ? t('overview.statsPro') : t('overview.stats')}</h2>
@@ -29,7 +31,7 @@ function Stats({ event }: { event: HostEvent }) {
           <div className="stat" key={c.k} data-stat={c.k}>
             <div className="v">
               {fmtNumber(c.used)}
-              <small>{c.cap < 0 ? t('unit.unlimitedShort') : c.cap === 0 && c.used === 0 ? '—' : `/ ${fmtNumber(c.cap)}`}</small>
+              <small>{c.cap < 0 ? t('unit.unlimitedShort') : `/ ${fmtNumber(c.cap)}`}</small>
             </div>
             <div className="l">{c.label}</div>
             <Meter used={c.used} cap={c.cap} />
@@ -45,12 +47,22 @@ function PackageCard({ event }: { event: HostEvent }) {
   const del = deletionAt(event);
   const flags = flagsOf(event);
   const upgrade = event.refunded || hasUpgrade(event);
+  if (awaitingProPackage(event)) {
+    // No package yet: its Spark caps and "kept until" mean nothing (review P2).
+    return (
+      <section className="panel" aria-labelledby="pkg-h">
+        <p className="kicker">{t('overview.package')}</p>
+        <h2 id="pkg-h" className="h2" style={{ marginTop: 4 }}>{t('plan.none')}</h2>
+        <p className="desc" style={{ marginTop: 8 }}>{t('plan.awaitingBody')}</p>
+      </section>
+    );
+  }
   return (
     <section className="panel" aria-labelledby="pkg-h">
       <div className="panel-head">
         <div>
           <p className="kicker">{t('overview.package')}</p>
-          <h2 id="pkg-h" className="h2" style={{ marginTop: 4 }}>{planName(event.planId)}</h2>
+          <h2 id="pkg-h" className="h2" style={{ marginTop: 4 }}><span lang="en">{planName(event.planId)}</span></h2>
         </div>
         {event.refunded && <span className="tag danger">{t('plan.refunded')}</span>}
       </div>
@@ -59,7 +71,7 @@ function PackageCard({ event }: { event: HostEvent }) {
         <div><dt>{t('plan.storage')}</dt><dd>{storageLabel(caps.retentionDays)}</dd></div>
         <div><dt>{t('overview.keptUntil')}</dt><dd data-deletion>{del ? fmtDate(del) : '—'}</dd></div>
         <div><dt>{t('overview.face')}</dt><dd>{aiAvailable(event) ? (event.aiPeopleEnabled ? t('common.on') : t('common.off')) : t('overview.faceNot')}</dd></div>
-        {!flags.hostOnly && <div><dt>{t('overview.wall')}</dt><dd>{flags.wall ? t('overview.included') : '—'}</dd></div>}
+        {!flags.hostOnly && <div><dt>{t('overview.wall')}</dt><dd>{flags.wall ? t('overview.included') : t('unit.notIncluded')}</dd></div>}
       </dl>
       <div className="btn-row" style={{ marginTop: 16 }}>
         {upgrade && (
@@ -155,7 +167,8 @@ function UploadCard({ event }: { event: HostEvent }) {
         <span className="muted">{caps.photos < 0 ? t('upload.countUnlimited') : t('upload.countOf', { cap: fmtNumber(caps.photos) })}</span>
       </p>
       <div className="btn-row" style={{ marginTop: 16 }}>
-        <a className="btn on-dark" href={`../upload/?event=${encodeURIComponent(event.id)}`} data-upload-link>
+        {/* A new tab: the uploader has no way back to the dashboard (D20), so /host stays open here (review P2). */}
+        <a className="btn on-dark" href={`../upload/?event=${encodeURIComponent(event.id)}`} target="_blank" rel="noopener" data-upload-link>
           <IconUpload /> {t('upload.cta')}
         </a>
       </div>
@@ -195,6 +208,11 @@ export function Overview({ event, fresh }: { event: HostEvent; fresh: boolean })
         <div className="col">
           {pro && <UploadCard event={event} />}
           <QrCard event={event} title={pro ? t('qr.titlePro') : t('qr.title')} body={pro ? t('qr.bodyPro') : t('qr.body')} />
+          {!pro && event.mode === 'private' && (
+            <p className="small private-line" data-private-line>
+              <IconLock /> {t('overview.privateLine')}
+            </p>
+          )}
           {event.aiPeopleEnabled && <FaceNotice />}
         </div>
         <div className="col">

@@ -65,7 +65,9 @@ const tr: Dict = {
   // ---------------------------------------------------------------- sign in
   'signin.kicker': 'Etkinlik sahibi paneli',
   'signin.title': 'Etkinliklerine giriş yap',
-  'signin.lead': 'Uygulamada kullandığın girişi kullan (Ayarlar → Hesap). Orada hiç giriş yapmadıysan önce orada yap.',
+  'signin.lead': 'Etkinliklerin, misafirlerin ve fotoğrafların tek yerde — her bilgisayarda ya da telefonda.',
+  'signin.newTitle': 'Sharecam’de yeni misin?',
+  'signin.newCta': 'Etkinliğini oluştur — uygulama gerekmez',
   'signin.appKicker': 'Uygulamayı zaten kullanıyor musun?',
   'signin.appTitle': 'Aynı hesap, aynı etkinlikler',
   'signin.appBody': 'Sharecam uygulamasında açtığın etkinlikler, uygulamada kullandığın hesapla (Ayarlar → Hesap) giriş yaptığında burada görünür.',
@@ -85,6 +87,8 @@ const tr: Dict = {
   'auth.toCreate': 'Yeni misin? Hesap oluştur',
   'auth.toReset': 'Parolanı mı unuttun?',
   'auth.toSignin': 'Girişe dön',
+  'auth.haveAccount': 'Hesabın var mı? Giriş yap',
+  'auth.createWithEmail': 'Bu e-postayla hesap oluştur',
   'auth.errWrong': 'E-posta ya da parola yanlış.',
   'auth.errEmailTaken': 'Bu e-postanın zaten bir hesabı var. Onunla giriş yap.',
   'auth.errWeak': 'En az 6 karakterli bir parola seç.',
@@ -119,6 +123,7 @@ const tr: Dict = {
   'pair.errExpired': 'Bu kodun süresi doldu. Uygulamada yeni kod üret.',
   'pair.errUsed': 'Bu kod zaten kullanıldı. Uygulamada yeni kod üret.',
   'pair.errGeneric': 'Bu bilgisayar bağlanamadı. Bağlantını kontrol edip tekrar dene.',
+  'pair.phoneNote': 'Uygulamayla bağlanma bilgisayarlar içindir. Bu telefonda bunun yerine giriş yap.',
 
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'Bir adım kaldı',
@@ -163,6 +168,7 @@ const tr: Dict = {
   'unit.years': '{n} yıl',
   'unit.unlimited': 'Sınırsız',
   'unit.unlimitedShort': 'sınır yok',
+  'unit.notIncluded': 'Dahil değil',
   'plan.free': 'Ücretsiz', // app: paywall.free
   'plan.perEvent': 'etkinlik başına', // app: paywall.perEvent
   'plan.popular': 'En çok seçilen', // app: plans.wedding.badge
@@ -172,6 +178,8 @@ const tr: Dict = {
   'plan.webSoon': 'Yakında web’de',
   'plan.none': 'Henüz paket yok',
   'plan.wallIncluded': 'Canlı duvar dahil',
+  'plan.awaitingBody': 'QR’ı ve yüklemeyi açmak için bir paket seç.',
+  'plan.videosFromApp': 'Videolar iPhone uygulamasından yüklenir.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Yeni etkinlik',
@@ -188,25 +196,28 @@ const tr: Dict = {
   'new.namePlaceholder': 'Ayşe & Mehmet’in Düğünü', // app: create.namePlaceholder
   'new.nameRequired': 'Lütfen etkinliğe bir ad ver.',
   'new.date': 'Etkinlik tarihi (isteğe bağlı)', // app: create.dateLabel
-  'new.dateHint': 'Tarih davet kartlarında görünür. Saklama süresi bu günden itibaren sayılır.',
+  'new.dateHint': 'Saklama bu günden başlar (boş bırakırsan bugünden).',
+  'new.noDateWarn': 'Tarih olmadan saklama bugün başlar ve {date} tarihinde biter. Etkinlik tarihini ekle; sonradan eklenemez.',
   'new.who': 'Fotoğrafları kim görsün?', // app: create.titleMode
   'new.modeHint': 'Bunu sonra Ayarlar’dan değiştirebilirsin.', // app: create.modeHint
   'new.cover': 'Kapak fotoğrafı (isteğe bağlı)',
   'new.coverAdd': 'Kapak fotoğrafı ekle',
   'new.coverChange': 'Değiştir',
-  'new.locked': 'Ad ve tarih sonradan değiştirilemez: kartlarına basılırlar.',
+  'new.locked': 'Ad ve tarih sonradan değiştirilemez (uygulamadaki kuralın aynısı).',
   'new.package': 'Paket',
   'new.consumerSoon': 'Ücretli paketler yakında web’de. Şimdi Spark ile ücretsiz başla, sonra burada ya da uygulamada yükselt.',
   'new.proSoonTitle': 'Fotoğrafçı paketleri yakında web’de',
-  'new.proSoonBody': 'O zamana kadar Sharecam iPhone uygulamasında satılıyor. Orada açtığın etkinlikler aynı girişle burada görünür.',
+  'new.proSoonBody': 'Fotoğrafçı paketleri bir sonraki güncellemeyle web’e ve Sharecam iPhone uygulamasına geliyor. Şimdi oluşturduğun etkinlikler adını ve tarihini korur.',
+  'new.proSoonBodyApp': 'O zamana kadar Sharecam iPhone uygulamasında satılıyor. Orada açtığın etkinlikler aynı girişle burada görünür.',
   'new.proRegionLater': 'Giriş yaptıktan sonra yüz eşleştirmenin bulunduğun yerde sunulup sunulmadığını kontrol ederiz.',
+  'new.proNextDecl': 'Sonraki adım: yüz eşleştirme için kısa bir düzenleyici beyanı.',
   'new.ctaFree': 'Etkinliği aç',
   'new.ctaPaid': 'Aç ve öde · {plan} {price}',
   'new.created': 'Etkinlik açıldı.',
   'new.createFailed': 'Etkinlik açılamadı. Bağlantını kontrol edip tekrar dene.',
   'new.backToForm': 'Forma dön',
   'new.stepAccount': 'Az kaldı',
-  'new.accountTitle': 'Etkinliğini kaydetmek için giriş yap',
+  'new.accountTitle': 'Etkinliğini bir hesaba kaydet',
   'new.accountLead': 'Etkinliğin, geri dönebileceğin bir hesaba bağlanmalı. Uygulamada bir girişin varsa aynısını kullan.',
   'new.summary': 'Etkinliğin',
   'mode.openTitle': 'Açık galeri', // app: create.openTitle
@@ -245,6 +256,7 @@ const tr: Dict = {
   'overview.included': 'Dahil',
   'overview.changePackage': 'Paketi değiştir',
   'overview.refundedNote': 'Bu etkinliğin ödemesi iade edildi. Albüm saklama süresi bitene kadar kalır; yeniden paket alınırsa tekrar açılır.',
+  'overview.privateLine': 'Gizli — misafirler yalnız kendi fotoğraflarını görür. Galeriyi Ayarlar’dan aç.',
   'qr.kicker': 'Davet',
   'qr.title': 'Misafirler tek adımda katılır', // app: qr.title
   'qr.body': 'QR’ı masalara koy ya da linki gönder. Misafirler adını yazar ve telefonunun tarayıcısından paylaşır — uygulama yok, hesap yok.',
@@ -254,7 +266,7 @@ const tr: Dict = {
   'qr.linkLabel': 'Misafir linki',
   'qr.alt': '{code} etkinliğinin QR kodu',
   'qr.png': 'QR’ı indir (PNG)',
-  'qr.share': 'Daveti Paylaş', // app: qr.share
+  'qr.share': 'Daveti paylaş', // app: qr.share (web: sentence case)
   'qr.shareText': '“{name}” fotoğraf albümüne katıl (kod {code})',
   'qr.faceLine': 'Yüz eşleştirme açık: basılan QR, misafirler için tek satırlık bildirimi taşır.',
   'upload.kicker': 'Yükleme',
@@ -285,9 +297,12 @@ const tr: Dict = {
   'expiry.titleOne': '“{name}” fotoğrafları yarın silinecek',
   'expiry.todayTitle': '“{name}” fotoğrafları bugün silinecek',
   'expiry.body': 'Saklama süresi {date} tarihinde bitiyor. Albümü o güne kadar indir — sonrasında geri getirilemez.',
+  'expiry.refundedBody': 'Saklama süresi {date} tarihinde bitiyor. Ödeme iade edildiği için indirmeler kapalı. Yeniden paket alırsan tekrar açılır.',
   'expiry.download': 'İndir',
   'expiry.listTitle': 'Saklama süresi yakında bitiyor',
   'expiry.listBody': 'Bu tarihten sonra fotoğraflar silinir ve geri getirilemez. Saklamak istediklerini indir.',
+  'expiry.listBodyRefunded': 'Bu tarihten sonra fotoğraflar silinir ve geri getirilemez. İade edilen etkinliklerde indirmeler kapalı; yeniden paket alırsan tekrar açılır.',
+  'expiry.keepLonger': 'Daha uzun sakla: paketi değiştir',
   'expiry.whenDays': '{n} gün içinde',
   'expiry.whenTomorrow': 'yarın',
   'expiry.whenToday': 'bugün',
@@ -333,7 +348,7 @@ const tr: Dict = {
   'guests.banBody': 'Yeniden katılamaz ve yükleyemez. Fotoğrafları kalır (galeriden silebilirsin).', // app: guests.banBody
   'guests.owner': 'Albüm sahibi',
   'guests.noName': 'Misafir',
-  'guests.joined': 'katılım {time}',
+  'guests.joined': '{time} katıldı',
   'guests.removedToast': '{name} çıkarıldı.',
   'guests.restoredToast': '{name} yeniden katılabilir.',
   'guests.capTitle': 'Bu etkinlikteki misafirler',
@@ -372,7 +387,7 @@ const tr: Dict = {
   'settings.coverChange': 'Kapağı değiştir',
   'settings.coverSaved': 'Kapak kaydedildi.',
   'settings.coverRemoved': 'Kapak kaldırıldı.',
-  'settings.lockedNote': 'Ad ve tarih kilitli; böylece ekran her zaman basılı kartlarınla aynı kalır.',
+  'settings.lockedNote': 'Ad ve tarih kilitli; uygulamadaki kuralın aynısı.',
   'settings.saved': 'Kaydedildi.',
   'settings.dangerTitle': 'Tehlikeli bölge', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Silmek; etkinliği, fotoğraflarını ve misafir listesini herkes için kaldırır — misafirlerin dahil. Bu işlem geri alınamaz.', // app: hostEvent.dangerBody
@@ -383,7 +398,7 @@ const tr: Dict = {
   'settings.deleteTitle2': 'Kesinlikle emin misin?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'Bu işlem kalıcı — etkinliği geri getirmenin yolu yok.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Etkinlik silindi.',
-  'settings.deletePairedNote': 'Etkinlik silme, bu hesabın kendi giriş yöntemi olduğunda ya da uygulamada kullanılabilir.',
+  'settings.deletePairedNote': 'Bu etkinliği silmek için bu bilgisayarda hesabın kendi giriş yöntemiyle giriş yap (uygulamayla bağlanarak değil) ya da uygulamadan sil.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Yüz eşleştirme', // app: hostEvent.aiTitle
@@ -410,6 +425,7 @@ const tr: Dict = {
   'face.regionUnknownTitle': 'Konumunu doğrulayamadık', // app: face.regionUnknownTitle
   'face.regionUnknownBody': 'Bu özellik yüz verisine dair yerel kurallara bağlı; hangi kuralların geçerli olduğunu anlayamadığımızda açmıyoruz. Albümdeki diğer her şey her zamanki gibi çalışıyor.', // app: face.regionUnknownBody
   'face.declTitle': 'Eklemeden önce', // app: face.declTitle
+  'face.declTitleWeb': 'Yüz eşleştirme: düzenleyici beyanın',
   'face.declIntro': 'Bu etkinliğin düzenleyicisi sensin, dolayısıyla bu kararlar sana ait. Kutuyu işaretleyerek şunları onaylıyorsun:', // app: face.declIntro
   'face.decl1': 'Bu etkinlikte kimin davet edileceğine ve fotoğraflanacağına ben karar veriyorum.', // app: face.decl1
   'face.decl2': 'Misafirlerime yüz eşleştirmenin açık olduğunu söyleyeceğim — uygulamadaki davet metni ve basılı kartla.', // app: face.decl2
@@ -427,6 +443,7 @@ const tr: Dict = {
   'checkout.kickerPro': 'Fotoğrafçı paketleri', // app: paywall.titlePro
   'checkout.titleNew': 'Etkinliğin için paket seç', // app: paywall.title
   'checkout.titleUpgrade': 'Paketini yükselt', // app: paywall.titleUpgrade
+  'checkout.titleInfo': 'Her paketin içeriği',
   'checkout.subtitle': 'Tek seferlik ödeme — abonelik değil. Misafir listene uyan boyutu seç.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Etkinlik başına tek seferlik ödeme. Bilgisayarından yüklersin; misafirler QR’ı okutur, albüme göz atar ve selfie ile kendi fotoğraflarını bulur.', // app: paywall.subtitlePro
   'checkout.current': 'Şu an',
@@ -436,12 +453,13 @@ const tr: Dict = {
   'checkout.opening': 'Güvenli ödeme sayfası açılıyor…',
   'checkout.paying': 'Ödemeyi ödeme penceresinde tamamla.',
   'checkout.sandbox': 'Sandbox · test ödemeleri',
-  'checkout.footnote': 'Fiyatlar USD cinsindendir, Sharecam uygulamasındakiyle aynıdır. Paddle ödeme sırasında yerel para biriminde fiyat ve vergi gösterebilir. Ödemeleri, resmî satıcımız (merchant of record) Paddle işler.',
+  'checkout.footnote': 'Fiyatlar USD cinsindendir (ABD App Store’daki liste fiyatıyla aynı). Uygulamada Apple yerel para biriminle ücretlendirir; web’de Paddle ödeme sırasında yerel para biriminde fiyat ve vergi gösterebilir. Ödemeleri, resmî satıcımız (merchant of record) Paddle işler.',
   'checkout.soonTitle': 'Web’den satın alma yakında',
   'checkout.soonOff': 'Paketler henüz web’den satın alınamıyor.',
   'checkout.soonPrices': 'Bu paketler henüz web’de satılmıyor.',
   'checkout.soonApp': 'O zamana kadar paketler Sharecam iPhone uygulamasında satılıyor — bu etkinlik orada aynı girişle görünür.',
-  'checkout.soonAppPro': 'O zamana kadar fotoğrafçı paketleri Sharecam iPhone uygulamasında satılıyor — bu etkinlik orada aynı girişle görünür.',
+  'checkout.soonAppPro': 'Fotoğrafçı paketleri bir sonraki güncellemeyle web’e ve Sharecam iPhone uygulamasına geliyor. Bu etkinlik adını ve tarihini korur.',
+  'checkout.soonAppProLive': 'O zamana kadar fotoğrafçı paketleri Sharecam iPhone uygulamasında satılıyor — bu etkinlik orada aynı girişle görünür.',
   'checkout.maxedTitle': '{plan} en büyük paket',
   'checkout.maxedBody': 'Bu etkinlikte yükseltilecek bir şey yok.',
   'checkout.unavailableTitle': 'Bu etkinlik burada yükseltilemez',
@@ -450,7 +468,7 @@ const tr: Dict = {
   'checkout.refundedTitle': 'Bu etkinliğin ödemesi iade edildi',
   'checkout.refundedBody': 'Yeniden paket almak etkinliği tekrar açar: yüklemeler, yüz eşleştirme (pakete dahilse) ve indirmeler geri gelir.',
   'checkout.abandonedTitle': 'Etkinliğin Spark’ta (ücretsiz)',
-  'checkout.abandoned': 'Etkinliğin Spark’ta (ücretsiz). İstediğin zaman paket seçebilirsin.',
+  'checkout.abandoned': 'Hiçbir ücret alınmadı. İstediğin zaman paket seçebilirsin — QR’ın Spark’ta zaten çalışıyor.',
   'checkout.closedNote': 'Ödeme penceresi kapatıldı. Ücret alınmadı.',
   'checkout.applyingTitle': 'Ödeme alındı',
   'checkout.applyingBody': '{plan} bu etkinlikte etkinleştiriliyor. Bu sayfa kendiliğinden güncellenir.',
@@ -458,7 +476,7 @@ const tr: Dict = {
   'checkout.slowBody': 'Ödemen ulaştı. {plan} birkaç dakika içinde uygulanacak; bu sayfadan ayrılabilirsin. Bir saat içinde aktif olmazsa bize yaz.',
   'checkout.doneTitle': 'Tamamdır 🎉', // app: paywall.doneTitle
   'checkout.doneBody': '{plan} paketi aktif. Paddle makbuzu e-posta adresine gönderir.', // app: paywall.active (+ receipt)
-  'checkout.toOverview': 'Etkinliğe Git', // app: qr.goToEvent
+  'checkout.toOverview': 'Etkinliğe git', // app: qr.goToEvent (web: sentence case)
   'checkout.coveredTitle': 'Bu etkinlikte zaten {plan} var',
   'checkout.coveredBody': 'İki kez ödediysen fazla ödemeyi iade ederiz. Soruların için: {email}',
   'checkout.failedTitle': 'Ödemen uygulanamadı',
@@ -520,7 +538,7 @@ const tr: Dict = {
   'account.deleteConfirm': 'Her şeyi sil', // app: account.deleteConfirm
   'account.deleted': 'Hesabın ve verilerin silindi.', // app: account.deleted
   'account.deleteFailed': 'Hesabın silinemedi. Tekrar dene.', // app: account.deleteFailed
-  'account.deletePairedNote': 'Hesap silme, hesabın kendi giriş yöntemi olduğunda ya da uygulamada (Ayarlar → Hesap) kullanılabilir.',
+  'account.deletePairedNote': 'Hesabı silmek için bu bilgisayarda hesabın kendi giriş yöntemiyle giriş yap (uygulamayla bağlanarak değil) ya da uygulamadan sil (Ayarlar → Hesap).',
 };
 
 export default tr;

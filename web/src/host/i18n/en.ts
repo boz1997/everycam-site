@@ -70,7 +70,9 @@ export const en = {
   // ---------------------------------------------------------------- sign in
   'signin.kicker': 'Host dashboard',
   'signin.title': 'Sign in to your events',
-  'signin.lead': 'Use the same sign-in you use in the app (Settings → Account). If you never signed in there, do that first.',
+  'signin.lead': 'Your events, guests and photos in one place — on any computer or phone.',
+  'signin.newTitle': 'New to Sharecam?',
+  'signin.newCta': 'Create your event — no app needed',
   'signin.appKicker': 'Already using the app?',
   'signin.appTitle': 'Same account, same events',
   'signin.appBody': 'Events you created in the Sharecam app appear here when you sign in with the same account you use in the app (Settings → Account).',
@@ -90,6 +92,8 @@ export const en = {
   'auth.toCreate': 'New here? Create an account',
   'auth.toReset': 'Forgot password?',
   'auth.toSignin': 'Back to sign in',
+  'auth.haveAccount': 'Already have an account? Sign in',
+  'auth.createWithEmail': 'Create an account with this email',
   'auth.errWrong': 'Wrong email or password.',
   'auth.errEmailTaken': 'This email already has an account. Sign in instead.',
   'auth.errWeak': 'Choose a password with at least 6 characters.',
@@ -124,6 +128,7 @@ export const en = {
   'pair.errExpired': 'That code has expired. Create a new one in the app.',
   'pair.errUsed': 'That code has already been used. Create a new one in the app.',
   'pair.errGeneric': 'We couldn’t connect this computer. Check your connection and try again.',
+  'pair.phoneNote': 'Pairing is for computers. On this phone, sign in instead.',
 
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'One more step',
@@ -168,6 +173,7 @@ export const en = {
   'unit.years': '{n} years',
   'unit.unlimited': 'Unlimited',
   'unit.unlimitedShort': 'no limit',
+  'unit.notIncluded': 'Not included',
   'plan.free': 'Free', // app: paywall.free
   'plan.perEvent': 'per event', // app: paywall.perEvent
   'plan.popular': 'Most popular', // app: plans.wedding.badge
@@ -177,6 +183,8 @@ export const en = {
   'plan.webSoon': 'On the web soon',
   'plan.none': 'No package yet',
   'plan.wallIncluded': 'Includes the live wall',
+  'plan.awaitingBody': 'Choose a package to open the QR and uploads.',
+  'plan.videosFromApp': 'Videos are uploaded from the iPhone app.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'New event',
@@ -193,25 +201,28 @@ export const en = {
   'new.namePlaceholder': 'Amy & Michael’s Wedding', // app: create.namePlaceholder
   'new.nameRequired': 'Please give the event a name.',
   'new.date': 'Event date (optional)', // app: create.dateLabel
-  'new.dateHint': 'The date goes on your invite cards. Storage is counted from this day.',
+  'new.dateHint': 'Storage starts on this day (or today if left empty).',
+  'new.noDateWarn': 'Without a date, storage starts today and ends on {date}. Add your event date — it can’t be added later.',
   'new.who': 'Who sees the photos?', // app: create.titleMode
   'new.modeHint': 'You can change this later in Settings.', // app: create.modeHint
   'new.cover': 'Cover photo (optional)',
   'new.coverAdd': 'Add a cover photo',
   'new.coverChange': 'Change',
-  'new.locked': 'Name and date can’t be changed later: they are printed on your cards.',
+  'new.locked': 'Name and date can’t be changed later (the same rule as in the app).',
   'new.package': 'Package',
   'new.consumerSoon': 'Paid packages come to the web soon. Start free on Spark now and upgrade later, here or in the app.',
   'new.proSoonTitle': 'Photographer packages come to the web soon',
-  'new.proSoonBody': 'Until then they are sold in the Sharecam iPhone app. Events you create there appear here with the same sign-in.',
+  'new.proSoonBody': 'Photographer packages come to the web and to the Sharecam iPhone app with its next update. Events you create now keep their name and date.',
+  'new.proSoonBodyApp': 'Until then they are sold in the Sharecam iPhone app. Events you create there appear here with the same sign-in.', // once the app sells photographer packages (VITE_PRO_IN_APP=1, go-live G / D26 fallback)
   'new.proRegionLater': 'After you sign in we check that face matching is offered where you are.',
+  'new.proNextDecl': 'Next: a short host declaration for face matching.',
   'new.ctaFree': 'Create event',
   'new.ctaPaid': 'Create and pay · {plan} {price}',
   'new.created': 'Event created.',
   'new.createFailed': 'The event could not be created. Check your connection and try again.',
   'new.backToForm': 'Back to the form',
   'new.stepAccount': 'Almost there',
-  'new.accountTitle': 'Sign in to save your event',
+  'new.accountTitle': 'Save your event to an account',
   'new.accountLead': 'Your event needs an account you can come back to. Use the same sign-in as in the app if you have one.',
   'new.summary': 'Your event',
   'mode.openTitle': 'Open gallery', // app: create.openTitle
@@ -250,6 +261,7 @@ export const en = {
   'overview.included': 'Included',
   'overview.changePackage': 'Change package',
   'overview.refundedNote': 'The payment for this event was refunded. The album stays until its storage ends; buying a package again reactivates it.',
+  'overview.privateLine': 'Private — guests see only their own photos. Open the gallery in Settings.',
   'qr.kicker': 'Invite',
   'qr.title': 'Guests join in one step', // app: qr.title
   'qr.body': 'Put the QR on the tables or send the link. Guests type their name and share from their phone’s browser — no app, no account.',
@@ -259,7 +271,7 @@ export const en = {
   'qr.linkLabel': 'Guest link',
   'qr.alt': 'QR code for event {code}',
   'qr.png': 'Download QR (PNG)',
-  'qr.share': 'Share Invite', // app: qr.share
+  'qr.share': 'Share invite', // app: qr.share (web: sentence case)
   'qr.shareText': 'Join the photo album for {name} (code {code})',
   'qr.faceLine': 'Face matching is on: the printed QR carries the one-line notice for guests.',
   'upload.kicker': 'Upload',
@@ -290,9 +302,12 @@ export const en = {
   'expiry.titleOne': 'Photos of “{name}” are deleted tomorrow',
   'expiry.todayTitle': 'Photos of “{name}” are deleted today',
   'expiry.body': 'Storage ends on {date}. Download the album before then — after that it can’t be brought back.',
+  'expiry.refundedBody': 'Storage ends on {date}. Downloads are off because the payment was refunded. Buying a package again turns them back on.',
   'expiry.download': 'Download',
   'expiry.listTitle': 'Storage ends soon',
   'expiry.listBody': 'After this date the photos are deleted and can’t be brought back. Download what you want to keep.',
+  'expiry.listBodyRefunded': 'After this date the photos are deleted and can’t be brought back. Downloads are off for refunded events; buying a package again turns them back on.',
+  'expiry.keepLonger': 'Keep it longer: change package',
   'expiry.whenDays': 'in {n} days',
   'expiry.whenTomorrow': 'tomorrow',
   'expiry.whenToday': 'today',
@@ -377,7 +392,7 @@ export const en = {
   'settings.coverChange': 'Change cover',
   'settings.coverSaved': 'Cover saved.',
   'settings.coverRemoved': 'Cover removed.',
-  'settings.lockedNote': 'Name and date are locked so the screen always matches your printed cards.',
+  'settings.lockedNote': 'Name and date are locked — the same rule as in the app.',
   'settings.saved': 'Saved.',
   'settings.dangerTitle': 'Danger zone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Deleting removes the event, its photos and its guest list for everyone — your guests included. This cannot be undone.', // app: hostEvent.dangerBody
@@ -388,7 +403,7 @@ export const en = {
   'settings.deleteTitle2': 'Are you absolutely sure?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'This is permanent — there is no way to bring the event back.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Event deleted.',
-  'settings.deletePairedNote': 'Deleting an event is available once this account has its own sign-in, or in the app.',
+  'settings.deletePairedNote': 'To delete this event, sign in on this computer with the account’s own sign-in (not by pairing with the app), or delete it in the app.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Face matching', // app: hostEvent.aiTitle
@@ -415,6 +430,7 @@ export const en = {
   'face.regionUnknownTitle': 'We couldn’t confirm where you are', // app: face.regionUnknownTitle
   'face.regionUnknownBody': 'This feature depends on local rules about face data, so we only turn it on when we can tell which rules apply. Everything else in the album works as usual.', // app: face.regionUnknownBody
   'face.declTitle': 'Before you add it', // app: face.declTitle
+  'face.declTitleWeb': 'Face matching: your host declaration', // web only: the declaration step title (the versioned face.decl1–5 text stays verbatim)
   'face.declIntro': 'You are the organiser of this event, so these are your calls to make. By ticking the box you confirm:', // app: face.declIntro
   'face.decl1': 'I decide who is invited and photographed at this event.', // app: face.decl1
   'face.decl2': 'I will tell my guests that face matching is on — using the invitation wording and the printed card in this app.', // app: face.decl2
@@ -432,6 +448,7 @@ export const en = {
   'checkout.kickerPro': 'Photographer packages', // app: paywall.titlePro
   'checkout.titleNew': 'Pick a package for your event', // app: paywall.title
   'checkout.titleUpgrade': 'Upgrade your package', // app: paywall.titleUpgrade
+  'checkout.titleInfo': 'What each package includes',
   'checkout.subtitle': 'One-time payment — not a subscription. Pick the size that fits your guest list.', // app: paywall.subtitle
   'checkout.subtitlePro': 'One-time payment per event. You upload from your computer; guests scan the QR, browse and find their own photos with a selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Now',
@@ -441,12 +458,13 @@ export const en = {
   'checkout.opening': 'Opening the secure checkout…',
   'checkout.paying': 'Finish the payment in the checkout window.',
   'checkout.sandbox': 'Sandbox · test payments',
-  'checkout.footnote': 'Prices in USD, the same as in the Sharecam app. Paddle may show your local currency and tax at checkout. Payments are processed by Paddle, our merchant of record.',
+  'checkout.footnote': 'Prices in USD (the same list price as the App Store in the US). In the app, Apple charges in your local currency; on the web, Paddle may show your local currency and tax at checkout. Payments are processed by Paddle, our merchant of record.',
   'checkout.soonTitle': 'Buying on the web is coming soon',
   'checkout.soonOff': 'Packages can’t be bought on the web yet.',
   'checkout.soonPrices': 'These packages aren’t sold on the web yet.',
   'checkout.soonApp': 'Until then, packages are sold in the Sharecam iPhone app — this event appears there with the same sign-in.',
-  'checkout.soonAppPro': 'Until then, photographer packages are sold in the Sharecam iPhone app — this event appears there with the same sign-in.',
+  'checkout.soonAppPro': 'Photographer packages come to the web and to the Sharecam iPhone app with its next update. This event keeps its name and date.',
+  'checkout.soonAppProLive': 'Until then, photographer packages are sold in the Sharecam iPhone app — this event appears there with the same sign-in.', // once the app sells photographer packages (VITE_PRO_IN_APP=1)
   'checkout.maxedTitle': '{plan} is the biggest package',
   'checkout.maxedBody': 'There is nothing to upgrade on this event.',
   'checkout.unavailableTitle': 'This event can’t be upgraded here',
@@ -455,7 +473,7 @@ export const en = {
   'checkout.refundedTitle': 'This event was refunded',
   'checkout.refundedBody': 'Buying a package again reactivates it: uploads, face matching (where included) and downloads come back.',
   'checkout.abandonedTitle': 'Your event is on Spark (free)',
-  'checkout.abandoned': 'Your event is on Spark (free). Choose a package any time.',
+  'checkout.abandoned': 'Nothing was charged. Choose a package any time — your QR already works on Spark.',
   'checkout.closedNote': 'The checkout was closed. Nothing was charged.',
   'checkout.applyingTitle': 'Payment received',
   'checkout.applyingBody': 'We are activating {plan} on this event. This page updates by itself.',
@@ -463,7 +481,7 @@ export const en = {
   'checkout.slowBody': 'Your payment is in. {plan} will be applied within minutes; you can leave this page. If it isn’t active within an hour, write to us.',
   'checkout.doneTitle': 'Done 🎉', // app: paywall.doneTitle
   'checkout.doneBody': '{plan} package is active. Paddle sends the receipt to your email.', // app: paywall.active (+ receipt)
-  'checkout.toOverview': 'Go to Event', // app: qr.goToEvent
+  'checkout.toOverview': 'Go to event', // app: qr.goToEvent (web: sentence case)
   'checkout.coveredTitle': 'This event already has {plan}',
   'checkout.coveredBody': 'If you paid twice, we refund the extra payment. Questions: {email}',
   'checkout.failedTitle': 'Your payment could not be applied',
@@ -525,7 +543,7 @@ export const en = {
   'account.deleteConfirm': 'Delete everything', // app: account.deleteConfirm
   'account.deleted': 'Your account and data have been deleted.', // app: account.deleted
   'account.deleteFailed': 'Your account could not be deleted. Please try again.', // app: account.deleteFailed
-  'account.deletePairedNote': 'Deleting the account is available once it has its own sign-in, or in the app (Settings → Account).',
+  'account.deletePairedNote': 'To delete the account, sign in on this computer with its own sign-in (not by pairing with the app), or delete it in the app (Settings → Account).',
 } satisfies Record<string, string>;
 
 export type Key = keyof typeof en;

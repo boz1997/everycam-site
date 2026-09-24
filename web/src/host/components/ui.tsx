@@ -122,14 +122,43 @@ export function useCopy(): [boolean, (text: string) => Promise<void>] {
 
 // ---------------------------------------------------------------- dialogs
 
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), video[controls], [tabindex]:not([tabindex="-1"])';
+
+/** Keep Tab / Shift+Tab inside `box` (a modal: dialog, lightbox). A keydown that
+ *  starts outside it (focus lost to <body>) is pulled back in. */
+export function trapTab(e: KeyboardEvent, box: HTMLElement | null): void {
+  if (e.key !== 'Tab' || !box) return;
+  const items = [...box.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => el.offsetParent !== null || el === document.activeElement);
+  if (!items.length) {
+    e.preventDefault();
+    return;
+  }
+  const first = items[0]!;
+  const last = items[items.length - 1]!;
+  const active = document.activeElement as HTMLElement | null;
+  if (!active || !box.contains(active)) {
+    e.preventDefault();
+    (e.shiftKey ? last : first).focus();
+  } else if (e.shiftKey && active === first) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
+
 export function Dialog({ open, onClose, title, children, actions, labelledBy = 'dlg-title' }: {
   open: boolean; onClose: () => void; title: ReactNode; children?: ReactNode; actions?: ReactNode; labelledBy?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!open) return;
+    // Escape closes; Tab stays inside the dialog (review P2: it reached the footer
+    // links behind the scrim); focus goes back to what opened it.
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      else trapTab(e, ref.current);
     };
     window.addEventListener('keydown', onKey);
     const prev = document.activeElement as HTMLElement | null;

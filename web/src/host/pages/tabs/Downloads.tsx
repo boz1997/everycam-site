@@ -131,10 +131,20 @@ export function Downloads({ event }: { event: HostEvent }) {
         )}
       </div>
       <div className="col">
-        <section className="panel">
-          <h2 className="h3">{t('downloads.keepTitle')}</h2>
-          <p className="desc">{del ? t('downloads.keepBody', { date: fmtDate(del) }) : t('downloads.keepBodyNoDate')}</p>
-        </section>
+        {event.refunded ? (
+          // No "download before then" on an event whose downloads are off (review P1).
+          del && (
+            <section className="panel">
+              <h2 className="h3">{t('overview.keptUntil')}</h2>
+              <p className="desc">{t('expiry.refundedBody', { date: fmtDate(del) })}</p>
+            </section>
+          )
+        ) : (
+          <section className="panel">
+            <h2 className="h3">{t('downloads.keepTitle')}</h2>
+            <p className="desc">{del ? t('downloads.keepBody', { date: fmtDate(del) }) : t('downloads.keepBodyNoDate')}</p>
+          </section>
+        )}
       </div>
     </div>
   );

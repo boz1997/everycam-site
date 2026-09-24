@@ -1,4 +1,4 @@
-import { useRef, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { Header } from '../../components/Header';
 import { backend } from '../../backend/active';
@@ -15,6 +15,24 @@ import { Button, IconLock, Notice } from './ui';
 function AccountMenu({ user }: { user: User }) {
   const ref = useRef<HTMLDetailsElement>(null);
   const close = () => ref.current?.removeAttribute('open');
+  // A <details> menu stays open on its own: close it on Escape (focus back on the
+  // button) and on a click anywhere else (review P2).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape' || !ref.current?.open) return;
+      close();
+      ref.current.querySelector<HTMLElement>('summary')?.focus();
+    };
+    const onDown = (e: PointerEvent) => {
+      if (ref.current?.open && !ref.current.contains(e.target as Node)) close();
+    };
+    document.addEventListener('keydown', onKey);
+    document.addEventListener('pointerdown', onDown);
+    return () => {
+      document.removeEventListener('keydown', onKey);
+      document.removeEventListener('pointerdown', onDown);
+    };
+  }, []);
   const linked = isLinked(user);
   const who = linked ? user.email ?? providerLabel(user.providerData[0]?.providerId ?? '', user.email) : t('shell.paired');
   const initial = (user.email ?? who ?? '?').trim().charAt(0).toUpperCase() || '?';

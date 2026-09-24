@@ -69,6 +69,16 @@ img { max-width: 100%; display: block; }
 a { color: var(--verde); text-decoration-thickness: 1px; text-underline-offset: .2em; }
 a:hover { text-decoration-thickness: 2px; }
 :focus-visible { outline: 2px solid var(--verde); outline-offset: 3px; }
+/* On verde / dark surfaces a verde ring measured 1.0:1 (lightbox 1.26:1): cream
+   there, so keyboard focus stays visible (WCAG 2.4.7 / 1.4.11, review P1). */
+.notice.dark :focus-visible, .panel.dark :focus-visible, .lb :focus-visible,
+.tile[aria-pressed="true"] :focus-visible, .btn.on-dark:focus-visible { outline-color: var(--cream); }
+/* A file input is sr-only inside label.btn: the label shows its focus (review P2). */
+label.btn:focus-within { outline: 2px solid var(--verde); outline-offset: 3px; }
+.panel.dark label.btn:focus-within { outline-color: var(--cream); }
+/* The page heading receives focus after a route change (App.tsx) so screen readers
+   announce the new page; it is not a control, so no ring. */
+.hs-main h1[tabindex="-1"]:focus { outline: none; }
 ::selection { background: var(--verde); color: var(--cream); }
 button { font: inherit; color: inherit; cursor: pointer; }
 input, select, textarea { font: inherit; color: inherit; }
@@ -280,6 +290,10 @@ button.back { border: 0; background: none; padding: 0; cursor: pointer; width: f
 .notice.dark .h3 { color: var(--cream); }
 .notice.dark .muted { color: var(--on-verde); }
 .notice.dark > svg { color: var(--gold); }
+/* Grey text on a tinted notice: the stronger ink (#6F695B was 4.39–4.47:1, review P2). */
+.notice.gold .muted, .notice.danger .muted { color: var(--ink-soft-strong); }
+/* A wrapped button label (pl "Dodaj przypomnienie…") reads left, next to its icon. */
+.notice .actions .btn { text-align: left; }
 .notices { display: grid; gap: 10px; margin-bottom: 24px; }
 
 /* ---------- storage-ends-soon panel (list) ---------- */
@@ -296,6 +310,7 @@ button.back { border: 0; background: none; padding: 0; cursor: pointer; width: f
 .exp-name { font-weight: 600; color: var(--ink); text-decoration: none; }
 .exp-name:hover { color: var(--verde); text-decoration: underline; }
 .exp-when { font-size: .875rem; color: var(--ink-soft); }
+.expiry-list.gold .muted, .expiry-list.gold .exp-when, .expiry-list.danger .muted, .expiry-list.danger .exp-when { color: var(--ink-soft-strong); }
 .exp-when.urgent { color: var(--danger); font-weight: 600; }
 .exp-acts { display: flex; gap: 2px; margin-left: -6px; }
 .exp-acts .btn { min-height: 36px; font-size: .875rem; }
@@ -353,7 +368,14 @@ button.back { border: 0; background: none; padding: 0; cursor: pointer; width: f
 .ev-head .meta { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .9375rem; color: var(--ink-soft); align-items: center; }
 .tabs { position: relative; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--rule); margin-bottom: 28px; }
 .tabs::-webkit-scrollbar { display: none; }
-@media (max-width: 719.98px) { .tabs { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 24px; } }
+/* Phones: fade the edge(s) with more tabs behind them (EventPage sets data-left /
+   data-right on scroll; review P2: a hard-cut label on the left after scrolling). */
+@media (max-width: 719.98px) {
+  .tabs { padding-right: 24px; }
+  .tabs[data-right] { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .tabs[data-left] { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%); mask-image: linear-gradient(90deg, transparent, #000 15%); }
+  .tabs[data-left][data-right] { -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent); }
+}
 .tabs a {
   flex: none; display: inline-flex; align-items: center; min-height: 48px; padding: 0 14px;
   color: var(--ink); text-decoration: none; font: 500 .9375rem/1 var(--sans); border-bottom: 2px solid transparent; margin-bottom: -1px;
@@ -365,6 +387,9 @@ button.back { border: 0; background: none; padding: 0; cursor: pointer; width: f
 
 /* QR block */
 .qr-block { display: grid; gap: 20px; align-items: start; }
+/* One column below 640: an implicit auto track sized to min-content pushed the text
+   8–16 px into the panel padding in de / tr (review P2). */
+@media (max-width: 639.98px) { .qr-block { grid-template-columns: minmax(0, 1fr); } }
 @media (min-width: 640px) { .qr-block { grid-template-columns: 200px minmax(0, 1fr); gap: 28px; } }
 .qr-card { background: #fff; padding: 12px; box-shadow: 0 1px 1px rgba(20, 43, 32, .06), 0 10px 24px -12px rgba(20, 43, 32, .25); border-radius: var(--r-sm); width: 200px; max-width: 100%; }
 .qr-card svg { display: block; width: 100%; height: auto; }
@@ -491,7 +516,8 @@ button.tile { font: inherit; width: 100%; }
 .lb-media img, .lb-media video { position: absolute; top: 8px; left: 8px; width: calc(100% - 16px); height: calc(100% - 16px); object-fit: contain; }
 .lb-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border: 0; background: rgba(0, 0, 0, .35); color: #fff; font-size: 24px; }
 .lb-nav.prev { left: 10px; } .lb-nav.next { right: 10px; }
-@media (hover: none) { .lb-nav { display: none; } }
+/* Touch: the arrows stay (smaller, calmer) next to the swipe (review P2). */
+@media (hover: none) { .lb-nav { width: 40px; height: 40px; font-size: 22px; background: rgba(0, 0, 0, .25); } }
 .lb-bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 12px 14px calc(16px + env(safe-area-inset-bottom)); }
 .lb-bar .btn { min-height: 44px; }
 .lb .btn.line { background: transparent; color: var(--cream); box-shadow: inset 0 0 0 1px var(--rule-dark); }
@@ -528,6 +554,11 @@ button.tile { font: inherit; width: 100%; }
 
 /* ---------- sign in ---------- */
 .auth { display: grid; gap: 24px; }
+/* "New to Sharecam?" on the sign-in page: the web-first way in, before the form. */
+.new-here { border-top: 1px solid var(--rule); padding-top: 16px; display: grid; gap: 12px; }
+/* Overview: a private album says so under the QR (review P2). */
+.private-line { display: flex; gap: 8px; align-items: flex-start; color: var(--ink-soft-strong); margin: 0; }
+.private-line svg { flex: none; width: 18px; height: 18px; margin-top: 1px; color: var(--sage); }
 @media (min-width: 1000px) { .auth { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px; align-items: start; } }
 .auth-card { display: grid; gap: 14px; }
 .btn.provider { justify-content: flex-start; text-align: left; background: var(--field); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; letter-spacing: 0; }
@@ -544,6 +575,13 @@ button.tile { font: inherit; width: 100%; }
 
 /* sandbox badge */
 .env-badge { position: fixed; left: 8px; bottom: 8px; z-index: 60; }
+
+/* Touch screens: 44 px targets for the small controls (WCAG 2.5.8 is 24 px; this is
+   the touch guideline, review P2). */
+@media (pointer: coarse) {
+  .acct > summary, .back, .btn.sm, .btn.quiet { min-height: 44px; }
+  .hs-foot a { min-height: 44px; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

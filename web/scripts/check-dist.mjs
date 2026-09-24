@@ -89,4 +89,16 @@ if (problems.length) {
   console.error(`check-dist: FAILED (${DIR}):\n  ${problems.join('\n  ')}`);
   process.exit(1);
 }
+
+// 4. (warning, not a failure) Paddle client-side tokens. They are public by design
+// and come from the build env (VITE_PADDLE_TOKEN_SANDBOX / _LIVE, e.g. a committed
+// web/.env.production). A build without one shows "coming soon" on every package
+// page — right before go-live C/E, a silent mistake after it (review P2).
+const js = files.filter((f) => f.endsWith('.js')).map((f) => readFileSync(f, 'utf8'));
+const tokens = { sandbox: js.some((t) => /["'`]test_[A-Za-z0-9]{16,}["'`]/.test(t)), live: js.some((t) => /["'`]live_[A-Za-z0-9]{16,}["'`]/.test(t)) };
+if (!tokens.sandbox && !tokens.live) {
+  console.warn('check-dist: WARNING — no Paddle client token in this build: every package page says "coming soon". Fine until go-live C/E; from then on build with VITE_PADDLE_TOKEN_SANDBOX / VITE_PADDLE_TOKEN_LIVE (web/.env.production).');
+} else {
+  console.log(`check-dist: Paddle client token(s) in the build: ${Object.entries(tokens).filter(([, v]) => v).map(([k]) => k).join(' + ')}`);
+}
 console.log(`check-dist: ok — ${files.length} files, 4 pages (${PAGES.join(', ')}), no emulator host/port, demo project or mock in ${relative(process.cwd(), DIR) || DIR}`);

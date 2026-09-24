@@ -192,13 +192,18 @@ export function AlbumApp() {
       <>
         <h1 style={{ fontFamily: 'var(--serif)', fontSize: 26, margin: '0 0 6px' }}>{t('alTitle')}</h1>
         <p className="muted">{t('alPairIntro')}</p>
-        <input className="field" style={{ marginTop: 14 }} value={ownerName} placeholder={t('alNamePlaceholder')} onChange={(e) => setOwnerName(e.target.value)} />
+        {/* Visible labels: a placeholder disappears once something is typed (review P2). */}
+        <label className="field-label" htmlFor="al-name" style={{ marginTop: 14 }}>{t('alNameLabel')}</label>
+        <input id="al-name" className="field" value={ownerName} placeholder={t('alNamePlaceholder')} autoComplete="name" onChange={(e) => setOwnerName(e.target.value)} />
+        <label className="field-label" htmlFor="al-code" style={{ marginTop: 12 }}>{t('alCodeLabel')}</label>
         <input
+          id="al-code"
           className="field"
-          style={{ marginTop: 10, textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
+          style={{ textAlign: 'center', letterSpacing: 6, fontSize: 24, textTransform: 'uppercase' }}
           value={code}
           maxLength={6}
           placeholder="ABC123"
+          autoComplete="one-time-code"
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           onKeyDown={(e) => e.key === 'Enter' && void pair()}
         />

@@ -3,7 +3,7 @@ import type { User } from 'firebase/auth';
 import type { HostEvent } from '../../lib/types';
 import { backend } from '../../../backend/active';
 import { useCheckout, type Phase } from '../../hooks/useCheckout';
-import { HIGHLIGHT, awaitingProPackage, capsOf, planName, type PlanId } from '../../lib/plans';
+import { HIGHLIGHT, PRO_IN_APP, awaitingProPackage, capsOf, planName, type PlanId } from '../../lib/plans';
 import { fmtNumber, fmtUsd, t, type Key } from '../../i18n';
 import { LinkForm } from '../../components/AuthForms';
 import { CheckoutFootnote, PlanTile, fromOption, storageLabel } from '../../components/PlanTiles';
@@ -23,22 +23,30 @@ const SOON_KEY: Record<string, Key> = {
   'no-token': 'checkout.soonOff',
 };
 
+/** A cap as words: -1 unlimited, 0 "not included" (never "—", which reads as unknown). */
+const capText = (v: number) => (v < 0 ? t('unit.unlimited') : v === 0 ? t('unit.notIncluded') : fmtNumber(v));
+
 function CurrentPlan({ event }: { event: HostEvent }) {
   const caps = capsOf(event);
-  const n = (v: number) => (v < 0 ? t('unit.unlimited') : v === 0 ? '—' : fmtNumber(v));
+  const waiting = awaitingProPackage(event);
   return (
     <section className="panel" aria-labelledby="cur-h">
       <p className="kicker">{t('checkout.current')}</p>
       <h2 id="cur-h" className="h2" style={{ marginTop: 4 }}>
-        {awaitingProPackage(event) ? t('plan.none') : planName(event.planId)}
+        {waiting ? t('plan.none') : <span lang="en">{planName(event.planId)}</span>}
         {event.refunded && <span className="tag danger" style={{ marginLeft: 10, verticalAlign: 'middle' }}>{t('plan.refunded')}</span>}
       </h2>
-      <dl className="facts" style={{ marginTop: 12 }}>
-        {event.uploadPolicy !== 'host' && <div><dt>{t('stat.guests')}</dt><dd>{n(caps.guests)}</dd></div>}
-        <div><dt>{t('stat.photos')}</dt><dd>{n(caps.photos)}</dd></div>
-        <div><dt>{t('stat.videos')}</dt><dd>{n(caps.videos)}</dd></div>
-        <div><dt>{t('plan.storage')}</dt><dd>{storageLabel(caps.retentionDays)}</dd></div>
-      </dl>
+      {waiting ? (
+        // A photographer event without a package: not Spark's caps (review P2).
+        <p className="desc" style={{ marginTop: 10 }}>{t('plan.awaitingBody')}</p>
+      ) : (
+        <dl className="facts" style={{ marginTop: 12 }}>
+          {event.uploadPolicy !== 'host' && <div><dt>{t('stat.guests')}</dt><dd>{capText(caps.guests)}</dd></div>}
+          <div><dt>{t('stat.photos')}</dt><dd>{capText(caps.photos)}</dd></div>
+          <div><dt>{t('stat.videos')}</dt><dd>{capText(caps.videos)}</dd></div>
+          <div><dt>{t('plan.storage')}</dt><dd>{storageLabel(caps.retentionDays)}</dd></div>
+        </dl>
+      )}
       <p className="tiny muted" style={{ marginTop: 12 }}>{t('checkout.upgradeRule')}</p>
     </section>
   );
@@ -61,7 +69,8 @@ function Declaration({ phase, onAccept, onBack }: { phase: Extract<Phase, { at: 
   return (
     <section className="panel decl" aria-labelledby="decl-h" data-declaration>
       <p className="kicker">{t('decl.kicker', { plan: planName(phase.plan) })}</p>
-      <h2 id="decl-h" className="h2">{t('face.declTitle')}</h2>
+      {/* web-only title: this is the photographer package's declaration, not the add-on's "Before you add it" (review P2) */}
+      <h2 id="decl-h" className="h2">{t('face.declTitleWeb')}</h2>
       <p className="muted">{t('face.declIntro')}</p>
       <ol>
         <li>{t('face.decl1')}</li>
@@ -134,7 +143,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
           <p className="kicker">{t('link.kicker')}</p>
           <h2 id="link-h" className="h2" style={{ marginTop: 6 }}>{t('link.title')}</h2>
           <p className="desc" style={{ marginTop: 8, marginBottom: 16 }}>{t('link.buyLead')}</p>
-          <LinkForm onLinked={retry} />
+          <LinkForm onLinked={retry} linked={user.providerData.map((p) => p.providerId)} />
         </section>
       );
       break;
@@ -148,7 +157,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
     case 'coming-soon':
       status = (
         <Notice title={t('checkout.soonTitle')}>
-          {t(SOON_KEY[phase.why] ?? 'checkout.soonOff')} {phase.pv.tier === 'pro' ? t('checkout.soonAppPro') : t('checkout.soonApp')}
+          {t(SOON_KEY[phase.why] ?? 'checkout.soonOff')} {phase.pv.tier === 'pro' ? t(PRO_IN_APP ? 'checkout.soonAppProLive' : 'checkout.soonAppPro') : t('checkout.soonApp')}
         </Notice>
       );
       break;
@@ -233,7 +242,11 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
   // Choosing: the state (if any) on top, then the packages across the full width
   // (a photographer event has up to five), like the site's pricing tiers.
   const caps = capsOf(event);
-  const n = (v: number) => (v < 0 ? t('unit.unlimited') : v === 0 ? '—' : fmtNumber(v));
+  const n = capText;
+  // Nothing can be bought right now (coming soon, link first, region): a neutral
+  // heading, not "Pick a package…" over tiles without a button (review P2).
+  const title = soon ? t('checkout.titleInfo') : event.planId === 'spark' || event.refunded ? t('checkout.titleNew') : t('checkout.titleUpgrade');
+  const subtitle = pv?.tier === 'pro' ? t('checkout.subtitlePro') : soon ? null : t('checkout.subtitle');
   return (
     <div className="stack" style={{ ['--gap' as string]: '16px' }}>
       {notices}
@@ -242,14 +255,14 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
         <div className="row between" style={{ alignItems: 'flex-start' }}>
           <div>
             <p className="kicker">{pv?.tier === 'pro' ? t('checkout.kickerPro') : t('checkout.kicker')}</p>
-            <h2 id="pick-h" className="h2" style={{ marginTop: 4 }}>{event.planId === 'spark' || event.refunded ? t('checkout.titleNew') : t('checkout.titleUpgrade')}</h2>
-            <p className="muted small" style={{ marginTop: 6, maxWidth: '70ch' }}>{pv?.tier === 'pro' ? t('checkout.subtitlePro') : t('checkout.subtitle')}</p>
+            <h2 id="pick-h" className="h2" style={{ marginTop: 4 }}>{title}</h2>
+            {subtitle && <p className="muted small" style={{ marginTop: 6, maxWidth: '70ch' }}>{subtitle}</p>}
           </div>
           {pv?.env === 'sandbox' && phase.at !== 'coming-soon' && <span className="tag sandbox" data-sandbox>{t('checkout.sandbox')}</span>}
         </div>
         <p className="now-strip small">
           <span className="kicker">{t('checkout.current')}</span>
-          <b>{awaitingProPackage(event) ? t('plan.none') : planName(event.planId)}</b>
+          <b>{awaitingProPackage(event) ? t('plan.none') : <span lang="en">{planName(event.planId)}</span>}</b>
           {!awaitingProPackage(event) && (
             <span className="muted">
               {/* each "label value" stays on one line; the strip breaks only after a "·" ("Storage 7 / days" at 390 px) */}
@@ -288,6 +301,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
           </div>
         )}
         {pv?.tier === 'pro' && <p className="small muted">{t('checkout.proIncludesTitle')} {t('checkout.proInc1')} · {t('checkout.proInc2')} · {t('checkout.proInc3')}</p>}
+        {pv?.tier === 'pro' && options.some((o) => o.limits.videos !== 0) && <p className="tiny muted">{t('plan.videosFromApp')}</p>}
         <p className="tiny muted">{t('checkout.upgradeRule')}</p>
         <CheckoutFootnote />
       </section>

@@ -11,7 +11,9 @@
   #packages read "On the web soon" until Paddle live sells that tier; delete the class = go live). PENDING:web-cta = the
   header, menu, hero and closing "Create your event" links, commented out: they go live only in a push made while no Sharecam
   version is WAITING_FOR_REVIEW / IN_REVIEW (one App Store Connect GET before the push). Until then the only web entry points
-  are inside #packages. Pages the app opens or shares never link to /host.
+  are inside #packages. Pages the app opens or shares never link to /host. The same push also points every
+  "Photographer login" (header, menu, #photographers, footer; PENDING:web-cta-login) at https://sharecam.app/host/ —
+  the dashboard links on to the uploader, the uploader has no way back (D20), so web buyers find /host.
   Photographer switch: every photographer entry point (nav, menu, header login, pricing tab + panel, section,
   footer column) carries class="pro-only" inside an OPTIONAL:pro block. To hide them all before 1.0.5 ships,
   add "no-pro" to the <body> class list (<body class="home no-pro …">) (or delete every OPTIONAL:pro block).
@@ -71,6 +73,7 @@
     <a href="https://sharecam.app/join/">Join an event</a>
     <!-- OPTIONAL:pro --><a class="pro-only" href="#photographers">For photographers</a><!-- /OPTIONAL:pro -->
   </nav>
+  <!-- PENDING:web-cta-login (D20): with the web-cta push, href="https://sharecam.app/host/" -->
   <!-- OPTIONAL:pro --><a class="nav-login pro-only" href="https://sharecam.app/join/upload/">Photographer login</a><!-- /OPTIONAL:pro -->
   <!-- PENDING:web-cta (D20): uncomment only in a push made while no Sharecam version is in App Review (24 Sep: 1.0.4 IN_REVIEW).
   <a class="btn btn-sm ghost nav-create" href="https://sharecam.app/host/#/new">Create your event</a>
@@ -86,6 +89,7 @@
       <!-- PENDING:web-cta (D20): <a class="menu-create" href="https://sharecam.app/host/#/new">Create your event</a> -->
       <!-- OPTIONAL:pro -->
       <a class="pro-only" href="#photographers">For photographers</a>
+      <!-- PENDING:web-cta-login (D20): with the web-cta push, href="https://sharecam.app/host/" -->
       <a class="menu-login pro-only" href="https://sharecam.app/join/upload/">Photographer login</a>
       <!-- /OPTIONAL:pro -->
     </nav>
@@ -399,6 +403,10 @@
       <li>We do not use your photos to train AI models.</li>
       <li>Only the items you explicitly choose to upload leave your device.</li>
       <li>Albums are stored in the EU: the database in Frankfurt, photos and videos in Belgium.</li>
+      <!-- PENDING:paddle-cookies (go-live E, review P2): /host loads Paddle.js and Paddle's checkout frame when someone pays.
+           Before E, open a sandbox checkout and read what cdn.paddle.com and buy.paddle.com store (cookies, localStorage);
+           then make this line "No cookies, analytics or trackers, except Paddle's checkout when you pay on the web."
+           and say the same in privacy.html (the Paddle paragraph). -->
       <li>This website uses no cookies, analytics or trackers.</li>
     </ul>
     <p class="privacy-more"><a class="text-link" href="https://sharecam.app/privacy.html">Read the privacy policy <span aria-hidden="true">→</span></a></p>
@@ -591,6 +599,7 @@
         <li>The couple gets a one-time code for sharecam.app/album and downloads everything as ZIP parts, in 2,048&nbsp;px or originals.</li>
       </ul>
       <div class="cta-row">
+        <!-- PENDING:web-cta-login (D20): with the web-cta push, href="https://sharecam.app/host/" -->
         <a class="btn" href="https://sharecam.app/join/upload/">Photographer login</a>
         <a class="text-link" href="https://sharecam.app/join/album/">Couple’s album <span aria-hidden="true">→</span></a>
         <a class="text-link" href="#pricing-photographers">See photographer prices <span aria-hidden="true">→</span></a>
@@ -700,6 +709,7 @@
       <h2 id="f-pro" class="f-head">Photographers</h2>
       <ul>
         <li><a href="#photographers">For photographers</a></li>
+        <!-- PENDING:web-cta-login (D20): with the web-cta push, href="https://sharecam.app/host/" -->
         <li><a href="https://sharecam.app/join/upload/">Photographer login</a></li>
         <li><a href="https://sharecam.app/join/album/">Couple’s album</a></li>
         <li><a href="#pricing-photographers">Photographer prices</a></li>

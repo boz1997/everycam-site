@@ -1,16 +1,30 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { navigate, parseHash } from '../lib/router';
 import { t } from '../i18n';
 import { SignInForm } from '../components/AuthForms';
 import { PairWithApp } from '../components/PairWithApp';
-import { Button, IconPhone } from '../components/ui';
+import { Button, IconPhone, IconPlus } from '../components/ui';
 
 // Sign in (plan §3.2): email/password, Google, Apple ("coming" until the Services
-// ID exists, D3), and "Pair with the Sharecam app" for photographers. The hint for
-// app users carries no purchase wording.
+// ID exists, D3), and "Pair with the Sharecam app" for photographers.
+//
+// Two audiences, two ways in (fix pass, review P1): someone NEW gets "Create your
+// event — no app needed" first (the create page works signed out; the account
+// step comes after the form) plus "Create an account"; someone who already uses
+// the app gets "same sign-in as in the app" — only in that panel, so a web-first
+// host is never sent to the app. No purchase wording here.
 export function SignIn({ next }: { next?: string }) {
   const [pairOpen, setPairOpen] = useState(false);
+  const [formMode, setFormMode] = useState<'signin' | 'create'>('signin');
+  const formRef = useRef<HTMLElement>(null);
   const done = useCallback(() => navigate(next ? parseHash(next) : { name: 'events' }, true), [next]);
+  const toCreate = () => {
+    setFormMode('create');
+    requestAnimationFrame(() => {
+      formRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      formRef.current?.querySelector<HTMLInputElement>('input[type="email"]')?.focus({ preventScroll: true });
+    });
+  };
   return (
     <div className="auth">
       <div className="stack" style={{ ['--gap' as string]: '20px' }}>
@@ -19,8 +33,20 @@ export function SignIn({ next }: { next?: string }) {
           <h1 className="h1">{t('signin.title')}</h1>
           <p className="lead">{t('signin.lead')}</p>
         </div>
-        <section className="panel" aria-label={t('title.signin')}>
-          <SignInForm onDone={done} />
+        <section className="new-here" aria-labelledby="new-here-h" data-new-here>
+          <h2 id="new-here-h" className="h3">{t('signin.newTitle')}</h2>
+          <div className="btn-row">
+            <a className="btn" href="#/new" data-new-cta>
+              <IconPlus />
+              {t('signin.newCta')}
+            </a>
+            <button type="button" className="btn quiet" onClick={toCreate} data-new-account>
+              {t('auth.createCta')}
+            </button>
+          </div>
+        </section>
+        <section className="panel" aria-label={t('title.signin')} ref={formRef}>
+          <SignInForm key={formMode} initialMode={formMode} onDone={done} />
         </section>
       </div>
       <div className="stack" style={{ ['--gap' as string]: '16px' }}>

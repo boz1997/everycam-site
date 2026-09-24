@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { migrateLegacyHostSession } from '../hostSession';
-import { checkoutDriver } from './lib/checkout';
+import { checkoutDriver, dropPaymentLink, orderStatus, paymentLinkTxn } from './lib/checkout';
 import { hrefFor, navigate, parseHash, useRoute } from './lib/router';
 import { useHostUser } from './hooks/useHostUser';
 import { getLang, t, useLang } from './i18n';
@@ -27,10 +27,41 @@ export default function App() {
   useEffect(() => {
     void migrateLegacyHostSession().then(setLegacy).catch(() => undefined);
   }, []);
-  // D13: a Paddle payment link lands here with ?_ptxn=… — Paddle.js opens it.
+  // D13: a Paddle payment link lands here with ?_ptxn=… — Paddle.js opens it, but
+  // only for the SIGNED-IN owner of that order (review P2: any ?_ptxn= link opened
+  // any checkout on sharecam.app; a phishing link could get a victim to pay for
+  // someone else's event). Signed out, the gate below sends the visitor to sign in
+  // first (the query string survives the hash navigation); an order that isn't
+  // theirs (or no order at all) → the parameter is dropped and nothing opens.
+  const resumed = useRef(false);
   useEffect(() => {
-    checkoutDriver.resumePaymentLink(getLang());
-  }, []);
+    if (!ready || !user || resumed.current) return;
+    const txn = paymentLinkTxn();
+    if (!txn) return;
+    resumed.current = true;
+    orderStatus(txn)
+      .then(() => checkoutDriver.resumePaymentLink(getLang()))
+      .catch(() => dropPaymentLink());
+  }, [ready, user]);
+
+  // Screen readers and keyboards: after a route change, focus the new page's
+  // heading (review P2: focus stayed on <body> with no announcement). Not on the
+  // first load — the browser starts at the top anyway.
+  const firstRoute = useRef(true);
+  const routeKey = hrefFor(route);
+  useEffect(() => {
+    if (firstRoute.current) {
+      firstRoute.current = false;
+      return;
+    }
+    const id = window.setTimeout(() => {
+      const h = document.querySelector<HTMLElement>('.hs-main h1');
+      if (!h || h.contains(document.activeElement)) return;
+      h.setAttribute('tabindex', '-1');
+      h.focus({ preventScroll: true });
+    }, 60);
+    return () => window.clearTimeout(id);
+  }, [routeKey]);
 
   useEffect(() => {
     if (!ready) return;
@@ -65,7 +96,8 @@ export default function App() {
   let page: JSX.Element;
   if (!ready) page = <Loading />;
   else if (route.name === 'signin') page = user ? <Loading /> : <SignIn next={route.next} />;
-  else if (route.name === 'new') page = <NewEvent user={user} tier={route.tier} plan={route.plan} />;
+  // keyed by the route: #/new?plan=party after #/new?plan=wedding starts with Party picked
+  else if (route.name === 'new') page = <NewEvent key={routeKey} user={user} tier={route.tier} plan={route.plan} />;
   else if (!user) page = <Loading />;
   else if (route.name === 'events') page = <EventList user={user} />;
   else if (route.name === 'account') page = <Account user={user} />;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { User } from 'firebase/auth';
-import { APPLE_WEB, isLinked, providerLabel, signOut } from '../lib/auth';
+import { APPLE_WEB, canDestroy, isLinked, providerLabel, signOut } from '../lib/auth';
+import { useSessionProvider } from '../hooks/useSessionProvider';
 import { fn } from '../lib/data';
 import { logError } from '../lib/errorLog';
 import { navigate } from '../lib/router';
@@ -16,6 +17,7 @@ export function Account({ user }: { user: User }) {
   const { ask, node } = useConfirm();
   const [deleting, setDeleting] = useState(false);
   const linked = isLinked(user);
+  const provider = useSessionProvider(user);
   const providers = user.providerData.map((p) => p.providerId);
   const canLinkMore = !providers.includes('google.com') || !providers.includes('password') || (APPLE_WEB && !providers.includes('apple.com'));
 
@@ -65,7 +67,7 @@ export function Account({ user }: { user: User }) {
             <section className="panel" aria-labelledby="acc-link">
               <h2 id="acc-link" className="h3">{linked ? t('account.addAnother') : t('link.title')}</h2>
               <p className="desc" style={{ marginBottom: 16 }}>{linked ? t('account.addAnotherBody') : t('link.lead')}</p>
-              <LinkForm onLinked={() => toast(t('account.linked'))} />
+              <LinkForm onLinked={() => toast(t('account.linked'))} linked={providers} />
             </section>
           )}
         </div>
@@ -79,7 +81,7 @@ export function Account({ user }: { user: User }) {
               </Button>
             </div>
           </section>
-          {linked ? (
+          {provider === undefined ? null : canDestroy(user, provider) ? (
             <section className="panel danger-zone">
               <h2 className="h3" style={{ color: 'var(--danger)' }}>{t('account.deleteCta')}</h2>
               <p className="desc">{t('account.deleteBody')}</p>

@@ -43,7 +43,25 @@ const guestSession = () =>
     anonInFlight = null;
   }));
 
+/** Wide enough to be the computer being paired (the QR is scanned FROM the phone). */
+const WIDE = '(min-width: 768px)';
+function useWide(): boolean {
+  const [wide, setWide] = useState(() => typeof window === 'undefined' || !window.matchMedia || window.matchMedia(WIDE).matches);
+  useEffect(() => {
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia(WIDE);
+    const on = () => setWide(mq.matches);
+    mq.addEventListener?.('change', on);
+    return () => mq.removeEventListener?.('change', on);
+  }, []);
+  return wide;
+}
+
 export function PairWithApp({ onPaired }: { onPaired: () => void }) {
+  // On a phone "scan this with the app" is impossible (it IS the phone): lead with
+  // the 6-character code and say pairing is for computers (review P2). No QR, so no
+  // pairing document is opened for nothing either.
+  const wide = useWide();
   const [pairing, setPairing] = useState<{ id: string; expiresAt: number } | null>(null);
   const [qrState, setQrState] = useState<'loading' | 'ready' | 'claiming' | 'error'>('loading');
   const [round, setRound] = useState(0);
@@ -54,6 +72,7 @@ export function PairWithApp({ onPaired }: { onPaired: () => void }) {
 
   // 1) open a pairing on the guest session; renew shortly before it expires
   useEffect(() => {
+    if (!wide) return;
     let cancelled = false;
     let timer: number | undefined;
     setQrState('loading');
@@ -77,7 +96,7 @@ export function PairWithApp({ onPaired }: { onPaired: () => void }) {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
     };
-  }, [round]);
+  }, [round, wide]);
 
   // 2) wait for the app's approval → token → host session
   const pairingId = pairing?.id;
@@ -122,6 +141,46 @@ export function PairWithApp({ onPaired }: { onPaired: () => void }) {
     }
   };
 
+  const codeForm = (
+    <form
+      className="row"
+      onSubmit={(e) => {
+        e.preventDefault();
+        void submitCode();
+      }}
+    >
+      <label className="grow">
+        <span className="sr-only">{t('pair.codeLabel')}</span>
+        <input
+          className="input code"
+          value={code}
+          maxLength={6}
+          inputMode="text"
+          autoCapitalize="characters"
+          autoComplete="one-time-code"
+          placeholder="ABC123"
+          aria-invalid={!!err || undefined}
+          onChange={(e) => setCode(e.target.value.toUpperCase())}
+        />
+      </label>
+      <Button type="submit" busy={busy} disabled={code.replace(CODE_RE, '').length !== 6}>
+        {t('pair.codeCta')}
+      </Button>
+    </form>
+  );
+
+  if (!wide) {
+    return (
+      <div className="pair" data-pair-narrow>
+        <p className="label">{t('pair.codeLabel')}</p>
+        {codeForm}
+        {err && <p className="err" role="alert">{err}</p>}
+        <p className="small muted">{t('pair.phoneNote')}</p>
+        <p className="tiny muted">{t('pair.foot')}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pair">
       <div className="pair-grid">
@@ -141,31 +200,7 @@ export function PairWithApp({ onPaired }: { onPaired: () => void }) {
         </div>
       </div>
       <div className="divider">{t('pair.orCode')}</div>
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          void submitCode();
-        }}
-      >
-        <label className="grow">
-          <span className="sr-only">{t('pair.codeLabel')}</span>
-          <input
-            className="input code"
-            value={code}
-            maxLength={6}
-            inputMode="text"
-            autoCapitalize="characters"
-            autoComplete="one-time-code"
-            placeholder="ABC123"
-            aria-invalid={!!err || undefined}
-            onChange={(e) => setCode(e.target.value.toUpperCase())}
-          />
-        </label>
-        <Button type="submit" busy={busy} disabled={code.replace(CODE_RE, '').length !== 6}>
-          {t('pair.codeCta')}
-        </Button>
-      </form>
+      {codeForm}
       {err && <p className="err" role="alert">{err}</p>}
       <p className="tiny muted">{t('pair.foot')}</p>
     </div>

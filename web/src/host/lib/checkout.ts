@@ -55,6 +55,28 @@ export async function orderStatus(txn: string): Promise<{ status: string; planId
   return data as { status: string; planId: string | null; eventId: string | null };
 }
 
+/** A Paddle payment link's transaction (`?_ptxn=txn_…`, D13), or null. */
+export function paymentLinkTxn(): string | null {
+  try {
+    const txn = new URL(window.location.href).searchParams.get('_ptxn');
+    return txn && /^txn_[a-z0-9]+$/i.test(txn) ? txn : null;
+  } catch {
+    return null;
+  }
+}
+/** Forget a payment link that isn't the signed-in host's: nothing opens, and a
+ *  reload doesn't try again. */
+export function dropPaymentLink(): void {
+  try {
+    const u = new URL(window.location.href);
+    if (!u.searchParams.has('_ptxn')) return;
+    u.searchParams.delete('_ptxn');
+    window.history.replaceState(window.history.state, '', u.pathname + u.search + u.hash);
+  } catch {
+    /* nothing to drop */
+  }
+}
+
 /** The face-matching text version shown in the declaration step (the app's
  *  DECL_TEXT_VERSION, EC/src/services/index.ts:128; the server keeps the set). */
 export const DECL_TEXT_VERSION = '2026-09-23';

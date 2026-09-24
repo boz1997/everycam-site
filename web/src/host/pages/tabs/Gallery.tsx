@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { QueryDocumentSnapshot } from 'firebase/firestore';
 import type { HostEvent, MediaItem, Report } from '../../lib/types';
 import { backend } from '../../../backend/active';
 import { deleteMedia, listMediaPage, listReports, setHidden } from '../../lib/data';
 import { logError } from '../../lib/errorLog';
 import { fmtDate, fmtNumber, t } from '../../i18n';
-import { Button, IconEye, IconTrash, Notice, Spinner, useConfirm, useToast } from '../../components/ui';
+import { Button, IconEye, IconTrash, Notice, Spinner, trapTab, useConfirm, useToast } from '../../components/ui';
 
 // Gallery (plan §3.2): newest first, 60 per page (thumbnails only; videos show
 // their poster), a lightbox, hide / show (`hidden`: guests stop seeing it,
@@ -17,11 +17,25 @@ function Lightbox({ items, index, onIndex, onClose, onHide, onDelete, reported }
   onHide: (m: MediaItem) => void; onDelete: (m: MediaItem) => void; reported: Set<string>;
 }) {
   const m = items[index];
+  const box = useRef<HTMLDivElement>(null);
+  const closeBtn = useRef<HTMLButtonElement>(null);
+  // A modal: focus moves in (the close button), Tab stays inside, and focus goes
+  // back to the grid cell that opened it (review P1 — Tab walked the hidden grid).
+  useEffect(() => {
+    const opener = document.activeElement as HTMLElement | null;
+    closeBtn.current?.focus();
+    return () => {
+      if (opener && document.contains(opener)) opener.focus();
+    };
+  }, []);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // A confirm dialog on top (delete) owns the keyboard: its own Escape and Tab trap.
+      if (document.querySelector('.scrim')) return;
       if (e.key === 'Escape') onClose();
       if (e.key === 'ArrowLeft' && index > 0) onIndex(index - 1);
       if (e.key === 'ArrowRight' && index < items.length - 1) onIndex(index + 1);
+      trapTab(e, box.current);
     };
     window.addEventListener('keydown', onKey);
     document.body.style.overflow = 'hidden';
@@ -30,14 +44,33 @@ function Lightbox({ items, index, onIndex, onClose, onHide, onDelete, reported }
       document.body.style.overflow = '';
     };
   }, [index, items.length, onClose, onIndex]);
+  // Phones: swipe left / right between photos (review P2).
+  const swipe = useRef<{ x: number; y: number } | null>(null);
   if (!m) return null;
   return (
-    <div className="lb" role="dialog" aria-modal="true" aria-label={t('gallery.viewer')}>
+    <div className="lb" role="dialog" aria-modal="true" aria-label={t('gallery.viewer')} ref={box}>
       <div className="lb-top">
         <span className="num">{fmtNumber(index + 1)} / {fmtNumber(items.length)} · {m.ownerName || t('gallery.unknownOwner')} · {fmtDate(m.uploadedAt, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</span>
-        <button type="button" className="icon-x" aria-label={t('common.close')} onClick={onClose}>×</button>
+        <button type="button" className="icon-x" aria-label={t('common.close')} onClick={onClose} ref={closeBtn}>×</button>
       </div>
-      <div className="lb-media">
+      <div
+        className="lb-media"
+        onPointerDown={(e) => {
+          if (e.pointerType !== 'mouse') swipe.current = { x: e.clientX, y: e.clientY };
+        }}
+        onPointerUp={(e) => {
+          const s = swipe.current;
+          swipe.current = null;
+          if (!s) return;
+          const dx = e.clientX - s.x;
+          if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(e.clientY - s.y)) return;
+          if (dx < 0 && index < items.length - 1) onIndex(index + 1);
+          if (dx > 0 && index > 0) onIndex(index - 1);
+        }}
+        onPointerCancel={() => {
+          swipe.current = null;
+        }}
+      >
         {m.kind === 'video' ? (
           <video src={backend.mediaUrl(m.uri)} poster={m.thumbUri ? backend.mediaUrl(m.thumbUri) : undefined} controls playsInline />
         ) : (

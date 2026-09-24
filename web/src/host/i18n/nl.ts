@@ -66,7 +66,9 @@ const nl: Dict = {
   // ---------------------------------------------------------------- sign in
   'signin.kicker': 'Dashboard voor organisatoren',
   'signin.title': 'Log in bij je evenementen',
-  'signin.lead': 'Gebruik dezelfde inlogmethode als in de app (Instellingen → Account). Heb je daar nog nooit ingelogd? Doe dat dan eerst.',
+  'signin.lead': 'Je evenementen, gasten en foto’s op één plek, op elke computer of telefoon.',
+  'signin.newTitle': 'Nieuw bij Sharecam?',
+  'signin.newCta': 'Maak je evenement, zonder app',
   'signin.appKicker': 'Gebruik je de app al?',
   'signin.appTitle': 'Zelfde account, zelfde evenementen',
   'signin.appBody': 'Evenementen die je in de Sharecam-app hebt gemaakt, verschijnen hier als je inlogt met hetzelfde account als in de app (Instellingen → Account).',
@@ -86,6 +88,8 @@ const nl: Dict = {
   'auth.toCreate': 'Nieuw hier? Maak een account',
   'auth.toReset': 'Wachtwoord vergeten?',
   'auth.toSignin': 'Terug naar inloggen',
+  'auth.haveAccount': 'Heb je al een account? Log in',
+  'auth.createWithEmail': 'Maak een account met dit e-mailadres',
   'auth.errWrong': 'Verkeerd e-mailadres of wachtwoord.',
   'auth.errEmailTaken': 'Dit e-mailadres heeft al een account. Log in.',
   'auth.errWeak': 'Kies een wachtwoord van minstens 6 tekens.',
@@ -120,6 +124,7 @@ const nl: Dict = {
   'pair.errExpired': 'Die code is verlopen. Maak een nieuwe in de app.',
   'pair.errUsed': 'Die code is al gebruikt. Maak een nieuwe in de app.',
   'pair.errGeneric': 'We konden deze computer niet koppelen. Controleer je verbinding en probeer het opnieuw.',
+  'pair.phoneNote': 'Koppelen met de app is bedoeld voor een computer. Log op deze telefoon gewoon in.',
 
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'Nog één stap',
@@ -164,6 +169,7 @@ const nl: Dict = {
   'unit.years': '{n} jaar',
   'unit.unlimited': 'Onbeperkt',
   'unit.unlimitedShort': 'geen limiet',
+  'unit.notIncluded': 'Niet inbegrepen',
   'plan.free': 'Gratis', // app: paywall.free
   'plan.perEvent': 'per evenement', // app: paywall.perEvent
   'plan.popular': 'Meest gekozen', // app: plans.wedding.badge
@@ -173,6 +179,8 @@ const nl: Dict = {
   'plan.webSoon': 'Binnenkort op het web',
   'plan.none': 'Nog geen pakket',
   'plan.wallIncluded': 'Inclusief livemuur',
+  'plan.awaitingBody': 'Kies een pakket om de QR en het uploaden te openen.',
+  'plan.videosFromApp': 'Video’s upload je vanuit de iPhone-app.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nieuw evenement',
@@ -189,25 +197,28 @@ const nl: Dict = {
   'new.namePlaceholder': 'De bruiloft van Anna en Michiel', // app: create.namePlaceholder
   'new.nameRequired': 'Geef het evenement een naam.',
   'new.date': 'Datum van het evenement (optioneel)', // app: create.dateLabel
-  'new.dateHint': 'De datum staat op je kaartjes. De opslag telt vanaf deze dag.',
+  'new.dateHint': 'De opslag begint op deze dag (of vandaag als je niets invult).',
+  'new.noDateWarn': 'Zonder datum begint de opslag vandaag en eindigt op {date}. Vul de datum van je evenement in – die kun je later niet meer toevoegen.',
   'new.who': 'Wie ziet de foto’s?', // app: create.titleMode
   'new.modeHint': 'Je kunt dit later in Instellingen wijzigen.', // app: create.modeHint
   'new.cover': 'Omslagfoto (optioneel)',
   'new.coverAdd': 'Omslagfoto toevoegen',
   'new.coverChange': 'Wijzigen',
-  'new.locked': 'Naam en datum kun je later niet meer wijzigen: ze staan op je kaartjes.',
+  'new.locked': 'Naam en datum kun je later niet meer wijzigen (dezelfde regel als in de app).',
   'new.package': 'Pakket',
   'new.consumerSoon': 'Betaalde pakketten komen binnenkort naar het web. Begin nu gratis met Spark en upgrade later, hier of in de app.',
   'new.proSoonTitle': 'Pakketten voor fotografen komen binnenkort naar het web',
-  'new.proSoonBody': 'Tot die tijd koop je ze in de Sharecam-app voor iPhone. Evenementen die je daar maakt, verschijnen hier met dezelfde inlogmethode.',
+  'new.proSoonBody': 'Pakketten voor fotografen komen met de volgende update naar het web en naar de Sharecam-app voor iPhone. Evenementen die je nu maakt, houden hun naam en datum.',
+  'new.proSoonBodyApp': 'Tot die tijd koop je ze in de Sharecam-app voor iPhone. Evenementen die je daar maakt, verschijnen hier met dezelfde inlogmethode.',
   'new.proRegionLater': 'Na het inloggen controleren we of gezichtsherkenning op jouw locatie beschikbaar is.',
+  'new.proNextDecl': 'Daarna: een korte verklaring van jou als organisator voor gezichtsherkenning.',
   'new.ctaFree': 'Evenement maken',
   'new.ctaPaid': 'Maken en betalen · {plan} {price}',
   'new.created': 'Evenement aangemaakt.',
   'new.createFailed': 'Het evenement kon niet worden gemaakt. Controleer je verbinding en probeer het opnieuw.',
   'new.backToForm': 'Terug naar het formulier',
   'new.stepAccount': 'Bijna klaar',
-  'new.accountTitle': 'Log in om je evenement te bewaren',
+  'new.accountTitle': 'Bewaar je evenement in een account',
   'new.accountLead': 'Je evenement heeft een account nodig waar je naar terug kunt. Heb je al een inlogmethode in de app? Gebruik dan die.',
   'new.summary': 'Jouw evenement',
   'mode.openTitle': 'Open galerij', // app: create.openTitle
@@ -246,6 +257,7 @@ const nl: Dict = {
   'overview.included': 'Inbegrepen',
   'overview.changePackage': 'Pakket wijzigen',
   'overview.refundedNote': 'De betaling voor dit evenement is terugbetaald. Het album blijft tot de opslag afloopt; opnieuw een pakket kopen maakt het weer actief.',
+  'overview.privateLine': 'Privé – gasten zien alleen hun eigen foto’s. Open de galerij in Instellingen.',
   'qr.kicker': 'Uitnodiging',
   'qr.title': 'Gasten doen mee in één stap', // app: qr.title
   'qr.body': 'Leg de QR op de tafels of stuur de link. Gasten vullen hun naam in en delen vanuit de browser op hun telefoon – geen app, geen account.',
@@ -286,9 +298,12 @@ const nl: Dict = {
   'expiry.titleOne': 'Foto’s van ‘{name}’ worden morgen verwijderd',
   'expiry.todayTitle': 'Foto’s van ‘{name}’ worden vandaag verwijderd',
   'expiry.body': 'De opslag loopt af op {date}. Download het album voor die tijd – daarna is het niet meer terug te halen.',
+  'expiry.refundedBody': 'De opslag loopt af op {date}. Downloaden staat uit omdat de betaling is terugbetaald. Koop je opnieuw een pakket, dan kan het weer.',
   'expiry.download': 'Downloaden',
   'expiry.listTitle': 'Opslag loopt binnenkort af',
   'expiry.listBody': 'Na deze datum worden de foto’s verwijderd en zijn ze niet meer terug te halen. Download wat je wilt bewaren.',
+  'expiry.listBodyRefunded': 'Na deze datum worden de foto’s verwijderd en zijn ze niet meer terug te halen. Bij terugbetaalde evenementen staat downloaden uit; koop je opnieuw een pakket, dan kan het weer.',
+  'expiry.keepLonger': 'Langer bewaren: pakket wijzigen',
   'expiry.whenDays': 'over {n} dagen',
   'expiry.whenTomorrow': 'morgen',
   'expiry.whenToday': 'vandaag',
@@ -334,7 +349,7 @@ const nl: Dict = {
   'guests.banBody': 'Deze persoon kan niet opnieuw meedoen of uploaden. De foto’s blijven staan (je kunt ze uit de galerij verwijderen).', // app: guests.banBody
   'guests.owner': 'Albumeigenaar',
   'guests.noName': 'Gast',
-  'guests.joined': 'meegedaan {time}',
+  'guests.joined': '{time} meegedaan',
   'guests.removedToast': '{name} is verwijderd.',
   'guests.restoredToast': '{name} kan weer meedoen.',
   'guests.capTitle': 'Gasten in dit evenement',
@@ -373,7 +388,7 @@ const nl: Dict = {
   'settings.coverChange': 'Omslag wijzigen',
   'settings.coverSaved': 'Omslag opgeslagen.',
   'settings.coverRemoved': 'Omslag verwijderd.',
-  'settings.lockedNote': 'Naam en datum liggen vast, zodat het scherm altijd klopt met je geprinte kaartjes.',
+  'settings.lockedNote': 'Naam en datum liggen vast, net als in de app.',
   'settings.saved': 'Opgeslagen.',
   'settings.dangerTitle': 'Gevarenzone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Verwijderen haalt het evenement, de foto’s en de gastenlijst weg voor iedereen – ook voor je gasten. Dit kan niet ongedaan worden gemaakt.', // app: hostEvent.dangerBody
@@ -384,7 +399,7 @@ const nl: Dict = {
   'settings.deleteTitle2': 'Weet je het heel zeker?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'Dit is definitief – het evenement kan niet worden hersteld.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Evenement verwijderd.',
-  'settings.deletePairedNote': 'Evenementen verwijderen kan zodra dit account een eigen inlogmethode heeft, of in de app.',
+  'settings.deletePairedNote': 'Om dit evenement te verwijderen, log je op deze computer in met de eigen inlogmethode van het account (niet via koppelen met de app), of verwijder je het in de app.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Gezichtsherkenning', // app: hostEvent.aiTitle
@@ -411,6 +426,7 @@ const nl: Dict = {
   'face.regionUnknownTitle': 'We konden je locatie niet bevestigen', // app: face.regionUnknownTitle
   'face.regionUnknownBody': 'Deze functie hangt af van lokale regels over gezichtsgegevens, dus we zetten hem alleen aan als we weten welke regels gelden. De rest van het album werkt gewoon.', // app: face.regionUnknownBody
   'face.declTitle': 'Voordat je het toevoegt', // app: face.declTitle
+  'face.declTitleWeb': 'Gezichtsherkenning: jouw verklaring als organisator',
   'face.declIntro': 'Jij bent de organisator van dit event, dus dit zijn jouw keuzes. Door het vakje aan te vinken bevestig je:', // app: face.declIntro
   'face.decl1': 'Ik bepaal wie er op dit event wordt uitgenodigd en gefotografeerd.', // app: face.decl1
   'face.decl2': 'Ik vertel mijn gasten dat gezichtsherkenning aanstaat, via de uitnodigingstekst en de geprinte kaart in deze app.', // app: face.decl2
@@ -428,6 +444,7 @@ const nl: Dict = {
   'checkout.kickerPro': 'Pakketten voor fotografen', // app: paywall.titlePro
   'checkout.titleNew': 'Kies een pakket voor je evenement', // app: paywall.title
   'checkout.titleUpgrade': 'Upgrade je pakket', // app: paywall.titleUpgrade
+  'checkout.titleInfo': 'Wat elk pakket bevat',
   'checkout.subtitle': 'Eenmalige betaling – geen abonnement. Kies de maat die bij je gastenlijst past.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Eenmalige betaling per evenement. Jij uploadt vanaf je computer; gasten scannen de QR, bekijken het album en vinden hun foto’s met een selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Nu',
@@ -437,12 +454,13 @@ const nl: Dict = {
   'checkout.opening': 'Beveiligde betaling wordt geopend…',
   'checkout.paying': 'Rond de betaling af in het betaalvenster.',
   'checkout.sandbox': 'Sandbox · testbetalingen',
-  'checkout.footnote': 'Prijzen in USD, dezelfde als in de Sharecam-app. Paddle kan bij het afrekenen je lokale valuta en btw tonen. Betalingen worden verwerkt door Paddle, onze officiële wederverkoper (merchant of record).',
+  'checkout.footnote': 'Prijzen in USD (dezelfde catalogusprijs als in de App Store in de VS). In de app rekent Apple af in je lokale valuta; op het web kan Paddle bij het afrekenen je lokale valuta en btw tonen. Betalingen worden verwerkt door Paddle, onze officiële wederverkoper (merchant of record).',
   'checkout.soonTitle': 'Kopen op het web komt binnenkort',
   'checkout.soonOff': 'Pakketten zijn nog niet op het web te koop.',
   'checkout.soonPrices': 'Deze pakketten worden nog niet op het web verkocht.',
   'checkout.soonApp': 'Tot die tijd koop je pakketten in de Sharecam-app voor iPhone – dit evenement verschijnt daar met dezelfde inlogmethode.',
-  'checkout.soonAppPro': 'Tot die tijd koop je pakketten voor fotografen in de Sharecam-app voor iPhone – dit evenement verschijnt daar met dezelfde inlogmethode.',
+  'checkout.soonAppPro': 'Pakketten voor fotografen komen met de volgende update naar het web en naar de Sharecam-app voor iPhone. Dit evenement houdt zijn naam en datum.',
+  'checkout.soonAppProLive': 'Tot die tijd koop je pakketten voor fotografen in de Sharecam-app voor iPhone – dit evenement verschijnt daar met dezelfde inlogmethode.',
   'checkout.maxedTitle': '{plan} is het grootste pakket',
   'checkout.maxedBody': 'Er valt voor dit evenement niets te upgraden.',
   'checkout.unavailableTitle': 'Dit evenement kan hier niet worden geüpgraded',
@@ -451,7 +469,7 @@ const nl: Dict = {
   'checkout.refundedTitle': 'Dit evenement is terugbetaald',
   'checkout.refundedBody': 'Opnieuw een pakket kopen maakt het weer actief: uploads, gezichtsherkenning (als die erbij zit) en downloads komen terug.',
   'checkout.abandonedTitle': 'Je evenement staat op Spark (gratis)',
-  'checkout.abandoned': 'Je evenement staat op Spark (gratis). Kies een pakket wanneer je wilt.',
+  'checkout.abandoned': 'Er is niets afgeschreven. Kies wanneer je wilt een pakket – je QR werkt al op Spark.',
   'checkout.closedNote': 'De betaling is gesloten. Er is niets in rekening gebracht.',
   'checkout.applyingTitle': 'Betaling ontvangen',
   'checkout.applyingBody': 'We activeren {plan} voor dit evenement. Deze pagina werkt zichzelf bij.',
@@ -521,7 +539,7 @@ const nl: Dict = {
   'account.deleteConfirm': 'Alles verwijderen', // app: account.deleteConfirm
   'account.deleted': 'Je account en gegevens zijn verwijderd.', // app: account.deleted
   'account.deleteFailed': 'Je account kon niet worden verwijderd. Probeer het opnieuw.', // app: account.deleteFailed
-  'account.deletePairedNote': 'Het account verwijderen kan zodra het een eigen inlogmethode heeft, of in de app (Instellingen → Account).',
+  'account.deletePairedNote': 'Om het account te verwijderen, log je op deze computer in met de eigen inlogmethode van het account (niet via koppelen met de app), of verwijder je het in de app (Instellingen → Account).',
 };
 
 export default nl;

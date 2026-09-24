@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { HostEvent } from '../lib/types';
-import { awaitingProPackage, capsOf, deletionAt, planName } from '../lib/plans';
+import { awaitingProPackage, capsOf, deletionAt, hasUpgrade, planName } from '../lib/plans';
 import { expiryIcs } from '../lib/ics';
 import { downloadBlob, safeFileName } from '../lib/qr';
 import { backend } from '../../backend/active';
@@ -19,12 +19,13 @@ export function EventCover({ event, size }: { event: HostEvent; size?: number })
   );
 }
 
-/** Plan chip(s): the plan, "Refunded", "Awaiting package". */
+/** Plan chip(s): the plan, "Refunded", "Awaiting package". Plan names are brand
+ *  names: lang="en" so the chip's uppercase stays WEDDING in Turkish (not WEDDİNG). */
 export function PlanTags({ event }: { event: HostEvent }) {
   if (awaitingProPackage(event)) return <span className="tag gold">{t('plan.awaiting')}</span>;
   return (
     <>
-      <span className={`tag${event.planId === 'spark' ? ' line' : ''}`}>{planName(event.refunded && event.planBeforeRefund ? event.planBeforeRefund : event.planId)}</span>
+      <span className={`tag${event.planId === 'spark' ? ' line' : ''}`}><span lang="en">{planName(event.refunded && event.planBeforeRefund ? event.planBeforeRefund : event.planId)}</span></span>
       {event.refunded && <span className="tag danger">{t('plan.refunded')}</span>}
     </>
   );
@@ -55,13 +56,18 @@ export function downloadIcs(event: HostEvent) {
   downloadBlob(new Blob([ics], { type: 'text/calendar;charset=utf-8' }), `sharecam-${safeFileName(event.name)}-reminder.ics`);
 }
 
-/** D19: the banner at 14 / 5 / 2 days before the deletion date, with the .ics. */
+/** D19: the banner at 14 / 5 / 2 days before the deletion date, with the .ics.
+ *  A REFUNDED event can't be downloaded (createEventZip refuses): no "download
+ *  before then" advice there, but the way back — buying a package again (review
+ *  P1). A still-upgradable event also gets "keep it longer: change package". */
 export function ExpiryBanner({ event, withLink }: { event: HostEvent; withLink?: boolean }) {
   const at = deletionAt(event);
   if (!at) return null;
   const left = daysLeft(at);
   if (left > 14) return null;
   const tone = left <= 2 ? 'danger' : left <= 5 ? 'gold' : undefined;
+  const refunded = event.refunded === true;
+  const longer = !refunded && hasUpgrade(event);
   return (
     <Notice
       tone={tone}
@@ -69,18 +75,29 @@ export function ExpiryBanner({ event, withLink }: { event: HostEvent; withLink?:
       title={left <= 0 ? t('expiry.todayTitle', { name: event.name }) : left === 1 ? t('expiry.titleOne', { name: event.name }) : t('expiry.title', { name: event.name, n: left })}
       actions={
         <>
-          {withLink && (
-            <a className="btn sm line" href={`#/e/${event.id}/downloads`}>
-              {t('expiry.download')}
+          {refunded ? (
+            <a className="btn sm line" href={`#/e/${event.id}/plan`} data-expiry-packages>
+              {t('downloads.buyAgain')}
+            </a>
+          ) : (
+            withLink && (
+              <a className="btn sm line" href={`#/e/${event.id}/downloads`}>
+                {t('expiry.download')}
+              </a>
+            )
+          )}
+          {longer && (
+            <a className="btn sm line" href={`#/e/${event.id}/plan`} data-expiry-longer>
+              {t('expiry.keepLonger')}
             </a>
           )}
           <Button variant="line" size="sm" icon={<IconCalendar />} onClick={() => downloadIcs(event)}>
-            {t('expiry.ics')}
+            {t('expiry.icsShort')}
           </Button>
         </>
       }
     >
-      {t('expiry.body', { date: fmtDate(at) })}
+      <span data-expiry-body>{refunded ? t('expiry.refundedBody', { date: fmtDate(at) }) : t('expiry.body', { date: fmtDate(at) })}</span>
     </Notice>
   );
 }
@@ -95,13 +112,14 @@ export function ExpiryList({ events }: { events: HostEvent[] }) {
   if (!rows.length) return null;
   const soonest = daysLeft(rows[0].at);
   const tone = soonest <= 2 ? ' danger' : soonest <= 5 ? ' gold' : '';
+  const allRefunded = rows.every((r) => r.e.refunded === true);
   return (
     <section className={`expiry-list${tone}`} aria-labelledby="exp-h">
       <div className="expiry-head">
         <IconClock />
         <div>
           <h2 id="exp-h" className="h3">{t('expiry.listTitle')}</h2>
-          <p className="muted small">{t('expiry.listBody')}</p>
+          <p className="muted small">{allRefunded ? t('expiry.listBodyRefunded') : t('expiry.listBody')}</p>
         </div>
       </div>
       <ul>
@@ -116,7 +134,12 @@ export function ExpiryList({ events }: { events: HostEvent[] }) {
                 </span>
               </span>
               <span className="exp-acts">
-                <a className="btn quiet sm" href={`#/e/${e.id}/downloads`}>{t('expiry.download')}</a>
+                {e.refunded ? (
+                  // Downloads are off for a refunded event: the way back is a package.
+                  <a className="btn quiet sm" href={`#/e/${e.id}/plan`} data-expiry-packages>{t('downloads.buyAgain')}</a>
+                ) : (
+                  <a className="btn quiet sm" href={`#/e/${e.id}/downloads`}>{t('expiry.download')}</a>
+                )}
                 <Button variant="quiet" size="sm" icon={<IconCalendar />} onClick={() => downloadIcs(e)}>
                   {t('expiry.icsShort')}
                 </Button>

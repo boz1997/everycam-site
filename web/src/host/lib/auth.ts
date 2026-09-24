@@ -39,6 +39,18 @@ function makeProvider(kind: Provider): AuthProvider {
  *  account / Delete event (D3 rev 2 (b)). */
 export const isLinked = (u: User | null): boolean => !!u && u.providerData.length > 0;
 
+/**
+ * May this SESSION delete the account or an event? Only a session signed in with
+ * the account's own sign-in (email / Google / Apple) — never a paired one
+ * (custom token from the app's pairing code or QR), linked or not: the app's
+ * approval screen only asked to let this computer upload, and a leaked 6-character
+ * code must not be able to wipe an album (fix pass, review P2). The server refuses
+ * deleteAccountAndData for custom-token callers too (EC functions/src/cleanup.ts).
+ * `signInProvider`: useSessionProvider(user); undefined while it is being read.
+ */
+export const canDestroy = (u: User | null, signInProvider: string | null | undefined): boolean =>
+  isLinked(u) && typeof signInProvider === 'string' && signInProvider !== 'custom';
+
 export function onHostAuth(cb: (u: User | null) => void): () => void {
   // onIdTokenChanged, not onAuthStateChanged: linking keeps the uid, so only the
   // token change says the session gained a provider.

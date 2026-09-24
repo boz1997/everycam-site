@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import {
-  APPLE_WEB, authMessage, createAccount, isAlreadyInUse, isDismissed, linkEmail, linkProvider, sendReset, signInEmail, signInProvider,
+  APPLE_WEB, authCode, authMessage, createAccount, isAlreadyInUse, isDismissed, linkEmail, linkProvider, sendReset, signInEmail, signInProvider,
 } from '../lib/auth';
 import { logError } from '../lib/errorLog';
 import { t } from '../i18n';
@@ -30,29 +30,45 @@ function AppleButton({ onClick, busy, disabled, label, noteId }: { onClick: () =
   );
 }
 
-export function SignInForm({ onDone }: { onDone?: () => void }) {
-  const [mode, setMode] = useState<'signin' | 'create' | 'reset'>('signin');
+/** Sign-in failed because no account matched (Firebase's enumeration protection
+ *  reports a wrong password and an unknown email the same way). */
+const NO_MATCH = new Set(['auth/invalid-credential', 'auth/user-not-found', 'auth/invalid-login-credentials']);
+
+/** `initialMode`: 'create' where the person is most likely new — the create page's
+ *  account step (a bride who has never used Sharecam typed a NEW email and password
+ *  into a sign-in form and got "Wrong email or password", review P1). */
+export function SignInForm({ onDone, initialMode = 'signin' }: { onDone?: () => void; initialMode?: 'signin' | 'create' }) {
+  const [mode, setMode] = useState<'signin' | 'create' | 'reset'>(initialMode);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState<'google' | 'apple' | 'email' | null>(null);
   const [err, setErr] = useState('');
+  const [noMatch, setNoMatch] = useState(false);
   const [sent, setSent] = useState(false);
 
-  async function run(kind: 'google' | 'apple' | 'email', f: () => Promise<unknown>) {
+  async function run(kind: 'google' | 'apple' | 'email', f: () => Promise<unknown>, as: 'signin' | 'create' | 'reset' = mode) {
     setBusy(kind);
     setErr('');
+    setNoMatch(false);
     try {
       await f();
       onDone?.();
     } catch (e) {
       if (!isDismissed(e)) {
-        void logError('host_signin', e, { kind, mode });
-        setErr(authMessage(e, mode === 'create' ? 'create' : 'signin'));
+        void logError('host_signin', e, { kind, mode: as });
+        setErr(authMessage(e, as === 'create' ? 'create' : 'signin'));
+        setNoMatch(kind === 'email' && as === 'signin' && NO_MATCH.has(authCode(e)));
       }
     } finally {
       setBusy(null);
     }
   }
+  const switchTo = (m: 'signin' | 'create' | 'reset') => {
+    setMode(m);
+    setErr('');
+    setNoMatch(false);
+    setSent(false);
+  };
 
   const submit = (e: FormEvent) => {
     e.preventDefault();
@@ -103,6 +119,20 @@ export function SignInForm({ onDone }: { onDone?: () => void }) {
           </label>
         )}
         {err && <p className="err" role="alert">{err}</p>}
+        {noMatch && mode === 'signin' && (
+          <button
+            type="button"
+            className="btn line sm"
+            data-create-with-email
+            disabled={!!busy}
+            onClick={() => {
+              switchTo('create');
+              void run('email', () => createAccount(email, password), 'create');
+            }}
+          >
+            {t('auth.createWithEmail')}
+          </button>
+        )}
         {mode === 'reset' && sent && <p className="ok-text" role="status">{t('auth.resetSent', { email: email.trim() })}</p>}
         <Button type="submit" block busy={busy === 'email'} disabled={!!busy}>
           {mode === 'create' ? t('auth.createCta') : mode === 'reset' ? t('auth.resetCta') : t('auth.signinCta')}
@@ -111,16 +141,16 @@ export function SignInForm({ onDone }: { onDone?: () => void }) {
       <div className="row between tiny" style={{ gap: 4 }}>
         {mode === 'signin' ? (
           <>
-            <button type="button" className="btn quiet" onClick={() => { setMode('create'); setErr(''); }}>
+            <button type="button" className="btn quiet" onClick={() => switchTo('create')}>
               {t('auth.toCreate')}
             </button>
-            <button type="button" className="btn quiet" onClick={() => { setMode('reset'); setErr(''); setSent(false); }}>
+            <button type="button" className="btn quiet" onClick={() => switchTo('reset')}>
               {t('auth.toReset')}
             </button>
           </>
         ) : (
-          <button type="button" className="btn quiet" onClick={() => { setMode('signin'); setErr(''); }}>
-            {t('auth.toSignin')}
+          <button type="button" className="btn quiet" onClick={() => switchTo('signin')} data-to-signin>
+            {mode === 'create' ? t('auth.haveAccount') : t('auth.toSignin')}
           </button>
         )}
       </div>
@@ -145,8 +175,11 @@ export function AlreadyInUse({ onBack }: { onBack: () => void }) {
   );
 }
 
-/** Add a sign-in to a paired (anonymous app) account: the uid, and so every event, stays. */
-export function LinkForm({ onLinked }: { onLinked?: () => void }) {
+/** Add a sign-in to a paired (anonymous app) account: the uid, and so every event, stays.
+ *  `linked`: the account's provider ids — only the MISSING ways in are offered (an
+ *  email user was offered "Add email sign-in" and got "already added", review P2). */
+export function LinkForm({ onLinked, linked = [] }: { onLinked?: () => void; linked?: string[] }) {
+  const has = (id: string) => linked.includes(id);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState<'google' | 'apple' | 'email' | null>(null);
@@ -171,14 +204,19 @@ export function LinkForm({ onLinked }: { onLinked?: () => void }) {
   }
 
   if (inUse) return <AlreadyInUse onBack={() => setInUse(false)} />;
+  const google = !has('google.com');
+  const apple = !has('apple.com') && (APPLE_WEB || !linked.length);
+  const emailWay = !has('password');
   return (
     <div className="auth-card">
-      <Button variant="provider" block icon={<IconGoogle />} busy={busy === 'google'} disabled={!!busy} onClick={() => void run('google', () => linkProvider('google'))}>
-        {t('link.google')}
-      </Button>
-      <AppleButton label={t('link.apple')} busy={busy === 'apple'} disabled={!!busy} onClick={() => void run('apple', () => linkProvider('apple'))} />
-      <div className="divider">{t('auth.orEmail')}</div>
-      <form
+      {google && (
+        <Button variant="provider" block icon={<IconGoogle />} busy={busy === 'google'} disabled={!!busy} onClick={() => void run('google', () => linkProvider('google'))}>
+          {t('link.google')}
+        </Button>
+      )}
+      {apple && <AppleButton label={t('link.apple')} busy={busy === 'apple'} disabled={!!busy} onClick={() => void run('apple', () => linkProvider('apple'))} />}
+      {emailWay && (google || apple) && <div className="divider">{t('auth.orEmail')}</div>}
+      {emailWay && <form
         className="stack"
         style={{ ['--gap' as string]: '12px' }}
         noValidate
@@ -196,11 +234,11 @@ export function LinkForm({ onLinked }: { onLinked?: () => void }) {
           <input className="input" type="password" autoComplete="new-password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} />
           <span className="hint">{t('auth.passwordHint')}</span>
         </label>
-        {err && <p className="err" role="alert">{err}</p>}
         <Button type="submit" block busy={busy === 'email'} disabled={!!busy}>
           {t('link.emailCta')}
         </Button>
-      </form>
+      </form>}
+      {err && <p className="err" role="alert">{err}</p>}
     </div>
   );
 }

@@ -36,6 +36,8 @@
 }
 .sc-h-lang select:focus-visible { outline: 2px solid #1F3D2E; outline-offset: 2px; }
 .sc-h-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* Touch screens: a 44 px language picker (review P2). */
+@media (pointer: coarse) { .sc-h-lang select { min-height: 44px; } }
 @media (max-width: 420px) {
   .sc-h-inner { gap: 8px; min-height: 58px; }
   .sc-h-wordmark { font-size: 1.1875rem; }

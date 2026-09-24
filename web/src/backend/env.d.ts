@@ -2,11 +2,14 @@
 //   VITE_PADDLE_TOKEN_SANDBOX / VITE_PADDLE_TOKEN_LIVE — Paddle client-side tokens
 //     (public by design); absent = the dashboard shows "coming soon".
 //   VITE_APPLE_WEB=1 — web Sign in with Apple is configured (D3, go-live E1).
+//   VITE_PRO_IN_APP=1 — the Sharecam app sells photographer packages (go-live G or
+//     the D26 fallback): the "coming soon" copy says "sold in the iPhone app".
 //   VITE_LOCAL_* — the local stack only (.env.localstack, `--mode localstack`).
 interface ImportMetaEnv {
   readonly VITE_PADDLE_TOKEN_SANDBOX?: string;
   readonly VITE_PADDLE_TOKEN_LIVE?: string;
   readonly VITE_APPLE_WEB?: string;
+  readonly VITE_PRO_IN_APP?: string;
   readonly VITE_LOCAL_STACK?: string;
   readonly VITE_LOCAL_AUTH_PORT?: string;
   readonly VITE_LOCAL_FIRESTORE_PORT?: string;

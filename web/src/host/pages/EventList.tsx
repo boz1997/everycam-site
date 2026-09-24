@@ -81,8 +81,21 @@ export function EventList({ user }: { user: User }) {
   if (failed && !rows) return <Notice tone="danger" title={t('common.loadFailed')}>{t('common.checkConnection')}</Notice>;
   if (!rows) return <Loading />;
 
-  const pro = rows.filter((e) => tierOf(e) === 'pro');
-  const consumer = rows.filter((e) => tierOf(e) !== 'pro');
+  // By event date, upcoming first (soonest on top), then the past ones (most recent
+  // first); an event without a date counts from the day it was created (review P2:
+  // the createdAt order looked random next to the dates on the rows).
+  const today = new Date().toISOString().slice(0, 10);
+  const dayOf = (e: HostEvent) => e.date ?? new Date(e.createdAt || 0).toISOString().slice(0, 10);
+  const sorted = [...rows].sort((a, b) => {
+    const da = dayOf(a);
+    const db = dayOf(b);
+    const ua = da >= today;
+    const ub = db >= today;
+    if (ua !== ub) return ua ? -1 : 1;
+    return ua ? da.localeCompare(db) : db.localeCompare(da);
+  });
+  const pro = sorted.filter((e) => tierOf(e) === 'pro');
+  const consumer = sorted.filter((e) => tierOf(e) !== 'pro');
   const expiring = rows.filter(expiringSoon);
 
   return (

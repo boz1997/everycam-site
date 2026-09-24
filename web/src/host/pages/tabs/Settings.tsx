@@ -4,7 +4,8 @@ import type { HostEvent } from '../../lib/types';
 import { backend } from '../../../backend/active';
 import { deleteEvent, removeCover, setCover, updateEvent, type EventPatch } from '../../lib/data';
 import { logError } from '../../lib/errorLog';
-import { isLinked } from '../../lib/auth';
+import { canDestroy } from '../../lib/auth';
+import { useSessionProvider } from '../../hooks/useSessionProvider';
 import { aiAvailable, flagsOf } from '../../lib/plans';
 import { navigate } from '../../lib/router';
 import { fmtDate, fmtDay, t } from '../../i18n';
@@ -15,8 +16,11 @@ import { Button, Notice, Setting, useConfirm, useToast } from '../../components/
 // date read-only (locked for the printed cards, rules); private / open + scheduled
 // reveal (consumer only: a photographer event is always open, rules); pause joins;
 // guest downloads; face matching on/off only where bought or included (the purchase
-// stays in the app, D5); delete event (hidden for a paired session that has no
-// sign-in yet, D3 rev 2 (b)).
+// stays in the app, D5); delete event (hidden for a paired session — linked or not —
+// D3 rev 2 (b) + fix pass: a custom-token session never deletes).
+//
+// A cover picked by keyboard: the file input is sr-only inside label.btn, which
+// shows the focus ring (styles.css label.btn:focus-within).
 
 const pad = (n: number) => String(n).padStart(2, '0');
 function toLocalInput(ms: number): string {
@@ -36,6 +40,7 @@ export function Settings({ event, user }: { event: HostEvent; user: User }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [coverBusy, setCoverBusy] = useState(false);
   const [justOn, setJustOn] = useState(false);
+  const provider = useSessionProvider(user);
   const [reveal, setReveal] = useState(event.revealAt ? toLocalInput(event.revealAt) : '');
   useEffect(() => setReveal(event.revealAt ? toLocalInput(event.revealAt) : ''), [event.revealAt]);
   const flags = flagsOf(event);
@@ -225,7 +230,7 @@ export function Settings({ event, user }: { event: HostEvent; user: User }) {
           </div>
         </section>
 
-        {isLinked(user) ? (
+        {provider === undefined ? null : canDestroy(user, provider) ? (
           <section className="panel danger-zone" aria-labelledby="set-danger">
             <h2 id="set-danger" className="h3" style={{ color: 'var(--danger)' }}>{t('settings.dangerTitle')}</h2>
             <p className="desc">{t('settings.dangerBody')}</p>

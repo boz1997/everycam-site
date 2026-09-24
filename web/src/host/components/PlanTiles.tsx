@@ -19,7 +19,8 @@ export function storageLabel(days: number): string {
   const y = Math.round(days / 365);
   return y === 1 ? t('unit.year') : t('unit.years', { n: y });
 }
-const count = (n: number) => (n < 0 ? t('unit.unlimited') : n === 0 ? '—' : fmtNumber(n));
+// 0 = not in this package (never "—", which reads as "unknown", review P2).
+const count = (n: number) => (n < 0 ? t('unit.unlimited') : n === 0 ? t('unit.notIncluded') : fmtNumber(n));
 
 export interface TileModel {
   planId: PlanId;
@@ -54,7 +55,7 @@ export function PlanTile({ m, selected, onSelect, soon, disabled, readOnly }: { 
       }}
     >
       {HIGHLIGHT.has(m.planId) && <span className="t-badge">{t('plan.popular')}</span>}
-      <span className="t-name">{planName(m.planId)}</span>
+      <span className="t-name" lang="en">{planName(m.planId)}</span>
       <span className="t-price">{m.usd === 0 ? t('plan.free') : fmtUsd(m.usd)}</span>
       {m.usd > 0 && <span className="t-per">{t('plan.perEvent')}</span>}
       {soon && m.usd > 0 && <span className="t-note">{t('plan.webSoon')}</span>}

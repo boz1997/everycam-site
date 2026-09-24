@@ -66,7 +66,9 @@ const pt: Dict = {
   // ---------------------------------------------------------------- sign in
   'signin.kicker': 'Painel do anfitrião',
   'signin.title': 'Inicie sessão nos seus eventos',
-  'signin.lead': 'Use o mesmo início de sessão que usa na app (Definições → Conta). Se nunca iniciou sessão lá, faça-o primeiro.',
+  'signin.lead': 'Os seus eventos, convidados e fotos num só lugar, em qualquer computador ou telemóvel.',
+  'signin.newTitle': 'É novo no Sharecam?',
+  'signin.newCta': 'Crie o seu evento, sem precisar da app',
   'signin.appKicker': 'Já usa a app?',
   'signin.appTitle': 'A mesma conta, os mesmos eventos',
   'signin.appBody': 'Os eventos que criou na app Sharecam aparecem aqui quando inicia sessão com a mesma conta que usa na app (Definições → Conta).',
@@ -86,6 +88,8 @@ const pt: Dict = {
   'auth.toCreate': 'É novo por aqui? Crie uma conta',
   'auth.toReset': 'Esqueceu-se da palavra-passe?',
   'auth.toSignin': 'Voltar ao início de sessão',
+  'auth.haveAccount': 'Já tem conta? Inicie sessão',
+  'auth.createWithEmail': 'Criar conta com este e-mail',
   'auth.errWrong': 'E-mail ou palavra-passe errados.',
   'auth.errEmailTaken': 'Este e-mail já tem uma conta. Inicie sessão.',
   'auth.errWeak': 'Escolha uma palavra-passe com pelo menos 6 caracteres.',
@@ -120,6 +124,7 @@ const pt: Dict = {
   'pair.errExpired': 'Esse código expirou. Gere um novo na app.',
   'pair.errUsed': 'Esse código já foi usado. Gere um novo na app.',
   'pair.errGeneric': 'Não foi possível ligar este computador. Verifique a ligação e tente novamente.',
+  'pair.phoneNote': 'A ligação à app é para computadores. Neste telemóvel, inicie sessão.',
 
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'Só mais um passo',
@@ -164,6 +169,7 @@ const pt: Dict = {
   'unit.years': '{n} anos',
   'unit.unlimited': 'Sem limite',
   'unit.unlimitedShort': 'sem limite',
+  'unit.notIncluded': 'Não incluído',
   'plan.free': 'Grátis', // app: paywall.free
   'plan.perEvent': 'por evento', // app: paywall.perEvent
   'plan.popular': 'Mais escolhido', // app: plans.wedding.badge
@@ -173,6 +179,8 @@ const pt: Dict = {
   'plan.webSoon': 'Em breve na web',
   'plan.none': 'Ainda sem pacote',
   'plan.wallIncluded': 'Inclui o mural ao vivo',
+  'plan.awaitingBody': 'Escolha um pacote para abrir o QR e os carregamentos.',
+  'plan.videosFromApp': 'Os vídeos são carregados a partir da app para iPhone.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Novo evento',
@@ -189,25 +197,28 @@ const pt: Dict = {
   'new.namePlaceholder': 'O casamento da Ana e do Miguel', // app: create.namePlaceholder
   'new.nameRequired': 'Dê um nome ao evento.',
   'new.date': 'Data do evento (opcional)', // app: create.dateLabel
-  'new.dateHint': 'A data aparece nos convites. O armazenamento conta a partir deste dia.',
+  'new.dateHint': 'O armazenamento começa neste dia (ou hoje, se deixar em branco).',
+  'new.noDateWarn': 'Sem data, o armazenamento começa hoje e termina a {date}. Adicione a data do evento: não pode ser adicionada depois.',
   'new.who': 'Quem vê as fotos?', // app: create.titleMode
   'new.modeHint': 'Pode mudar isto mais tarde nas Definições.', // app: create.modeHint
   'new.cover': 'Foto de capa (opcional)',
   'new.coverAdd': 'Adicionar foto de capa',
   'new.coverChange': 'Alterar',
-  'new.locked': 'O nome e a data não podem ser alterados depois: vão impressos nos seus cartões.',
+  'new.locked': 'O nome e a data não podem ser alterados depois (a mesma regra da app).',
   'new.package': 'Pacote',
   'new.consumerSoon': 'Os pacotes pagos chegam em breve à web. Comece já grátis com o Spark e melhore mais tarde, aqui ou na app.',
   'new.proSoonTitle': 'Os pacotes para fotógrafos chegam em breve à web',
-  'new.proSoonBody': 'Até lá, são vendidos na app Sharecam para iPhone. Os eventos que criar lá aparecem aqui com o mesmo início de sessão.',
+  'new.proSoonBody': 'Os pacotes para fotógrafos chegam à web e à app Sharecam para iPhone com a próxima atualização. Os eventos que criar agora mantêm o nome e a data.',
+  'new.proSoonBodyApp': 'Até lá, são vendidos na app Sharecam para iPhone. Os eventos que criar lá aparecem aqui com o mesmo início de sessão.',
   'new.proRegionLater': 'Depois de iniciar sessão, verificamos se a correspondência facial está disponível na sua região.',
+  'new.proNextDecl': 'A seguir: uma breve declaração do organizador para a correspondência facial.',
   'new.ctaFree': 'Criar evento',
   'new.ctaPaid': 'Criar e pagar · {plan} {price}',
   'new.created': 'Evento criado.',
   'new.createFailed': 'Não foi possível criar o evento. Verifique a ligação e tente novamente.',
   'new.backToForm': 'Voltar ao formulário',
   'new.stepAccount': 'Quase pronto',
-  'new.accountTitle': 'Inicie sessão para guardar o seu evento',
+  'new.accountTitle': 'Guarde o seu evento numa conta',
   'new.accountLead': 'O seu evento precisa de uma conta à qual possa voltar. Se já inicia sessão na app, use o mesmo início de sessão.',
   'new.summary': 'O seu evento',
   'mode.openTitle': 'Galeria aberta', // app: create.openTitle
@@ -246,6 +257,7 @@ const pt: Dict = {
   'overview.included': 'Incluído',
   'overview.changePackage': 'Mudar de pacote',
   'overview.refundedNote': 'O pagamento deste evento foi reembolsado. O álbum mantém-se até terminar o armazenamento; comprar um pacote novamente reativa-o.',
+  'overview.privateLine': 'Privado: os convidados só veem as suas próprias fotos. Abra a galeria em Definições.',
   'qr.kicker': 'Convite',
   'qr.title': 'Os convidados entram num passo', // app: qr.title
   'qr.body': 'Coloque o QR nas mesas ou envie o link. Os convidados escrevem o nome e partilham a partir do navegador do telemóvel — sem app, sem conta.',
@@ -286,9 +298,12 @@ const pt: Dict = {
   'expiry.titleOne': 'As fotos de «{name}» são eliminadas amanhã',
   'expiry.todayTitle': 'As fotos de «{name}» são eliminadas hoje',
   'expiry.body': 'O armazenamento termina a {date}. Descarregue o álbum antes disso — depois não pode ser recuperado.',
+  'expiry.refundedBody': 'O armazenamento termina a {date}. Os descarregamentos estão desativados porque o pagamento foi reembolsado. Comprar um pacote de novo volta a ativá-los.',
   'expiry.download': 'Descarregar',
   'expiry.listTitle': 'O armazenamento termina em breve',
   'expiry.listBody': 'Depois desta data as fotos são eliminadas e não podem ser recuperadas. Descarregue o que quer guardar.',
+  'expiry.listBodyRefunded': 'Depois desta data as fotos são eliminadas e não podem ser recuperadas. Nos eventos reembolsados os descarregamentos estão desativados; comprar um pacote de novo volta a ativá-los.',
+  'expiry.keepLonger': 'Guardar mais tempo: mudar de pacote',
   'expiry.whenDays': 'daqui a {n} dias',
   'expiry.whenTomorrow': 'amanhã',
   'expiry.whenToday': 'hoje',
@@ -373,7 +388,7 @@ const pt: Dict = {
   'settings.coverChange': 'Alterar capa',
   'settings.coverSaved': 'Capa guardada.',
   'settings.coverRemoved': 'Capa removida.',
-  'settings.lockedNote': 'O nome e a data estão bloqueados para que o ecrã corresponda sempre aos seus cartões impressos.',
+  'settings.lockedNote': 'O nome e a data estão bloqueados, tal como na app.',
   'settings.saved': 'Guardado.',
   'settings.dangerTitle': 'Zona de perigo', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Ao eliminar, o evento, as fotos e a lista de convidados desaparecem para todos, incluindo os seus convidados. Esta ação é irreversível.', // app: hostEvent.dangerBody
@@ -384,7 +399,7 @@ const pt: Dict = {
   'settings.deleteTitle2': 'Tem a certeza absoluta?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'Isto é definitivo — não há forma de recuperar o evento.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Evento eliminado.',
-  'settings.deletePairedNote': 'Pode eliminar eventos quando esta conta tiver o seu próprio início de sessão, ou na app.',
+  'settings.deletePairedNote': 'Para eliminar este evento, inicie sessão neste computador com o próprio início de sessão da conta (não pela ligação à app) ou elimine-o na app.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Correspondência facial', // app: hostEvent.aiTitle
@@ -411,6 +426,7 @@ const pt: Dict = {
   'face.regionUnknownTitle': 'Não foi possível confirmar a sua localização', // app: face.regionUnknownTitle
   'face.regionUnknownBody': 'Esta funcionalidade depende das regras locais sobre dados faciais, por isso só a ativamos quando sabemos quais se aplicam. Tudo o resto no álbum funciona normalmente.', // app: face.regionUnknownBody
   'face.declTitle': 'Antes de adicionar', // app: face.declTitle
+  'face.declTitleWeb': 'Correspondência facial: a sua declaração de organizador',
   'face.declIntro': 'É o organizador deste evento, portanto estas decisões são suas. Ao marcar a caixa, confirma:', // app: face.declIntro
   'face.decl1': 'Eu decido quem é convidado e fotografado neste evento.', // app: face.decl1
   'face.decl2': 'Vou informar os meus convidados de que a correspondência facial está ativa, com o texto do convite e o cartão impresso desta app.', // app: face.decl2
@@ -428,6 +444,7 @@ const pt: Dict = {
   'checkout.kickerPro': 'Pacotes para fotógrafos', // app: paywall.titlePro
   'checkout.titleNew': 'Escolha um pacote para o seu evento', // app: paywall.title
   'checkout.titleUpgrade': 'Melhore o seu pacote', // app: paywall.titleUpgrade
+  'checkout.titleInfo': 'O que inclui cada pacote',
   'checkout.subtitle': 'Pagamento único — não é uma subscrição. Escolha o tamanho certo para a sua lista de convidados.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Pagamento único por evento. O fotógrafo envia as fotos a partir do computador; os convidados leem o QR, veem o álbum e encontram as suas fotos com uma selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Agora',
@@ -437,12 +454,13 @@ const pt: Dict = {
   'checkout.opening': 'A abrir o pagamento seguro…',
   'checkout.paying': 'Conclua o pagamento na janela de pagamento.',
   'checkout.sandbox': 'Sandbox · pagamentos de teste',
-  'checkout.footnote': 'Preços em USD, os mesmos da app Sharecam. No pagamento, a Paddle pode mostrar a sua moeda local e os impostos. Os pagamentos são processados pela Paddle, o nosso revendedor oficial (merchant of record).',
+  'checkout.footnote': 'Preços em USD (o mesmo preço de tabela da App Store nos EUA). Na app, a Apple cobra na sua moeda local; na web, a Paddle pode mostrar a sua moeda local e os impostos no pagamento. Os pagamentos são processados pela Paddle, o nosso revendedor oficial (merchant of record).',
   'checkout.soonTitle': 'Comprar na web chega em breve',
   'checkout.soonOff': 'Ainda não é possível comprar pacotes na web.',
   'checkout.soonPrices': 'Estes pacotes ainda não são vendidos na web.',
   'checkout.soonApp': 'Até lá, os pacotes são vendidos na app Sharecam para iPhone — este evento aparece lá com o mesmo início de sessão.',
-  'checkout.soonAppPro': 'Até lá, os pacotes para fotógrafos são vendidos na app Sharecam para iPhone — este evento aparece lá com o mesmo início de sessão.',
+  'checkout.soonAppPro': 'Os pacotes para fotógrafos chegam à web e à app Sharecam para iPhone com a próxima atualização. Este evento mantém o nome e a data.',
+  'checkout.soonAppProLive': 'Até lá, os pacotes para fotógrafos são vendidos na app Sharecam para iPhone — este evento aparece lá com o mesmo início de sessão.',
   'checkout.maxedTitle': '{plan} é o maior pacote',
   'checkout.maxedBody': 'Não há nenhum pacote acima para este evento.',
   'checkout.unavailableTitle': 'Este evento não pode ser melhorado aqui',
@@ -451,7 +469,7 @@ const pt: Dict = {
   'checkout.refundedTitle': 'O pagamento deste evento foi reembolsado',
   'checkout.refundedBody': 'Comprar um pacote novamente reativa-o: voltam os carregamentos, a correspondência facial (se incluída) e os descarregamentos.',
   'checkout.abandonedTitle': 'O seu evento está no Spark (grátis)',
-  'checkout.abandoned': 'O seu evento está no Spark (grátis). Escolha um pacote quando quiser.',
+  'checkout.abandoned': 'Nada foi cobrado. Escolha um pacote quando quiser: o seu QR já funciona no Spark.',
   'checkout.closedNote': 'O pagamento foi fechado. Não foi feita nenhuma cobrança.',
   'checkout.applyingTitle': 'Pagamento recebido',
   'checkout.applyingBody': 'Estamos a ativar o {plan} neste evento. Esta página atualiza-se sozinha.',
@@ -521,7 +539,7 @@ const pt: Dict = {
   'account.deleteConfirm': 'Eliminar tudo', // app: account.deleteConfirm
   'account.deleted': 'A sua conta e os seus dados foram eliminados.', // app: account.deleted
   'account.deleteFailed': 'Não foi possível eliminar a sua conta. Tente novamente.', // app: account.deleteFailed
-  'account.deletePairedNote': 'Pode eliminar a conta quando tiver o seu próprio início de sessão, ou na app (Definições → Conta).',
+  'account.deletePairedNote': 'Para eliminar a conta, inicie sessão neste computador com o próprio início de sessão da conta (não pela ligação à app) ou elimine-a na app (Definições → Conta).',
 };
 
 export default pt;
