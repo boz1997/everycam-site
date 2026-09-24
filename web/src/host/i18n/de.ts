@@ -471,7 +471,7 @@ const de: Dict = {
   'checkout.mailSlow': 'Web-Zahlung noch nicht verbucht',
   'checkout.mailDuplicate': 'Doppelt bezahlt',
   'checkout.mailFailed': 'Web-Zahlung nicht verbucht',
-  'checkout.proIncludesTitle': 'In jedem Paket für Fotografen',
+  'checkout.proIncludesTitle': 'In jedem Paket für Fotografen:',
   'checkout.proInc1': 'Gesichtserkennung inklusive, wo verfügbar', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Nur du lädst hoch – Gäste sehen die Galerie', // app: paywall.featHostOnly
   'checkout.proInc3': 'Originale in voller Auflösung gespeichert', // app: paywall.featOriginals

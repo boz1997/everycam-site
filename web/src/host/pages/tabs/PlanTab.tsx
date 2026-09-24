@@ -252,8 +252,17 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
           <b>{awaitingProPackage(event) ? t('plan.none') : planName(event.planId)}</b>
           {!awaitingProPackage(event) && (
             <span className="muted">
-              {event.uploadPolicy !== 'host' && `${t('stat.guests')} ${n(caps.guests)} · `}
-              {t('stat.photos')} {n(caps.photos)} · {t('stat.videos')} {n(caps.videos)} · {t('plan.storage')} {storageLabel(caps.retentionDays)}
+              {/* each "label value" stays on one line; the strip breaks only after a "·" ("Storage 7 / days" at 390 px) */}
+              {[
+                ...(event.uploadPolicy !== 'host' ? [`${t('stat.guests')} ${n(caps.guests)}`] : []),
+                `${t('stat.photos')} ${n(caps.photos)}`,
+                `${t('stat.videos')} ${n(caps.videos)}`,
+                `${t('plan.storage')} ${storageLabel(caps.retentionDays)}`,
+              ].map((part, i, all) => (
+                <span key={part}>
+                  <span style={{ whiteSpace: 'nowrap' }}>{part}{i < all.length - 1 ? ' ·' : ''}</span>{i < all.length - 1 ? ' ' : ''}
+                </span>
+              ))}
             </span>
           )}
         </p>
@@ -278,7 +287,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
             {busyPlan && <span className="small muted">{phase.at === 'opening' ? t('checkout.opening') : t('checkout.paying')}</span>}
           </div>
         )}
-        {pv?.tier === 'pro' && <p className="small muted">{t('checkout.proIncludesTitle')}: {t('checkout.proInc1')} · {t('checkout.proInc2')} · {t('checkout.proInc3')}</p>}
+        {pv?.tier === 'pro' && <p className="small muted">{t('checkout.proIncludesTitle')} {t('checkout.proInc1')} · {t('checkout.proInc2')} · {t('checkout.proInc3')}</p>}
         <p className="tiny muted">{t('checkout.upgradeRule')}</p>
         <CheckoutFootnote />
       </section>

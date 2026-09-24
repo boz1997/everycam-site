@@ -472,7 +472,7 @@ const nl: Dict = {
   'checkout.mailSlow': 'Webbetaling nog niet verwerkt',
   'checkout.mailDuplicate': 'Twee keer betaald',
   'checkout.mailFailed': 'Webbetaling niet verwerkt',
-  'checkout.proIncludesTitle': 'In elk pakket voor fotografen',
+  'checkout.proIncludesTitle': 'In elk pakket voor fotografen:',
   'checkout.proInc1': 'Gezichtsherkenning inbegrepen, waar beschikbaar', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Alleen jij uploadt – gasten kijken', // app: paywall.featHostOnly
   'checkout.proInc3': 'Originelen bewaard in volle resolutie', // app: paywall.featOriginals

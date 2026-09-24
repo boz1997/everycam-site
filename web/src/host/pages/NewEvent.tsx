@@ -316,7 +316,8 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
             )}
             {tier === 'pro' && !user && <p className="tiny muted">{t('new.proRegionLater')}</p>}
             {err && <p className="err" role="alert">{err}</p>}
-            <Button type="submit" block busy={busy} disabled={!pv || !selected || soonFor(selected) || proClosed}>
+            {/* pro + signed in: submit() waits for the region gate, so the button waits too (busy = disabled): a click before faceGateCheck answered did nothing */}
+            <Button type="submit" block busy={busy || (tier === 'pro' && !!user && region === null)} disabled={!pv || !selected || soonFor(selected) || proClosed}>
               {!selected || !paidPick ? t('new.ctaFree') : t('new.ctaPaid', { plan: planName(selected.planId), price: fmtUsd(selected.usd) })}
             </Button>
             {paidPick && <CheckoutFootnote />}

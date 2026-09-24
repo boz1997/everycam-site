@@ -33,6 +33,16 @@ function PairQr({ text }: { text: string }) {
   );
 }
 
+// Two concurrent ensureAnon() calls can open two DIFFERENT anonymous accounts
+// (both see no currentUser); the later one wins and this browser can no longer
+// read the pairing the other opened. Concurrent calls share one promise
+// (StrictMode's double effect did exactly this in dev), as in upload/QrPairing.tsx.
+let anonInFlight: Promise<string> | null = null;
+const guestSession = () =>
+  (anonInFlight ??= ensureAnon().finally(() => {
+    anonInFlight = null;
+  }));
+
 export function PairWithApp({ onPaired }: { onPaired: () => void }) {
   const [pairing, setPairing] = useState<{ id: string; expiresAt: number } | null>(null);
   const [qrState, setQrState] = useState<'loading' | 'ready' | 'claiming' | 'error'>('loading');
@@ -49,7 +59,8 @@ export function PairWithApp({ onPaired }: { onPaired: () => void }) {
     setQrState('loading');
     void (async () => {
       try {
-        await ensureAnon();
+        await guestSession();
+        if (cancelled) return; // a cancelled round must not open a pairing
         const create = httpsCallable<Record<string, never>, { pairingId: string; expiresAt: number }>(guestFunctions(), 'createUploadPairing');
         const res = await create({});
         if (cancelled) return;

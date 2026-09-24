@@ -16,13 +16,20 @@
 //   list          event list (groups, deletion dates, storage-ends-soon panel)
 //   c1            C1 overview / gallery (hide, show, delete) / guests (remove, restore)
 //                 / settings (pause joins, read back) / package / downloads
-//   buy           create "Web wedding" as Wedding via #/new → declaration-free checkout
-//                 → mock Pay → applied (fields = plan §2.4, D8 create shape) → done
-//                 → redeliver (duplicate) → an AllShots transaction stays silent
-//   refund        full refund of that order → suspended (Spark quotas, AI off,
-//                 retention kept) → Refunded chip → ZIP refused → buy again → reactivated
-//   chargeback    chargeback on C3's web order → suspended → reverse → plan + limits back
-//   discount      100 %-discount payment on C1 (Party) → failed state, event still Spark
+//   buy           create "Web party" as Party via #/new → declaration-free checkout
+//                 → mock Pay → applied: every event field equal to what redeemEventPlan
+//                 writes for the same product (EC main's inline code), ledger row the
+//                 same shape, D8 create shape → done → redeliver (duplicate) → an
+//                 AllShots transaction + adjustment: silent 200, no write, no alert
+//   upgrade       Party → Wedding on the package page: full $24.99 price (not the
+//                 difference), fields again equal to redeem's
+//   refund        refund the Wedding order (Party still paid → marked only), then the
+//                 Party order → suspended (Spark quotas, AI off, retention kept,
+//                 nothing deleted) → Refunded chip → ZIP refused → buy again → reactivated
+//   chargeback    chargeback on C3's web order → suspended (nothing deleted) + unmuted
+//                 alert → reverse → plan + limits back
+//   discount      100 %-discount payment on C1 (Party) → failed state, event still Spark,
+//                 alert; a 0.00 payment without a discount → no plan, alert
 //   soon          purchases off → coming soon; empty@ (not a sandbox host) → coming soon
 //   pro           pro@: create Pro 1000 via #/new?tier=pro → declaration → pay → done;
 //                 overview (upload link, owner code), downloads (archive), L2 ladder,
@@ -52,10 +59,11 @@ const OUT = value('shots') || process.env.SHOTS || '/private/tmp/claude-501/-Use
 const WEB = 'http://127.0.0.1:5187';
 const MOCK = 'http://127.0.0.1:8797';
 const FS = 'http://127.0.0.1:8380/v1/projects/demo-sharecam/databases/(default)/documents';
+const STORAGE = 'http://127.0.0.1:9480/v0/b/sharecam-1997boz.firebasestorage.app';
 const PASSWORD = 'sharecam-local';
 
 // ---------------------------------------------------------------- guards
-for (const u of [WEB, MOCK, FS]) {
+for (const u of [WEB, MOCK, FS, STORAGE]) {
   const h = new URL(u).hostname;
   if (h !== '127.0.0.1' && h !== 'localhost') throw new Error(`refusing: ${u} is not loopback`);
 }
@@ -105,6 +113,83 @@ async function query(collection, field, op, val) {
 async function mock(path, body) {
   const r = await fetch(`${MOCK}${path}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body ?? {}) });
   return r.json().catch(() => ({}));
+}
+/** Count aggregation: a top-level collection (`parent` '') or a subcollection. */
+async function countDocs(parent, collectionId) {
+  const url = parent ? `${FS}/${parent}:runAggregationQuery` : `${FS}:runAggregationQuery`;
+  const body = { structuredAggregationQuery: { structuredQuery: { from: [{ collectionId }] }, aggregations: [{ alias: 'n', count: {} }] } };
+  const r = await fetch(url, { method: 'POST', headers: { Authorization: 'Bearer owner', 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const rows = await r.json();
+  return Number(rows?.[0]?.result?.aggregateFields?.n?.integerValue ?? NaN);
+}
+/** Objects under events/<id>/ in the Storage emulator. */
+async function countFiles(eventId) {
+  let n = 0;
+  let token = '';
+  do {
+    const r = await fetch(`${STORAGE}/o?prefix=${encodeURIComponent(`events/${eventId}/`)}&maxResults=1000${token ? `&pageToken=${encodeURIComponent(token)}` : ''}`, { headers: { Authorization: 'Bearer owner' } });
+    const j = await r.json();
+    n += (j.items ?? []).length;
+    token = j.nextPageToken ?? '';
+  } while (token);
+  return n;
+}
+/** What exists for an event: document, media, guests, files — refunds must delete none of it. */
+async function inventory(eventId) {
+  const [ev, media, guests, files] = await Promise.all([getDoc(`events/${eventId}`), countDocs(`events/${eventId}`, 'media'), countDocs(`events/${eventId}`, 'guests'), countFiles(eventId)]);
+  return { event: !!ev, media, guests, files };
+}
+/** The alerts the server would have pushed (read from the emulator log by the mock). */
+async function alerts() {
+  const r = await fetch(`${MOCK}/api/alerts`);
+  return r.json();
+}
+
+// ---------------------------------------------------------------- redeemEventPlan reference
+// What the App Store path writes for the same product — transcribed from EC main
+// (5f03a8e) functions/src/purchases.ts:141-168, the inline object as it was
+// BEFORE the planWrite.ts refactor, with the catalog-2 values of
+// functions/src/plans.ts limitsSnapshot() (plans.ts is unchanged on feat/web-host).
+// The web order must produce exactly these event fields and nothing else.
+const REDEEM_PLANS = {
+  party: { tier: 'consumer', uploadPolicy: 'all', limits2: { photos: 200, videos: 5, guests: 50, retentionDays: 30 } },
+  wedding: { tier: 'consumer', uploadPolicy: 'all', limits2: { photos: 500, videos: 20, guests: 100, retentionDays: 180 } },
+  pro1000: { tier: 'pro', uploadPolicy: 'host', limits2: { photos: 1000, videos: 0, guests: -1, retentionDays: 90 } },
+};
+function redeemWrites(planId, current) {
+  const p = REDEEM_PLANS[planId];
+  const refundedNow = current.refunded === true;
+  return {
+    planId,
+    planPurchasedAt: '<now>',
+    limits: p.limits2,
+    planCatalog: 2,
+    uploadPolicy: current.uploadPolicy === 'host' ? 'host' : p.uploadPolicy,
+    ...(p.tier === 'pro' ? { mode: 'open', revealAt: null, aiPeopleEnabled: true } : {}),
+    ...(refundedNow ? { refunded: false, refundRestoredAt: '<now>', refundRestoredBy: 'repurchase', planBeforeRefund: null, retentionAnchorAt: null } : {}),
+  };
+}
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+/** Field by field: every redeem field equal, and no other field of the event changed. */
+function compareToRedeem(label, planId, before, after, t0, t1) {
+  const want = redeemWrites(planId, before);
+  for (const [k, v] of Object.entries(want)) {
+    if (v === '<now>') ok(typeof after[k] === 'number' && after[k] >= t0 - 2000 && after[k] <= t1 + 2000, `${label}: ${k} = ${after[k]} (number, the time of the apply)`);
+    else ok(same(after[k], v), `${label}: ${k} = ${JSON.stringify(after[k])} (redeem: ${JSON.stringify(v)})`);
+  }
+  const changed = [...new Set([...Object.keys(before), ...Object.keys(after)])].filter((k) => !same(before[k], after[k]));
+  const extra = changed.filter((k) => !(k in want));
+  ok(extra.length === 0, `${label}: changed fields ⊆ redeem's (${changed.sort().join(', ')})${extra.length ? ` — EXTRA: ${extra.join(', ')}` : ''}`);
+}
+/** The ledger row: redeem's keys (purchases.ts:124-135 + rev 2 catalog/limits), Paddle values. */
+function compareLedger(label, row, { uid, eventId, planId, txn }) {
+  const keys = ['addon', 'catalog', 'environment', 'eventId', 'limits', 'planId', 'productId', 'purchasedAt', 'redeemedAt', 'store', 'storeTransactionId', 'uid'];
+  ok(row && same(Object.keys(row).sort(), keys), `${label}: ledger keys = redeem's (${row ? Object.keys(row).sort().join(', ') : 'no row'})`);
+  if (!row) return;
+  const product = planId.startsWith('pro') ? `sharecam.pro.${planId.slice(3).toLowerCase()}` : `sharecam.event.${planId}`;
+  ok(row.uid === uid && row.eventId === eventId && row.productId === product && row.planId === planId && row.addon === null, `${label}: ledger uid/event/product/plan/addon`);
+  ok(row.storeTransactionId === txn && row.store === 'paddle' && row.environment === 'sandbox' && typeof row.purchasedAt === 'number' && !!row.redeemedAt, `${label}: ledger store paddle, storeTransactionId ${row.storeTransactionId}, env sandbox`);
+  ok(row.catalog === 2 && same(row.limits, REDEEM_PLANS[planId].limits2), `${label}: ledger catalog 2 + limits ${JSON.stringify(row.limits)}`);
 }
 async function until(fn, ms = 30_000, step = 400) {
   const end = Date.now() + ms;
@@ -302,12 +387,12 @@ try {
   }
 
   if (run('buy')) {
-    log('\nbuy (create + pay)');
+    log('\nbuy (create + pay Party)');
     await signIn('host');
-    await go('#/new?plan=wedding');
+    await go('#/new?plan=party');
     await page.locator('input.input').first().waitFor();
-    await page.locator('.tile[data-plan="wedding"]').waitFor();
-    await page.locator('input.input').first().fill('Web wedding (e2e)');
+    await page.locator('.tile[data-plan="party"]').waitFor();
+    await page.locator('input.input').first().fill('Web party (e2e)');
     await page.locator('input[type=date]').fill('2026-11-14');
     await shot('new-consumer');
     await page.locator('form button[type=submit]').click();
@@ -319,37 +404,106 @@ try {
     ok(created.data.date === '2026-11-14', 'D8: date written');
     ok(created.data.origin === 'web' && created.data.planId === 'spark' && created.data.code && !created.data.code.startsWith('P'), 'created as Spark, origin web, consumer code');
     await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
-    ok(true, 'fresh create with ?plan=wedding opens the checkout by itself');
+    ok(true, 'fresh create with ?plan=party opens the checkout by itself');
+    ok(/14[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $14.99');
     await shot('checkout-mock', { both: false });
+    const before = (await getDoc(`events/${id}`)).data;
+    const t0 = Date.now();
     await payInMock('#pay');
     await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    const t1 = Date.now();
     ok(true, 'UI: applying → done');
     await shot('buy-done');
     const ev = (await getDoc(`events/${id}`)).data;
-    ok(ev.planId === 'wedding' && ev.planCatalog === 2 && ev.limits?.photos === 500 && ev.limits?.retentionDays === 180, `applied fields: planId ${ev.planId}, catalog ${ev.planCatalog}, limits ${JSON.stringify(ev.limits)}`);
+    compareToRedeem('Party (web) vs redeem', 'party', before, ev, t0, t1);
     const order = await lastOrderFor(id);
     ctxState.buyTxn = order?.id;
-    ok(order?.data.status === 'applied' && order.data.env === 'sandbox', `order ${order?.id} applied (sandbox)`);
+    ok(order?.data.status === 'applied' && order.data.env === 'sandbox' && Number(order.data.amount) === 1499 && order.data.currency === 'USD', `order ${order?.id} applied (sandbox, ${order?.data.amount} ${order?.data.currency})`);
     const red = await getDoc(`redemptions/pd_${order?.id}`);
-    ok(red?.data.store === 'paddle' && red.data.storeTransactionId === order?.id && red.data.planId === 'wedding', 'ledger row redemptions/pd_<txn> (store paddle)');
+    compareLedger('Party ledger', red?.data, { uid: created.data.hostId, eventId: id, planId: 'party', txn: order?.id });
     const redeliver = await mock(`/api/orders/${order.id}/redeliver`);
     ok(redeliver.status === 200 && /duplicate/.test(redeliver.body ?? ''), `redeliver → ${redeliver.status} ${redeliver.body}`);
+    // The other app on the shared Paddle account: silent 200, nothing written, nothing alerted (D12).
+    const counts = async () => Object.fromEntries(await Promise.all(['webOrders', 'storeNotifications', 'redemptions', 'refundState', 'events'].map(async (c) => [c, await countDocs('', c)])));
+    await sleep(1500); // let earlier log lines land
+    const [c0, a0] = [await counts(), (await alerts()).count];
     const foreign = await mock('/api/foreign/transaction');
-    ok(foreign.status === 200 && /silent/.test(foreign.body ?? ''), `AllShots transaction → ${foreign.body}`);
+    ok(foreign.status === 200 && /other-app/.test(foreign.body ?? '') && /no webOrders doc/.test(foreign.body ?? ''), `AllShots transaction.completed → ${foreign.status} ${foreign.body}`);
+    const foreignAdj = await mock('/api/foreign/adjustment');
+    ok(foreignAdj.status === 200 && /other-app/.test(foreignAdj.body ?? '') && /no webOrders doc/.test(foreignAdj.body ?? ''), `AllShots refund (adjustment) → ${foreignAdj.status} ${foreignAdj.body}`);
+    await sleep(1500);
+    const [c1, a1] = [await counts(), (await alerts()).count];
+    ok(same(c0, c1), `foreign traffic wrote nothing (${JSON.stringify(c1)})`);
+    ok(a1 === a0, `foreign traffic raised no alert (${a0} → ${a1})`);
     await go(`#/e/${id}`);
     await page.locator('[data-code]').waitFor();
     await shot('buy-overview');
   }
 
+  if (run('upgrade')) {
+    log('\nupgrade Party → Wedding (full price)');
+    const id = ctxState.buyId;
+    if (!id) throw new Error('upgrade needs the buy step');
+    const pv = await mock('/api/call', { who: 'host', fn: 'webCheckoutStart', data: { preview: true, eventId: id } });
+    const opts = pv.result?.options ?? [];
+    ok(pv.ok && pv.result.current === 'party' && same(opts.map((o) => o.planId), ['wedding', 'unlimited']), `preview on a Party event offers ${opts.map((o) => `${o.planId} $${o.usd}`).join(', ')}`);
+    ok(opts.find((o) => o.planId === 'wedding')?.usd === 24.99, 'Wedding offered at its full price $24.99 (D7), no difference SKU');
+    await go(`#/e/${id}/plan`);
+    await page.locator('.tile[data-plan="wedding"]').waitFor();
+    const tiles = await page.locator('.tile').evaluateAll((els) => els.map((e) => e.getAttribute('data-plan')));
+    ok(same(tiles, ['wedding', 'unlimited']), `package page tiles: ${tiles.join(', ')}`);
+    ok(/24[.,]99/.test(await page.locator('.tile[data-plan="wedding"]').innerText()), 'Wedding tile shows $24.99');
+    await page.locator('.tile[data-plan="wedding"]').click();
+    await page.locator('[data-buy]').click();
+    await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+    const pending = await lastOrderFor(id);
+    ok(pending?.data.status === 'created' && pending.data.productId === 'sharecam.event.wedding' && pending.data.priceId === 'pri_local_sbx_wedding' && pending.data.from === 'party', `order ${pending?.id}: ${pending?.data.productId}, price ${pending?.data.priceId}, from ${pending?.data.from}`);
+    ok(/24[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $24.99 (full price)');
+    await shot('upgrade-checkout', { both: false });
+    const before = (await getDoc(`events/${id}`)).data;
+    const t0 = Date.now();
+    await payInMock('#pay');
+    await page.locator('.status.done').waitFor({ timeout: 45_000 });
+    const t1 = Date.now();
+    const ev = (await getDoc(`events/${id}`)).data;
+    compareToRedeem('Party → Wedding (web) vs redeem', 'wedding', before, ev, t0, t1);
+    const order = await getDoc(`webOrders/${pending.id}`);
+    ok(order?.data.status === 'applied' && Number(order.data.amount) === 2499 && order.data.planBefore === 'party', `charged ${order?.data.amount} cents = the full Wedding price (not the $10.00 difference), planBefore ${order?.data.planBefore}`);
+    const red = await getDoc(`redemptions/pd_${pending.id}`);
+    compareLedger('Wedding ledger', red?.data, { uid: ev.hostId, eventId: id, planId: 'wedding', txn: pending.id });
+    ctxState.upTxn = pending.id;
+    await shot('upgrade-done');
+  }
+
   if (run('refund')) {
-    log('\nrefund → suspended → buy again');
+    log('\nrefund → suspended (nothing deleted) → buy again');
     const id = ctxState.buyId;
     const txn = ctxState.buyTxn;
-    if (!id || !txn) throw new Error('refund needs the buy step');
+    const upTxn = ctxState.upTxn;
+    if (!id || !txn || !upTxn) throw new Error('refund needs the buy and upgrade steps');
+    // Give the event something to lose: a guest and two photos (files in Storage).
+    await mock(`/api/events/${id}/guest`);
+    await mock(`/api/events/${id}/photo`);
+    await mock(`/api/events/${id}/photo`);
+    const inv0 = await until(async () => { const i = await inventory(id); return i.media >= 2 && i.files >= 2 ? i : null; });
+    ok(!!inv0, `before the refunds: ${JSON.stringify(inv0)}`);
+    // 1) the Wedding order only: the Party payment still stands → not net-zero → marked, plan kept.
+    const r1 = await mock(`/api/orders/${upTxn}/refund`);
+    ok(r1.approved?.status === 200, `refund of the Wedding order → ${r1.approved?.status} ${r1.approved?.body}`);
+    const m = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.refunded === true ? d : null; });
+    ok(m?.planId === 'wedding' && m?.limits?.photos === 500 && (await getDoc(`refundState/${id}`)) === null, `not net-zero (Party still paid): marked refunded, plan ${m?.planId} kept, no refundState`);
+    // 2) the Party order too → net-zero → suspended.
+    const a0 = (await alerts()).count;
     const r = await mock(`/api/orders/${txn}/refund`);
-    ok(r.approved?.status === 200, `refund approved → ${r.approved?.status} ${r.approved?.body}`);
-    const ev = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.refunded === true ? d : null; });
-    ok(ev?.planId === 'spark' && ev?.limits?.photos === 50 && ev?.limits?.retentionDays === 180 && ev?.aiPeopleEnabled === false && !ev?.retentionAnchorAt, `suspended: plan ${ev?.planId}, limits ${JSON.stringify(ev?.limits)}, no retentionAnchorAt`);
+    ok(r.approved?.status === 200, `refund of the Party order → ${r.approved?.status} ${r.approved?.body}`);
+    const ev = await until(async () => { const d = (await getDoc(`events/${id}`)).data; return d.planId === 'spark' ? d : null; });
+    ok(ev?.refunded === true && ev?.planId === 'spark' && ev?.limits?.photos === 50 && ev?.limits?.guests === 10 && ev?.limits?.retentionDays === 180 && ev?.aiPeopleEnabled === false && !ev?.retentionAnchorAt, `suspended: plan ${ev?.planId}, limits ${JSON.stringify(ev?.limits)}, AI ${ev?.aiPeopleEnabled}, no retentionAnchorAt`);
+    const st = await getDoc(`refundState/${id}`);
+    ok(st?.data.planBeforeRefund === 'wedding' && st?.data.limitsBeforeRefund?.photos === 500, `refundState stash: ${st?.data.planBeforeRefund} ${JSON.stringify(st?.data.limitsBeforeRefund)}`);
+    const inv1 = await inventory(id);
+    ok(same(inv0, inv1), `nothing deleted: ${JSON.stringify(inv1)}`);
+    const al = (await alerts()).alerts.slice(a0);
+    ok(al.some((x) => /^Web iadesi/.test(x.title ?? '') && !x.muted), `web refund + suspension alerted (unmuted): ${al.map((x) => x.title).join(' | ')}`);
     await go('#/');
     await page.locator(`[data-event="${id}"] .tag.danger`).waitFor();
     ok(true, 'list: Refunded chip');
@@ -363,20 +517,31 @@ try {
     await shot('refund-plan');
     await page.locator('.tile[data-plan="party"]').click();
     await page.locator('[data-buy]').click();
+    const before = (await getDoc(`events/${id}`)).data;
+    const t0 = Date.now();
     await payInMock('#pay');
     await page.locator('.status.done').waitFor({ timeout: 45_000 });
     const back = (await getDoc(`events/${id}`)).data;
-    ok(back.refunded === false && back.planId === 'party' && back.refundRestoredBy === 'repurchase', `bought again → refunded ${back.refunded}, plan ${back.planId}, restoredBy ${back.refundRestoredBy}`);
+    compareToRedeem('repurchase after refund (web) vs redeem', 'party', before, back, t0, Date.now());
     ok((await getDoc(`refundState/${id}`)) === null, 'repurchase deleted refundState');
+    ok(same(await inventory(id), inv0), 'still nothing deleted after the repurchase');
   }
 
   if (run('chargeback')) {
     log('\nchargeback on C3 → suspended → reverse');
     await signIn('host');
+    const inv0 = await inventory('c3-wedding-web');
+    await sleep(1500);
+    const a0 = (await alerts()).count;
     const cb = await mock('/api/orders/txn_local_seed_0001/chargeback');
     ok(cb.status === 200, `chargeback → ${cb.status} ${cb.body}`);
     const s = await until(async () => { const d = (await getDoc('events/c3-wedding-web')).data; return d.refunded === true ? d : null; });
-    ok(s?.planId === 'spark' && s?.aiPeopleEnabled === false && s?.limits?.retentionDays === 180, 'C3 suspended (Spark quotas, AI off, paid retention kept)');
+    ok(s?.planId === 'spark' && s?.aiPeopleEnabled === false && s?.limits?.retentionDays === 180 && s?.limits?.photos === 50 && !s?.retentionAnchorAt, `C3 suspended (Spark quotas ${JSON.stringify(s?.limits)}, AI off, paid retention kept, no deletion clock)`);
+    const inv1 = await inventory('c3-wedding-web');
+    ok(inv0.media > 0 && inv0.files > 0 && same(inv0, inv1), `chargeback deleted nothing: ${JSON.stringify(inv0)} → ${JSON.stringify(inv1)}`);
+    const cbAlerts = await until(async () => { const al = (await alerts()).alerts.slice(a0); return al.some((x) => /^Chargeback/.test(x.title ?? '')) ? al : null; }, 15_000);
+    const cbAlert = cbAlerts?.find((x) => /^Chargeback/.test(x.title ?? ''));
+    ok(!!cbAlert && !cbAlert.muted, `chargeback alert (unmuted, D18): ${cbAlert ? `${cbAlert.title} — ${cbAlert.body}` : 'none'}`);
     await go('#/e/c3-wedding-web');
     await page.locator('[data-code]').waitFor();
     await shot('chargeback-overview');
@@ -406,7 +571,19 @@ try {
     await page.locator('.status.bad').waitFor({ timeout: 30_000 });
     ok(/could not be applied/.test(await page.locator('.status.bad').innerText()), 'UI: "Your payment could not be applied; we refund it"');
     ok((await getDoc('events/c1-spark-web')).data.planId === 'spark', 'event still Spark');
+    ok((await getDoc(`redemptions/pd_${order.id}`)) === null && (await getDoc(`webOrders/${order.id}`))?.data.status === 'discounted', 'no ledger row, order "discounted"');
+    const dAlert = (await until(async () => { const al = (await alerts()).alerts; return al.find((x) => (x.body ?? '').includes(order.id)) ?? null; }, 15_000));
+    ok(!!dAlert && !dAlert.muted && /İndirimli ya da sıfır tutarlı/.test(dAlert.body ?? ''), `discount alert: ${dAlert ? `${dAlert.title} — ${dAlert.body}` : 'none'}`);
     await shot('discount-failed');
+    // A 0.00 payment WITHOUT a discount code (a mis-set price or a $0 payment link): subtotal 0.
+    const opened = await mock('/api/call', { who: 'host', fn: 'webCheckoutStart', data: { eventId: 'c1-spark-web', planId: 'party' } });
+    const zTxn = opened.result?.transactionId;
+    ok(opened.ok && /^txn_/.test(zTxn ?? ''), `second order opened through webCheckoutStart: ${zTxn}`);
+    const z = await mock(`/api/orders/${zTxn}/zero-amount`);
+    ok(z.status === 200 && /discounted|mismatch/.test(z.body ?? ''), `0.00 delivery → ${z.status} ${z.body}`);
+    ok((await getDoc('events/c1-spark-web')).data.planId === 'spark' && (await getDoc(`redemptions/pd_${zTxn}`)) === null, 'still Spark, no ledger row');
+    const zAlert = (await until(async () => { const al = (await alerts()).alerts; return al.find((x) => (x.body ?? '').includes(zTxn)) ?? null; }, 15_000));
+    ok(!!zAlert && !zAlert.muted, `0.00 alert: ${zAlert ? `${zAlert.title} — ${zAlert.body}` : 'none'}`);
   }
 
   if (run('soon')) {
@@ -450,10 +627,20 @@ try {
     await page.locator('[data-decl-accept]').check();
     await page.locator('[data-declaration] button', { hasText: 'Accept' }).click();
     ok(await until(async () => (await getDoc(`faceHostDeclarations/${id}`)) !== null), 'faceHostDeclarations doc written by the server');
+    const decl = (await getDoc(`faceHostDeclarations/${id}`)).data;
+    ok(decl.declTextVersion === '2026-09-23' && decl.declLang === 'en', `declaration: text ${decl.declTextVersion}, lang ${decl.declLang}`);
+    await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+    ok(/79[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $79.99');
+    const before = (await getDoc(`events/${id}`)).data;
+    const t0 = Date.now();
     await payInMock('#pay');
     await page.locator('.status.done').waitFor({ timeout: 45_000 });
     const ev = (await getDoc(`events/${id}`)).data;
     ok(ev.planId === 'pro1000' && ev.uploadPolicy === 'host' && ev.aiPeopleEnabled === true && ev.mode === 'open', `applied: ${ev.planId}, uploadPolicy ${ev.uploadPolicy}, AI ${ev.aiPeopleEnabled}`);
+    compareToRedeem('Pro 1000 (web) vs redeem', 'pro1000', before, ev, t0, Date.now());
+    const proOrder = await lastOrderFor(id);
+    ok(proOrder?.data.status === 'applied' && Number(proOrder.data.amount) === 7999 && proOrder.data.tier === 'pro', `order ${proOrder?.id}: ${proOrder?.data.status}, ${proOrder?.data.amount} cents, tier ${proOrder?.data.tier}`);
+    compareLedger('Pro 1000 ledger', (await getDoc(`redemptions/pd_${proOrder?.id}`))?.data, { uid: ev.hostId, eventId: id, planId: 'pro1000', txn: proOrder?.id });
     await go(`#/e/${id}`);
     await page.locator('[data-upload-link]').waitFor();
     ok((await page.locator('[data-upload-link]').getAttribute('href')) === `../upload/?event=${id}`, 'Upload originals → /join/upload/?event=<id>');

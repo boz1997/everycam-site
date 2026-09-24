@@ -230,6 +230,8 @@ button.back { border: 0; background: none; padding: 0; cursor: pointer; width: f
 .seg > * + * { border-left: 1.5px solid var(--verde) !important; }
 .seg [aria-pressed="true"], .seg [aria-current="true"] { background: var(--verde); color: var(--cream); }
 .seg button:hover:not([aria-pressed="true"]) { background: var(--bg-alt); }
+/* phones: tr/de filter labels ("Bildirilenler (1)", "Ausgeblendet (1)") broke onto two lines at 20px padding */
+@media (max-width: 479.98px) { .seg button, .seg a { padding: 0 12px; letter-spacing: 0; justify-content: center; text-align: center; } }
 
 /* radio cards (private / open) */
 .choice { display: grid; gap: 10px; }
@@ -406,9 +408,10 @@ button.tile { font: inherit; width: 100%; }
 .tile .t-per { font: 500 .8125rem/1.3 var(--sans); color: var(--ink-soft); margin-top: 4px; }
 .tile .t-note { font-size: .875rem; color: var(--sage-text); margin-top: 10px; line-height: 1.45; }
 .tile dl { display: grid; margin: auto 0 0; padding-top: 16px; }
-.tile dl > div { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: .875rem; }
+.tile dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: .875rem; }
 .tile dt { color: var(--ink-soft); }
-.tile dd { margin: 0; font-weight: 600; color: var(--ink); text-align: right; }
+/* a long value (de/es/it/pt/pl "Storage 6 months" at phone width) drops onto its own line, right-aligned */
+.tile dd { margin: 0 0 0 auto; font-weight: 600; color: var(--ink); text-align: right; }
 .tile[aria-pressed="true"], .tile.selected { background: var(--verde); border-color: var(--verde); }
 .tile[aria-pressed="true"] .t-name, .tile[aria-pressed="true"] .t-price, .tile[aria-pressed="true"] dd { color: var(--cream); }
 .tile[aria-pressed="true"] .t-per, .tile[aria-pressed="true"] dt { color: var(--on-dark-soft); }
@@ -503,7 +506,7 @@ button.tile { font: inherit; width: 100%; }
 .grow-row:first-child { border-top: 0; }
 .grow-row .av { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-alt); color: var(--verde); display: grid; place-items: center; font: 700 .9375rem/1 var(--sans); grid-row: 1 / span 2; }
 .grow-row.banned .av { background: rgba(156, 61, 46, .1); color: var(--danger); }
-.grow-row .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.grow-row .name { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: center; }
 .grow-row .sub { grid-column: 2; font-size: .8125rem; color: var(--ink-soft); }
 .grow-row .btn { grid-column: 3; grid-row: 1 / span 2; }
 
@@ -527,7 +530,7 @@ button.tile { font: inherit; width: 100%; }
 .auth { display: grid; gap: 24px; }
 @media (min-width: 1000px) { .auth { grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 40px; align-items: start; } }
 .auth-card { display: grid; gap: 14px; }
-.btn.provider { justify-content: flex-start; background: var(--field); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; letter-spacing: 0; }
+.btn.provider { justify-content: flex-start; text-align: left; background: var(--field); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); font-weight: 600; letter-spacing: 0; }
 .btn.provider:hover { background: var(--surface); box-shadow: inset 0 0 0 1.5px var(--verde); color: var(--ink); }
 .btn.provider[disabled] { opacity: 1; background: transparent; color: var(--ink-soft); box-shadow: inset 0 0 0 1px var(--line); }
 .btn.provider .soon { margin-left: auto; }

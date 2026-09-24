@@ -472,7 +472,7 @@ const pt: Dict = {
   'checkout.mailSlow': 'Pagamento web ainda não aplicado',
   'checkout.mailDuplicate': 'Pago duas vezes',
   'checkout.mailFailed': 'Pagamento web não aplicado',
-  'checkout.proIncludesTitle': 'Em todos os pacotes para fotógrafos',
+  'checkout.proIncludesTitle': 'Em todos os pacotes para fotógrafos:',
   'checkout.proInc1': 'Correspondência facial incluída, onde disponível', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Só o fotógrafo envia — os convidados veem', // app: paywall.featHostOnly
   'checkout.proInc3': 'Originais guardados em resolução máxima', // app: paywall.featOriginals

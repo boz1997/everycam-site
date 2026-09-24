@@ -476,7 +476,7 @@ export const en = {
   'checkout.mailSlow': 'Web payment not applied yet',
   'checkout.mailDuplicate': 'Paid twice',
   'checkout.mailFailed': 'Web payment not applied',
-  'checkout.proIncludesTitle': 'Every photographer package',
+  'checkout.proIncludesTitle': 'Every photographer package:',
   'checkout.proInc1': 'Face matching included, where available', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Only you upload — guests view', // app: paywall.featHostOnly
   'checkout.proInc3': 'Originals kept, full resolution', // app: paywall.featOriginals

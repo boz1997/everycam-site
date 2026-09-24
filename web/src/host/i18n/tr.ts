@@ -471,7 +471,7 @@ const tr: Dict = {
   'checkout.mailSlow': 'Web ödemesi henüz uygulanmadı',
   'checkout.mailDuplicate': 'İki kez ödendi',
   'checkout.mailFailed': 'Web ödemesi uygulanmadı',
-  'checkout.proIncludesTitle': 'Her fotoğrafçı paketinde',
+  'checkout.proIncludesTitle': 'Her fotoğrafçı paketinde:',
   'checkout.proInc1': 'Yüz eşleştirme dahil (sunulduğu yerlerde)', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Yalnız sen yüklersin — misafirler görür', // app: paywall.featHostOnly
   'checkout.proInc3': 'Orijinaller tam çözünürlükte saklanır', // app: paywall.featOriginals

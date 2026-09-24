@@ -473,7 +473,7 @@ const pl: Dict = {
   'checkout.mailSlow': 'Płatność na stronie jeszcze niezaksięgowana',
   'checkout.mailDuplicate': 'Podwójna płatność',
   'checkout.mailFailed': 'Płatność na stronie niezaksięgowana',
-  'checkout.proIncludesTitle': 'W każdym pakiecie dla fotografów',
+  'checkout.proIncludesTitle': 'W każdym pakiecie dla fotografów:',
   'checkout.proInc1': 'Rozpoznawanie twarzy w cenie, tam gdzie jest dostępne', // app: paywall.featAiIncluded (adapted)
   'checkout.proInc2': 'Tylko Ty wgrywasz — goście oglądają', // app: paywall.featHostOnly
   'checkout.proInc3': 'Oryginały w pełnej rozdzielczości', // app: paywall.featOriginals
