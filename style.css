@@ -5,7 +5,7 @@
    .muted, .card, .kicker, .btn, .btn.ghost, footer, footer.site, .plans, .plans-scroll, .tag, .steps,
    .emoji, .highlight.
 
-   One system (05 §2):
+   One system:
    - two heading voices: statement (light Fraunces, hero H1 + FAQ title only) and section
      (heavy soft Fraunces, every other heading); body is Inter.
    - radii: 0 photos and buttons · 6 printed cards and objects inside tiles · 16 tiles and panels.
@@ -62,7 +62,7 @@
   --verde-dark: #142B20;
   --wall: #0E1310;
   --sage: #6E7F5F;
-  --sage-text: #56664A;        /* 5.34 on bg, 4.92 on bg-alt (brief value #5E6E50 fails on bg-alt) */
+  --sage-text: #56664A;        /* 5.34 on bg, 4.92 on bg-alt (#5E6E50 fails on bg-alt) */
   --gold: #C79A2E;              /* text only on verde / wall; never on cream */
   --danger: #9C3D2E;
   --cream: #F3EEE2;
@@ -174,12 +174,10 @@ header.site {
   font-variation-settings: "opsz" 36, "SOFT" 0, "WONK" 0;
   letter-spacing: -.02em; color: var(--verde);
 }
-/* THE wordmark switch (05 §6.4). Every page, home included, writes Share<i>Cam</i> (the legal pages' markup), so
-   this one rule sets the casing and colour everywhere. Now: single-tone "Sharecam" (App Store name).
-   Two-tone "ShareCam" (Berk's in-app wordmark, 15 Aug) = replace the line below with:
-     .wordmark i { font-style: normal; text-transform: none; color: var(--gold); }
-   (gold passes as text on verde; on cream it is a logotype, exempt from 1.4.3, but #6E7F5F sage reads better:
-    color: #6E7F5F). Not "capitalize": it only uppercases a word's first letter, and "cam" is mid-word. */
+/* THE wordmark rule. Every page, home included, writes Share<i>Cam</i> (the legal pages' markup), so
+   this one rule sets the casing and colour everywhere: two-tone "ShareCam", "Cam" in #6E7F5F sage on cream
+   (a logotype, exempt from 1.4.3) and in gold on the dark bands (gold passes as text on verde).
+   Not "capitalize": it only uppercases a word's first letter, and "cam" is mid-word. */
 .wordmark i { font-style: normal; text-transform: none; color: #6E7F5F; }
 .band-dark .wordmark i, .site-footer.dark .wordmark i { color: var(--gold); }
 header.site > nav { display: flex; align-items: center; gap: 2px; flex-wrap: nowrap; margin-right: -10px; }
@@ -255,10 +253,9 @@ body > footer.site { width: min(68ch, 100% - 2 * var(--margin)); margin-inline: 
 .card > h2:first-child { margin-top: 0; font-size: 1.3125rem; }
 .card > p:last-child { margin-bottom: 0; }
 
-/* ---------- home #packages: web buttons (plan SHARECAM-WEB §4.1). Here, not in assets/home.css, because the
-   web-purchase work package owns this file only. PENDING:web-buy = the body classes: "web-soon" shows the
-   consumer tiles' "On the web soon" and hides their "Choose …" link; "pro-web-soon" does the same for the
-   photographer tiles. Deleting a class is the whole go-live flip. ---------- */
+/* ---------- home #packages: web buttons. The body classes switch them: "web-soon" shows the consumer
+   tiles' "On the web soon" and hides their "Choose …" link; "pro-web-soon" does the same for the
+   photographer tiles. Deleting a class shows that group's links. ---------- */
 .web-soon .buy-live, body:not(.web-soon) .buy-soon,
 .pro-web-soon .pro-buy-live, body:not(.pro-web-soon) .pro-buy-soon { display: none !important; }
 .tier-btn, .tier-web { grid-column: 1 / -1; order: 2; margin-top: 14px; }
@@ -278,9 +275,8 @@ body > footer.site { width: min(68ch, 100% - 2 * var(--margin)); margin-inline: 
   .tier-btn { width: 100%; padding: 8px 12px; white-space: normal; text-align: center; line-height: 1.2; }
   .tier-web { justify-content: center; }
 }
-/* PENDING:web-cta, prepared: the header "Create your event" (commented out in index.html until D20 allows it).
-   Below 1280 px it would crowd the wordmark (measured: it overlaps at 1200), so there it lives in the menu (< 1200)
-   or only in the hero / pricing / closing links (1200–1279). */
+/* The header "Create your event" button. Below 1280 px it would crowd the wordmark (measured: it overlaps at
+   1200), so there it lives in the menu (< 1200) or only in the hero / pricing / closing links (1200–1279). */
 header.site > .nav-create { display: none; }
 @media (min-width: 1280px) { header.site > .nav-create { display: inline-flex; } }
 

@@ -1,24 +1,12 @@
 <!doctype html>
 <!--
-  Sharecam home — direction D, Berk's pick-and-mix of A, B and C (research/05-d-brief.md).
-  Header, hero, album spread, FAQ, footer: A. How it works, Nobody downloads, privacy, pricing: C.
-  Features bento: B + C. Face matching: C type + B phone. Photographers: new (05 §4).
-  One system: two heading voices (statement = hero H1 + FAQ title; section = every other heading),
-  radii 0 (photos, buttons) / 6 (printed cards, objects in tiles) / 16 (tiles), square verde buttons,
-  shadows only on phones, cards and the laptop. Three dark bands: #guests, #wall, #privacy.
-  Markers: PRICING:catalog1, OPTIONAL:pro (visible for this preview), REPLACE with real screenshot, PENDING.
-  Web purchase (plan SHARECAM-WEB §4.1, D20): PENDING:web-buy = the body classes "web-soon" / "pro-web-soon" (paid buttons in
-  #packages read "On the web soon" until Paddle live sells that tier; delete the class = go live). PENDING:web-cta = the
-  header, menu, hero and closing "Create your event" links, commented out: they go live only in a push made while no Sharecam
-  version is WAITING_FOR_REVIEW / IN_REVIEW (one App Store Connect GET before the push). Until then the only web entry points
-  are inside #packages. Pages the app opens or shares never link to /host. The same push also points every
-  "Photographer login" (header, menu, #photographers, footer; PENDING:web-cta-login) at https://sharecam.app/host/ —
-  the dashboard links on to the uploader, the uploader has no way back (D20), so web buyers find /host.
-  Photographer switch: every photographer entry point (nav, menu, header login, pricing tab + panel, section,
-  footer column) carries class="pro-only" inside an OPTIONAL:pro block. To hide them all before 1.0.5 ships,
-  add "no-pro" to the <body> class list (<body class="home no-pro …">) (or delete every OPTIONAL:pro block).
-  Wordmark: <span class="wordmark">Share<i>Cam</i></span>; the casing/colour is ONE rule in style.css (.wordmark i).
-  Built from work/index.src.html by work/build.py (inlines the mark, the laurel crest and the App Store QR).
+  Sharecam home page. Markers:
+  PRICING:catalog1 … /PRICING — the consumer pricing block.
+  OPTIONAL:pro … /OPTIONAL:pro — every photographer entry point (nav, menu, header login, pricing tab and panel,
+  section, footer column); each carries class="pro-only", and <body class="no-pro"> hides them all.
+  Body classes "web-soon" / "pro-web-soon": the paid tiles in #packages show "On the web soon" instead of their
+  "Choose …" link (see style.css); removing a class shows the links.
+  Wordmark: <span class="wordmark">Share<i>Cam</i></span>; its casing and colour are one rule in style.css (.wordmark i).
 -->
 <html lang="en">
 <head>
@@ -56,9 +44,6 @@
 {"@context":"https://schema.org","@type":"MobileApplication","name":"Sharecam","operatingSystem":"iOS 16.4 or later","applicationCategory":"PhotographyApplication","url":"https://sharecam.app/","installUrl":"https://apps.apple.com/app/id6801534049","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
 </script>
 </head>
-<!-- PENDING:web-buy (plan §4.1, D22). "web-soon": Party / Wedding / Unlimited show "On the web soon" instead of "Choose …";
-     delete it when Paddle live sells consumer packages (go-live E6). "pro-web-soon": the same for the photographer tiles;
-     delete it at go-live G (ASC pro IAPs approved + 1.0.5 live + Paddle's written OK on face matching, D26). -->
 <body class="home web-soon pro-web-soon">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="mark" viewBox="222 243 581 561"><path fill="currentColor" fill-rule="evenodd" d="M459 533L422 536 375 542 364 544 345 549 324 558 310 565 298 573 286 582 276 591 266 601 258 612 252 622 247 632 244 643 242 650 242 661 243 672 246 680 250 686 264 704 274 715 290 728 304 740 315 747 326 752 344 760 356 764 369 766 381 768 399 767 412 765 428 761 441 756 453 751 482 736 496 727 510 717 520 709 532 697 539 690 546 679 554 666 558 656 562 643 565 630 567 610 567 589 566 578 563 570 560 562 556 556 548 549 540 543 530 539 522 537 511 535 490 532ZM416 552L434 552 472 555 494 559 516 565 533 572 539 576 545 582 550 588 552 594 554 600 554 607 553 616 549 630 544 643 536 658 526 676 518 686 508 697 490 712 476 720 466 726 444 735 424 741 406 746 384 750 374 751 362 751 349 749 337 745 326 740 319 735 310 727 303 720 297 712 288 698 282 685 276 672 270 652 269 643 270 637 272 628 275 622 280 613 292 600 302 591 312 584 326 576 335 571 360 561 372 558 389 554 401 553ZM700 479L690 480 682 481 673 484 666 487 656 492 649 498 633 512 621 528 614 538 607 550 602 560 596 577 591 598 587 636 584 670 584 715 586 736 591 756 594 764 598 774 604 782 611 790 620 795 628 797 634 798 647 798 659 797 670 795 682 791 690 787 700 782 712 773 720 765 730 754 740 741 748 729 759 711 770 688 782 663 788 648 792 633 795 621 796 597 795 584 794 576 791 567 786 555 775 537 766 525 756 514 730 490 724 486 716 482 706 480ZM690 500L696 500 704 500 712 503 718 505 732 515 736 520 743 530 757 557 765 575 769 587 772 598 774 614 775 624 774 640 772 653 770 662 766 672 761 683 750 701 730 728 713 748 703 757 696 763 686 769 679 773 670 776 661 778 655 778 646 776 637 773 628 769 618 763 613 760 605 751 600 740 596 724 594 708 594 697 596 679 599 658 607 618 620 572 624 560 630 548 640 530 648 522 656 515 663 509 672 504 682 501ZM637 269L625 270 610 273 596 278 582 284 568 290 550 301 518 323 498 340 486 352 476 364 470 375 463 388 460 396 456 408 454 423 452 438 452 447 454 468 457 477 460 483 464 489 470 496 476 500 487 504 499 507 516 508 547 506 580 501 622 492 658 482 685 472 710 458 721 451 734 441 745 432 759 416 766 408 774 394 779 384 782 373 783 364 783 354 782 344 777 334 771 326 766 321 742 302 718 287 706 282 690 276 678 273 660 270 650 269ZM652 283L663 283 674 284 681 285 692 289 700 293 710 299 716 303 726 314 734 324 741 334 746 345 754 363 756 369 756 378 756 382 753 392 748 400 742 410 734 418 727 426 716 434 704 443 691 451 678 458 654 468 636 474 620 477 602 480 565 482 553 483 530 482 508 480 499 478 487 474 480 470 475 466 470 460 467 454 466 448 466 441 468 428 477 402 482 392 491 376 504 358 512 350 522 340 537 328 552 319 566 312 596 299 627 288 642 284ZM358 249L342 252 333 254 322 257 314 261 303 268 296 274 286 282 279 292 270 305 260 322 248 350 234 390 230 406 228 422 228 434 228 444 232 461 239 478 249 492 258 503 266 510 286 527 304 540 310 543 326 548 334 548 345 548 354 545 362 542 370 538 380 532 387 525 394 518 402 507 408 498 413 489 417 480 425 458 429 434 429 396 425 348 421 320 418 306 413 292 408 280 402 270 397 264 390 257 382 253 374 250 368 249ZM340 271L349 270 356 271 372 275 386 282 392 287 396 291 404 303 410 321 413 340 414 362 413 396 409 426 401 466 395 484 386 501 381 507 374 514 366 520 358 524 351 527 345 528 338 529 330 529 321 527 315 525 309 522 302 517 296 512 287 503 270 479 263 467 255 450 248 431 246 413 246 395 247 386 251 372 258 354 274 328 282 316 294 300 308 286 314 281 323 276 332 272Z"/></symbol></svg>
 <a class="skip" href="#main">Skip to content</a>
@@ -108,9 +93,6 @@
       <h1 id="hero-title" class="display">Every shot, <em>collected.</em></h1>
       <p class="lead only-wide">Put a QR code on the tables. Guests scan it, type their name and share photos and videos straight from their phone’s browser. No app, no account. Everything lands in one live album.</p>
       <p class="lead only-narrow">Guests scan a QR code and share from their browser. Everything lands in one live album.</p>
-      <!-- PENDING: demo event (brief §8.2). /join/ asks for a code, so this link is labelled for guests who have one.
-           When Berk creates the demo event, change all three "Have a code? Join an event" links (hero, #guests, closing)
-           back to "Try it as a guest →" pointing at https://sharecam.app/e/<DEMO>. -->
       <div class="cta-row">
         <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
         <a class="text-link" href="https://sharecam.app/join/">Have a code? Join an event <span aria-hidden="true">→</span></a>
@@ -158,7 +140,7 @@
 <section class="section how" id="how" aria-labelledby="how-title">
   <div class="wrap">
     <h2 id="how-title" class="h2">How it works.</h2>
-    <!-- REPLACE with real 1.0.5 screenshots (brief §8.5): both phones are HTML renders from the app's own templates; the QR encodes https://sharecam.app/ -->
+    <!-- Both phones are HTML renders from the app's own templates; the QR encodes https://sharecam.app/ -->
     <ol class="steps">
       <li class="step">
         <div class="step-visual">
@@ -224,7 +206,7 @@
     <h2 id="features-title" class="h2">Your album, your call.</h2>
     <div class="bento">
 
-      <!-- a · B's blurred grid + PRIVATE MODE card, C's visible toggle "Open the gallery to everyone" (Berk's photo 12).
+      <!-- a · B's blurred grid + PRIVATE MODE card, C's visible toggle "Open the gallery to everyone".
            The switch is named by its visible label (WCAG 2.5.3); works without JS (:checked). -->
       <div class="tile tile-surprise">
         <input type="checkbox" id="reveal" class="reveal-input" role="switch">
@@ -296,7 +278,7 @@
           <p>Save the whole album to your Photos, or download it as a ZIP. You decide whether guests can save photos too.</p>
         </div>
         <div class="home-ui">
-          <!-- REPLACE with real 1.0.5 screenshot: host gallery render (paid state, Face tab, no upgrade chip) -->
+          <!-- HTML render of the host gallery (paid state, Face tab, no upgrade chip) -->
           <div class="phone phone-top"><img src="assets/img/host-top-600.webp" width="600" height="746" loading="lazy" decoding="async" alt="The top of the host's gallery for Emma &amp; Daniel: Gallery · 148, then Select, Save all (148) and Download ZIP above the Most loved photos."></div>
           <div class="app-card dcard" aria-hidden="true">
             <div><p class="app-label">Guest downloads</p><p class="app-desc">Guests can save photos.</p></div>
@@ -365,6 +347,7 @@
         <li>Selfies are processed on our servers (Amazon Web Services, Frankfurt), not on the phone. The search signature is deleted as soon as the search finishes, within 24&nbsp;hours at the latest, and the selfie is never added to the album.</li>
         <li>There’s no list of people. Even the host searches with their own selfie.</li>
         <li>Never sold, never used to train AI, never used to identify anyone across events.</li>
+        <li>A search covers only the photos uploaded to that one event’s album: never the web, social media or any other public or leaked source. Nothing is generated: no face swaps, no deepfakes.</li>
         <li>Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can’t confirm the location.</li>
       </ul>
       <p class="price-line">$9.99 once per event, on any package.</p>
@@ -374,7 +357,7 @@
       </p>
     </div>
     <figure class="face-fig">
-      <!-- REPLACE with real screenshot: HTML re-creation of the /face/ result step (face/index.html + face/i18n.js EN) -->
+      <!-- HTML re-creation of the /face/ result step (face/index.html + face/i18n.js EN) -->
       <div class="phone phone-neutral"><img src="assets/img/screen-face-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="A guest's browser on sharecam.app/face: Found 9 photos, These are the photos you appear in, Save all to Photos, Download all as a ZIP, and nine photos of her."></div>
       <figcaption class="cap">A guest’s own result, in the browser.</figcaption>
     </figure>
@@ -399,17 +382,13 @@
       <li>We do not use your photos to train AI models.</li>
       <li>Only the items you explicitly choose to upload leave your device.</li>
       <li>Albums are stored in the EU: the database in Frankfurt, photos and videos in Belgium.</li>
-      <!-- PENDING:paddle-cookies (go-live E, review P2): /host loads Paddle.js and Paddle's checkout frame when someone pays.
-           Before E, open a sandbox checkout and read what cdn.paddle.com and buy.paddle.com store (cookies, localStorage);
-           then make this line "No cookies, analytics or trackers, except Paddle's checkout when you pay on the web."
-           and say the same in privacy.html (the Paddle paragraph). -->
       <li>This website uses no cookies, analytics or trackers.</li>
     </ul>
     <p class="privacy-more"><a class="text-link" href="https://sharecam.app/privacy.html">Read the privacy policy <span aria-hidden="true">→</span></a></p>
   </div>
 </section>
 
-<!-- 9 · PRICING (C: tiers that grow; two tabs, Events | Photographers, 05 §6.2).
+<!-- 9 · PRICING (C: tiers that grow; two tabs, Events | Photographers).
      Without JS both panels show one after the other under their own h3; site.js turns the strip into tabs.
      Deep link: /#pricing-photographers selects the Photographers tab. -->
 <section class="section pricing" id="packages" aria-labelledby="packages-title">
@@ -495,8 +474,8 @@
         <li>Guest limits are per event; removing a guest frees their slot.</li>
       </ul>
     </div>
-    <!-- OPTIONAL:pro — photographer packages (everycam src/plans.ts PLANS + scripts/storeProProducts.mjs; Berk asked to show them, 05 §6.2).
-         No videos row (the desktop uploader takes no video yet), no "Most popular". Hide together with #photographers. -->
+    <!-- OPTIONAL:pro — photographer packages, at the app's prices. No videos row: the desktop uploader takes no video.
+         Hidden together with #photographers. -->
     <div class="price-panel pro-only" id="pricing-photographers">
       <h3 class="panel-h">Photographers</h3>
       <ol class="tiers" aria-label="Photographer packages, from smallest to largest. Each is a one-time purchase for one event.">
@@ -565,7 +544,7 @@
       <p class="addon addon-pro">Originals kept · you upload from a computer · guests view and find their photos with a selfie</p>
       <ul class="footnotes">
         <li>One-time purchase per event, no subscription.</li>
-        <li>Bought in the Sharecam iPhone app, from the next app update.</li> <!-- PRO-SOON: remove ", from the next app update" when 1.0.5 is live -->
+        <li>Bought in the Sharecam iPhone app, from the next app update.</li>
         <li>Prices in USD.</li>
         <li>Face matching where available: not in Illinois, Texas or Washington, in China, Russia or Vietnam, or where we can’t confirm the location.</li>
       </ul>
@@ -579,10 +558,7 @@
   </div>
 </section>
 
-<!-- OPTIONAL:pro — photographer mode ships with app 1.0.5 (TestFlight today). Visible in this preview only.
-     Its prices live in the Photographers pricing tab (#pricing-photographers). Hide this section, that tab and panel,
-     and the nav / menu / footer photographer links together before 1.0.5 is live: <body class="home no-pro">,
-     or delete every OPTIONAL:pro block. Copy from 02 "Photographer mode" only. -->
+<!-- OPTIONAL:pro — photographer section; its prices are in the Photographers pricing tab (#pricing-photographers). -->
 <section class="section pro pro-only" id="photographers" aria-labelledby="pro-title">
   <div class="wrap grid pro-grid">
     <div class="pro-copy">
@@ -599,7 +575,7 @@
         <a class="text-link" href="https://sharecam.app/join/album/">Couple’s album <span aria-hidden="true">→</span></a>
         <a class="text-link" href="#pricing-photographers">See photographer prices <span aria-hidden="true">→</span></a>
       </div>
-      <p class="reassure">Photographer packages arrive in the Sharecam iPhone app with the next update. <!-- PRO-SOON: when 1.0.5 is live → "Photographer packages are set up in the Sharecam iPhone app." --></p>
+      <p class="reassure">Photographer packages arrive in the Sharecam iPhone app with the next update.</p>
     </div>
     <figure class="pro-fig">
       <div class="laptop">
@@ -650,7 +626,6 @@
       <details><summary>Is face matching available where I live?</summary><p>It isn’t offered in Illinois, Texas or Washington, in China, Russia or Vietnam, and it stays off anywhere we can’t confirm the location. Where it is available, it’s an optional $9.99 add-on per event, and every guest chooses for themselves.</p></details>
       <details><summary>How do refunds work?</summary><p>Purchases in the app go through Apple, so refunds are requested at <a href="https://reportaproblem.apple.com">reportaproblem.apple.com</a>. Purchases on the web are refunded by us through Paddle, under our <a href="https://sharecam.app/refund-policy.html">refund policy</a>. If something went wrong on our side, write to us first.</p></details>
       <details><summary>Who processes web payments?</summary><p>Paddle, our reseller and merchant of record. Paddle runs the checkout, sends the receipt and invoice and handles tax; we never see your card details. See the <a href="https://sharecam.app/web-terms.html">web purchase terms</a>. Purchases in the iPhone app are processed by Apple.</p></details>
-      <!-- PENDING: when web sign-in with Apple exists (go-live E1, D3), replace the last sentence with "Signed in with Apple in the app? Use Sign in with Apple on the web too." -->
       <details><summary>Can’t find your events on the web?</summary><p>Sign in on the web with the same account you use in the app (Settings → Account). If you never signed in there, do that in the app first. Signed in with Apple in the app? Web sign-in with Apple is coming.</p></details>
       <details><summary>Can I use it for birthdays and other parties?</summary><p>Yes. Spark is free for up to 10 guests, and the smaller packages are made for dinners, birthdays and parties.</p></details>
     </div>
@@ -669,7 +644,7 @@
       </div>
       <p class="reassure">Free to start · host from the web or iPhone · guests join from any phone</p>
     </div>
-    <!-- QR → the App Store (no public demo event yet, brief §8.2). Swap to "Scan to try it as a guest" + /e/<DEMO> when one exists. -->
+    <!-- QR → the App Store. -->
     <figure class="tablecard" aria-label="Table card: Scan to get the app">
       <div class="crest" aria-hidden="true"><svg class="crest-laurel" viewBox="0 0 150 110"><path d="M75.0 104 Q 12 78 22 14" stroke="#6E7F5F" stroke-width="1.3" fill="none"/><path d="M75.0 104 Q 138 78 128 14" stroke="#6E7F5F" stroke-width="1.3" fill="none"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(22.0 84) rotate(-25)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(128.0 84) rotate(25)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(24.5 68) rotate(-17)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(125.5 68) rotate(17)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(27.0 52) rotate(-9)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(123.0 52) rotate(9)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(29.5 36) rotate(-1)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(120.5 36) rotate(1)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(32.0 20) rotate(7)"/><path d="M0 0 q -3 -8 4 -11 q 3 8 -4 11 Z" fill="#6E7F5F" transform="translate(118.0 20) rotate(-7)"/></svg><svg class="crest-mark"><use href="#mark"/></svg></div>
       <p class="tc-title">Scan to get the app</p>

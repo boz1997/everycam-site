@@ -1,5 +1,5 @@
 /* Sharecam home — direction D. Loaded after /style.css (tokens, fonts, header, buttons live there).
-   Sections follow 05-d-brief §1; the numbers in the headings below match it. */
+   Sections are numbered; the numbers in the headings below match the section comments in index.html. */
 
 /* ================================================================ layout */
 .grid { display: grid; grid-template-columns: repeat(var(--cols), minmax(0, 1fr)); column-gap: var(--gap); }
@@ -238,7 +238,7 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
   .guests-fig .cap { margin-inline: 0; }
   .guests-copy { grid-column: 6 / content-end; }
 }
-/* desktop (C, Berk's photo 11): the photo runs from the band's top edge and the left page edge down to the
+/* desktop (C): the photo runs from the band's top edge and the left page edge down to the
    copy's last line; its caption sits in the band's bottom gutter. The copy sets the band's height. */
 @media (min-width: 1200px) {
   .guests { padding-block: 0; }
@@ -332,7 +332,7 @@ html.motion .fan-card { transition: transform 420ms var(--ease); }
 
 /* d · take it all home */
 .home-ui { position: relative; display: flex; justify-content: center; padding-bottom: 20px; }
-/* the phone is cut with a hard edge that sits under the Guest downloads card (no fade: no gradients, 04 §3.3) */
+/* the phone is cut with a hard edge that sits under the Guest downloads card (no fade: no gradients) */
 .phone-top {
   width: min(100% - 32px, 300px); aspect-ratio: 600 / 746;
   border-bottom-left-radius: 0; border-bottom-right-radius: 0; padding-bottom: 0;

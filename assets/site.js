@@ -35,7 +35,7 @@
     render();
   }
 
-  /* pricing tabs (05 §6.2): Events | Photographers. Without JS both panels show, each under its own h3.
+  /* pricing tabs: Events | Photographers. Without JS both panels show, each under its own h3.
      ARIA tabs pattern: roving tabindex, Left/Right/Home/End move and select, Events selected by default.
      /#pricing-photographers (on load, on hashchange, or any link to it) selects that tab, then scrolls to the strip:
      the panel is hidden until selected, so the browser can't scroll to it by itself. */
