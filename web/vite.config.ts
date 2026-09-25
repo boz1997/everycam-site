@@ -13,9 +13,9 @@ import react from '@vitejs/plugin-react';
 //
 // YEREL YIĞIN (plan §5, EC/local): `vite --mode localstack` YALNIZ dev sunucusunda
 // src/backend/active.ts → local.ts ve checkout.ts → localCheckout.ts takası yapar
-// (emülatörler + sahte Paddle). Bu modda BUILD reddedilir; üretim paketinin modül
-// grafiği yerel dosyaları hiç içeremez. scripts/check-dist.mjs (postbuild) ayrıca
-// her build'i emülatör portu / demo proje / sahte Paddle izine karşı tarar.
+// (emülatörler + sahte Paddle / Polar). Bu modda BUILD reddedilir; üretim paketinin
+// modül grafiği yerel dosyaları hiç içeremez. scripts/check-dist.mjs (postbuild)
+// ayrıca her build'i emülatör portu / demo proje / sahte Paddle-Polar izine karşı tarar.
 const LOCAL_MODE = 'localstack';
 const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));
 

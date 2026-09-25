@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { migrateLegacyHostSession } from '../hostSession';
-import { checkoutDriver, dropPaymentLink, orderStatus, paymentLinkTxn } from './lib/checkout';
+import { dropPaymentLink, dropPolarReturn, orderStatus, paddleDriver, paymentLinkTxn, polarReturnOrder, rememberPayment } from './lib/checkout';
 import { hrefFor, navigate, parseHash, useRoute } from './lib/router';
 import { isPlanId } from './lib/plans';
 import { useHostUser } from './hooks/useHostUser';
+import { APPLY_WAIT_MS, FAILED_STATUSES } from './hooks/useCheckout';
 import { getLang, t, useLang } from './i18n';
 import { Shell } from './components/Shell';
 import { Button, Loading, Notice, ToastProvider } from './components/ui';
@@ -38,23 +39,50 @@ export default function App() {
   // instead (owner feedback, 24 Sep 2026: after a payment, the list is the wrong
   // place): an order still open resumes its checkout there; a paid one is not
   // opened again ("{plan} is active" when it was applied).
+  //
+  // Polar's hosted checkout (the embed's fallback, POLAR-PLAN P3, §4.4) returns to
+  // success_url, …/join/host/?checkout_id=<uuid> — the list again, under the same
+  // gate (signed in; only the caller's own order answers). The parameter is dropped
+  // and the page goes to that order's event: applied → its own page ("{plan} is
+  // active", via=polar); not applied yet → its package page, waiting for the
+  // webhook exactly as after an embedded payment; refused or a duplicate → the
+  // package page, which asks the order at once and says why. Anything else
+  // (expired, superseded) opens nothing.
   const resumed = useRef(false);
   useEffect(() => {
     if (!ready || !user || resumed.current) return;
+    const validId = (v: string | null) => (v && /^[A-Za-z0-9_-]{1,128}$/.test(v) ? v : null);
+    const polar = polarReturnOrder();
+    if (polar) {
+      resumed.current = true;
+      orderStatus(polar)
+        .then((s) => {
+          dropPolarReturn();
+          const id = validId(s.eventId);
+          if (parseHash(window.location.hash).name !== 'events' || !id || !isPlanId(s.planId)) return;
+          if (s.status === 'applied') return navigate({ name: 'event', id, tab: 'overview', paid: s.planId, via: 'polar' }, true);
+          const settled = s.status === 'duplicate' || FAILED_STATUSES.has(s.status);
+          if (s.status !== 'created' && !settled) return;
+          rememberPayment({ eventId: id, plan: s.planId, txn: polar, at: Date.now() - (settled ? APPLY_WAIT_MS : 0), purchasedAt: null, provider: 'polar' });
+          navigate({ name: 'event', id, tab: 'plan' }, true);
+        })
+        .catch(() => dropPolarReturn());
+      return;
+    }
     const txn = paymentLinkTxn();
     if (!txn) return;
     resumed.current = true;
     orderStatus(txn)
       .then((s) => {
         const onList = parseHash(window.location.hash).name === 'events';
-        const id = s.eventId && /^[A-Za-z0-9_-]{1,128}$/.test(s.eventId) ? s.eventId : null;
+        const id = validId(s.eventId);
         if (s.status !== 'created') {
           dropPaymentLink();
           if (onList && id) navigate({ name: 'event', id, tab: 'overview', ...(s.status === 'applied' && isPlanId(s.planId) ? { paid: s.planId } : {}) }, true);
           return;
         }
         if (onList && id) navigate({ name: 'event', id, tab: 'overview' }, true);
-        checkoutDriver.resumePaymentLink(getLang());
+        paddleDriver.resumePaymentLink(getLang());
       })
       .catch(() => dropPaymentLink());
   }, [ready, user]);
@@ -116,7 +144,7 @@ export default function App() {
   else if (!user) page = <Loading />;
   else if (route.name === 'events') page = <EventList user={user} />;
   else if (route.name === 'account') page = <Account user={user} />;
-  else page = <EventPage key={route.id} user={user} id={route.id} tab={route.tab} plan={route.plan} fresh={!!route.fresh} paid={route.paid} />;
+  else page = <EventPage key={route.id} user={user} id={route.id} tab={route.tab} plan={route.plan} fresh={!!route.fresh} paid={route.paid} via={route.via} />;
 
   return (
     <ToastProvider>

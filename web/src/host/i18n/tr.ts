@@ -459,6 +459,7 @@ const tr: Dict = {
   'checkout.paying': 'Ödemeyi ödeme penceresinde tamamla.',
   'checkout.sandbox': 'Sandbox · test ödemeleri',
   'checkout.footnote': 'Fiyatlar USD cinsindendir (ABD App Store’daki liste fiyatıyla aynı). Uygulamada Apple yerel para biriminle ücretlendirir; web’de Paddle ödeme sırasında yerel para biriminde fiyat ve vergi gösterebilir. Ödemeleri, resmî satıcımız (merchant of record) Paddle işler.',
+  'checkout.footnote.polar': 'Fiyatlar USD cinsindendir (ABD App Store’daki liste fiyatıyla aynı). Uygulamada Apple yerel para biriminle ücretlendirir; web’de ABD doları ile ödersin, varsa vergiyi Polar ödeme sırasında gösterir. Ödemeleri, resmî satıcımız (merchant of record) Polar işler.',
   'checkout.soonTitle': 'Web’den satın alma yakında',
   'checkout.soonOff': 'Paketler henüz web’den satın alınamıyor.',
   'checkout.soonPrices': 'Bu paketler henüz web’de satılmıyor.',
@@ -481,6 +482,7 @@ const tr: Dict = {
   'checkout.slowBody': 'Ödemen ulaştı. {plan} birkaç dakika içinde uygulanacak; bu sayfadan ayrılabilirsin. Bir saat içinde aktif olmazsa bize yaz.',
   'checkout.doneTitle': 'Tamamdır 🎉', // app: paywall.doneTitle
   'checkout.doneBody': '{plan} paketi aktif. Paddle makbuzu e-posta adresine gönderir.', // app: paywall.active (+ receipt)
+  'checkout.doneBody.polar': '{plan} paketi aktif. Polar makbuzu e-posta adresine gönderir.', // app: paywall.active (+ receipt, Polar)
   'checkout.toOverview': 'Etkinliğe git', // app: qr.goToEvent (web: sentence case)
   'checkout.coveredTitle': 'Bu etkinlikte zaten {plan} var',
   'checkout.coveredBody': 'İki kez ödediysen fazla ödemeyi iade ederiz. Soruların için: {email}',

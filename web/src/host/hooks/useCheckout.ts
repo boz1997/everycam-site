@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
 import type { HostEvent } from '../lib/types';
 import {
-  DECL_TEXT_VERSION, checkoutDriver, forgetPayment, orderStatus, pendingPayment, preview, rememberPayment, startCheckout,
-  type CheckoutEvent, type Preview,
+  DECL_TEXT_VERSION, driverFor, forgetPayment, orderStatus, pendingPayment, preview, rememberPayment, startCheckout,
+  type CheckoutEvent, type Preview, type WebProvider,
 } from '../lib/checkout';
 import { callableError, fn } from '../lib/data';
 import { logError } from '../lib/errorLog';
@@ -21,10 +21,15 @@ import { getLang } from '../i18n';
 //   pick → (declaration, pro without the server's declaration doc) → opening → paying
 //   paying → applying (completed) | pick (closed) | failed (checkout.error)
 //   applying → done | covered | slow (> 90 s: poll the order) → done | covered | failed
+//
+// The provider (Paddle or Polar) is the server's: the preview names it, the
+// start reply opens it (driverFor), and applying/slow/done carry it for the
+// receipt line. Polar's embed also says `ready` / `locked`: nothing to change
+// here (open() resolves once it is up; a locked checkout is Polar's to hold).
 
-const APPLY_WAIT_MS = 90_000;
+export const APPLY_WAIT_MS = 90_000;
 const POLL_MS = 8_000;
-const FAILED_STATUSES = new Set(['declaration-missing', 'cross-tier', 'mismatch', 'discounted', 'refunded-before-apply', 'orphan', 'unknown', 'env-mismatch']);
+export const FAILED_STATUSES = new Set(['declaration-missing', 'cross-tier', 'mismatch', 'discounted', 'refunded-before-apply', 'orphan', 'unknown', 'env-mismatch']);
 
 export type SoonWhy = 'off' | 'sandbox-only' | 'no-prices' | 'no-key' | 'no-token';
 export type Phase =
@@ -38,8 +43,8 @@ export type Phase =
   | { at: 'pick'; pv: Preview; abandoned?: boolean }
   | { at: 'declaration'; pv: Preview; plan: PlanId; error?: string }
   | { at: 'opening' | 'paying'; pv: Preview; plan: PlanId }
-  | { at: 'applying' | 'slow'; plan: PlanId; txn: string | null }
-  | { at: 'done'; plan: PlanId }
+  | { at: 'applying' | 'slow'; plan: PlanId; txn: string | null; provider: WebProvider }
+  | { at: 'done'; plan: PlanId; provider: WebProvider }
   | { at: 'covered'; plan: string }
   | { at: 'failed'; plan: PlanId; why: string; pv?: Preview };
 
@@ -56,9 +61,9 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = null;
   };
-  const slowAfter = (plan: PlanId, txn: string | null, ms: number) => {
+  const slowAfter = (plan: PlanId, txn: string | null, provider: WebProvider, ms: number) => {
     clearTimer();
-    timer.current = window.setTimeout(() => setPhase((p) => (p.at === 'applying' ? { at: 'slow', plan, txn } : p)), Math.max(0, ms));
+    timer.current = window.setTimeout(() => setPhase((p) => (p.at === 'applying' ? { at: 'slow', plan, txn, provider } : p)), Math.max(0, ms));
   };
 
   // 1. Ask the server what may be offered — unless this browser is waiting for a payment it made.
@@ -66,8 +71,8 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
     const waiting = pendingPayment(event.id);
     if (waiting && rankOf(event.refunded ? 'spark' : event.planId) < rankOf(waiting.plan)) {
       const age = Date.now() - waiting.at;
-      setPhase({ at: age < APPLY_WAIT_MS ? 'applying' : 'slow', plan: waiting.plan, txn: waiting.txn });
-      if (age < APPLY_WAIT_MS) slowAfter(waiting.plan, waiting.txn, APPLY_WAIT_MS - age);
+      setPhase({ at: age < APPLY_WAIT_MS ? 'applying' : 'slow', plan: waiting.plan, txn: waiting.txn, provider: waiting.provider });
+      if (age < APPLY_WAIT_MS) slowAfter(waiting.plan, waiting.txn, waiting.provider, APPLY_WAIT_MS - age);
       return;
     }
     if (waiting) forgetPayment(event.id);
@@ -81,7 +86,8 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
         if (pv.reason === 'not-found' || pv.reason === 'not-host' || pv.reason === 'code-not-pro') return setPhase({ at: 'unavailable', why: pv.reason });
         if (pv.reason === 'maxed') return setPhase({ at: 'maxed', pv });
         if (pv.reason) return setPhase({ at: 'coming-soon', pv, why: pv.reason as SoonWhy });
-        if (!checkoutDriver.configuredFor(pv.env)) return setPhase({ at: 'coming-soon', pv, why: 'no-token' });
+        // No client-side token for this environment: Paddle only (Polar needs none).
+        if (!driverFor(pv.provider).configuredFor(pv.env)) return setPhase({ at: 'coming-soon', pv, why: 'no-token' });
         if (pv.tier === 'pro') {
           // Region gate for face matching (included in every photographer package),
           // after sign-in and before a pro checkout — like the app's paywall.
@@ -112,7 +118,7 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
     if (have === want && moved) {
       clearTimer();
       forgetPayment(event.id);
-      setPhase({ at: 'done', plan: phase.plan });
+      setPhase({ at: 'done', plan: phase.plan, provider: phase.provider });
     } else if (have > want) {
       clearTimer();
       forgetPayment(event.id);
@@ -156,29 +162,31 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
       setPhase({ at: 'opening', pv, plan });
       const purchasedAt = eventRef.current.planPurchasedAt ?? null;
       let txn: string | null = null;
+      let provider: WebProvider = pv.provider;
       const onEvent = (e: CheckoutEvent) => {
         if (e === 'completed') {
-          rememberPayment({ eventId: event.id, plan, txn, at: Date.now(), purchasedAt });
-          setPhase({ at: 'applying', plan, txn });
-          slowAfter(plan, txn, APPLY_WAIT_MS);
+          rememberPayment({ eventId: event.id, plan, txn, at: Date.now(), purchasedAt, provider });
+          setPhase({ at: 'applying', plan, txn, provider });
+          slowAfter(plan, txn, provider, APPLY_WAIT_MS);
         } else if (e === 'closed') {
           setPhase((p) => (p.at === 'paying' || p.at === 'opening' ? { at: 'pick', pv, abandoned: true } : p));
-        } else {
+        } else if (e === 'error') {
           setPhase((p) => (p.at === 'paying' || p.at === 'opening' ? { at: 'failed', plan, why: 'checkout-error', pv } : p));
         }
       };
       try {
-        const res = await startCheckout(event.id, plan);
-        txn = res.transactionId;
-        await checkoutDriver.open(res.transactionId, res.env, onEvent, { email: user.email, locale: getLang() });
+        const session = await startCheckout(event.id, plan);
+        txn = session.orderId;
+        provider = session.provider;
+        await driverFor(session.provider).open(session, onEvent, { email: user.email, locale: getLang() });
         setPhase((p) => (p.at === 'opening' ? { at: 'paying', pv, plan } : p));
       } catch (e) {
         const { code, message } = callableError(e);
         if (code === 'permission-denied' && /link-account/.test(message)) return setPhase({ at: 'link-account', pv });
         if (code === 'failed-precondition' && /host-declaration-required/.test(message)) return setPhase({ at: 'declaration', pv, plan });
         if (code === 'failed-precondition' && /payment-pending/.test(message)) {
-          rememberPayment({ eventId: event.id, plan, txn: null, at: Date.now() - APPLY_WAIT_MS, purchasedAt });
-          return setPhase({ at: 'slow', plan, txn: null });
+          rememberPayment({ eventId: event.id, plan, txn: null, at: Date.now() - APPLY_WAIT_MS, purchasedAt, provider });
+          return setPhase({ at: 'slow', plan, txn: null, provider });
         }
         if (code === 'failed-precondition' || code === 'resource-exhausted') {
           // Closed since the page asked (kill switch, price removed, not an upgrade any

@@ -24,7 +24,7 @@ const TAB_LABEL: Record<Tab, Key> = {
   downloads: 'tab.downloads',
 };
 
-export function EventPage({ user, id, tab, plan, fresh, paid }: { user: User; id: string; tab: Tab; plan?: PlanId; fresh: boolean; paid?: PlanId }) {
+export function EventPage({ user, id, tab, plan, fresh, paid, via }: { user: User; id: string; tab: Tab; plan?: PlanId; fresh: boolean; paid?: PlanId; via?: 'polar' }) {
   const [event, setEvent] = useState<HostEvent | null | undefined>(undefined);
   const [failed, setFailed] = useState(false);
   // Phones: the tab row scrolls sideways — fade whichever edge has more tabs behind
@@ -107,7 +107,7 @@ export function EventPage({ user, id, tab, plan, fresh, paid }: { user: User; id
           <ExpiryBanner event={event} />
         </div>
       )}
-      {tab === 'overview' && <Overview event={event} fresh={fresh} paid={paid} />}
+      {tab === 'overview' && <Overview event={event} fresh={fresh} paid={paid} via={via} />}
       {tab === 'gallery' && <Gallery event={event} />}
       {tab === 'guests' && <Guests event={event} />}
       {tab === 'settings' && <Settings event={event} user={user} />}

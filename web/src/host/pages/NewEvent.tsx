@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { User } from 'firebase/auth';
-import { checkoutDriver, preview, type Preview } from '../lib/checkout';
+import { driverFor, preview, type Preview } from '../lib/checkout';
 import { createEvent, fn, setCover } from '../lib/data';
 import { logError } from '../lib/errorLog';
 import { isLinked } from '../lib/auth';
@@ -107,7 +107,7 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
     };
   }, [tier, uid]);
 
-  const canSell = !!pv && pv.open && checkoutDriver.configuredFor(pv.env);
+  const canSell = !!pv && pv.open && driverFor(pv.provider).configuredFor(pv.env);
   const tiles: TileModel[] = useMemo(() => {
     const paid = (pv?.options ?? []).map(fromOption);
     return tier === 'pro' ? paid : [sparkTile, ...paid];
@@ -339,7 +339,7 @@ export function NewEvent({ user, tier, plan: planParam }: { user: User | null; t
             <Button type="submit" block busy={busy || (tier === 'pro' && !!user && region === null)} disabled={!pv || !selected || soonFor(selected) || proClosed}>
               {!selected || !paidPick ? t('new.ctaFree') : t('new.ctaPaid', { plan: planName(selected.planId), price: fmtUsd(selected.usd) })}
             </Button>
-            {paidPick && <CheckoutFootnote />}
+            {paidPick && <CheckoutFootnote provider={pv?.provider} />}
           </section>
         </div>
       </form>

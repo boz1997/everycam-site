@@ -11,8 +11,9 @@ import { CheckoutFootnote, PlanTile, fromOption, storageLabel } from '../../comp
 import { Button, IconAlert, IconCheck, IconClock, IconFace, Loading, Notice, Spinner } from '../../components/ui';
 
 // Package page (plan §3.4): every checkout state of useCheckout, the footnote
-// (USD, Paddle as merchant of record, refund policy + web purchase terms, D20),
-// the sandbox badge. Declaration step for photographer packages (§3.3).
+// (USD, the selling provider — Paddle or Polar — as merchant of record, refund
+// policy + web purchase terms, D20), the sandbox badge. Declaration step for
+// photographer packages (§3.3).
 
 const SUPPORT = 'app.sharecam@gmail.com';
 
@@ -121,7 +122,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
   // 24 Sep 2026). Replace, so Back does not return to a finished checkout.
   useEffect(() => {
     if (phase.at !== 'done') return;
-    navigate({ name: 'event', id: event.id, tab: 'overview', paid: phase.plan, ...(fresh ? { fresh: true } : {}) }, true);
+    navigate({ name: 'event', id: event.id, tab: 'overview', paid: phase.plan, ...(phase.provider === 'polar' ? { via: 'polar' as const } : {}), ...(fresh ? { fresh: true } : {}) }, true);
   }, [phase, event.id, fresh]);
 
   const selected = options.find((o) => o.planId === pick) ?? null;
@@ -193,7 +194,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
     case 'done':
       status = (
         <StatusBox tone="done" icon={<IconCheck />} title={t('checkout.doneTitle')} actions={<a className="btn sm" href={`#/e/${event.id}`}>{t('checkout.toOverview')}</a>}>
-          {t('checkout.doneBody', { plan: planName(phase.plan) })}
+          {t(phase.provider === 'polar' ? 'checkout.doneBody.polar' : 'checkout.doneBody', { plan: planName(phase.plan) })}
         </StatusBox>
       );
       break;
@@ -312,7 +313,7 @@ export function PlanTab({ event, user, plan: pre, fresh }: { event: HostEvent; u
         {pv?.tier === 'pro' && <p className="small muted">{t('checkout.proIncludesTitle')} {t('checkout.proInc1')} · {t('checkout.proInc2')} · {t('checkout.proInc3')}</p>}
         {pv?.tier === 'pro' && options.some((o) => o.limits.videos !== 0) && <p className="tiny muted">{t('plan.videosFromApp')}</p>}
         <p className="tiny muted">{t('checkout.upgradeRule')}</p>
-        <CheckoutFootnote />
+        <CheckoutFootnote provider={pv?.provider} />
       </section>
     </div>
   );

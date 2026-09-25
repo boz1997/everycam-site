@@ -8,10 +8,15 @@
 // import of the local backend in any page would land in a chunk the others load.
 //
 //   1. every page's index.html exists and every script/style it references exists;
-//   2. no file carries a local-stack trace: the demo project, the mock Paddle,
-//      the local badge, the local backend's guard text, VITE_LOCAL_* names,
-//      local price / transaction / key ids, 127.0.0.1, or the stack's ports;
-//   3. the production Firebase project is present (the build really is prod).
+//   2. no file carries a local-stack trace: the demo project, the mock Paddle or
+//      Polar, the local badge, the local backend's guard text, VITE_LOCAL_* names,
+//      local price / transaction / key ids, 127.0.0.1, or the stack's ports — and
+//      no file carries anything shaped like a Polar access token (polar_oat_…) or
+//      a webhook secret (whsec_…): the server's secrets never belong in a page
+//      (POLAR-PLAN §4.4);
+//   3. the production Firebase project is present (the build really is prod), and
+//      so is Polar's embedded checkout (@polar-sh/checkout): the provider is
+//      chosen at run time (config/web.provider), so every build carries both.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +31,8 @@ const PAGES = ['index.html', 'upload/index.html', 'album/index.html', 'host/inde
 const FORBIDDEN = [
   /demo-sharecam/,
   /sharecam-mock-paddle/,
+  /sharecam-mock-polar/,
+  /data-mock-polar/,
   /local-stack-badge/,
   /Local · demo/,
   /local backend loaded outside/,
@@ -39,6 +46,9 @@ const FORBIDDEN = [
   /localhost:(?:5187|8796|8797|9380|8380|9385|5380|9480|4380|4381|4382)/,
   // The local stack's ports as a quoted or host:port literal.
   /["':](?:5187|8796|8797|9380|8380|9385|5380|9480|4380|4381|4382|9383|9384)(?![0-9])/,
+  // Server secrets: a Polar organisation access token, a Standard Webhooks secret.
+  /polar_oat_/,
+  /whsec_/,
 ];
 
 const problems = [];
@@ -83,6 +93,10 @@ for (const f of files) {
 // 3. production project present
 if (!files.some((f) => f.endsWith('.js') && readFileSync(f, 'utf8').includes('sharecam-1997boz'))) {
   problems.push('no chunk names the production project sharecam-1997boz');
+}
+// The embed's message type and Polar's two origins (@polar-sh/checkout 0.4.1 embed.js).
+if (!files.some((f) => f.endsWith('.js') && /POLAR_CHECKOUT[\s\S]*https:\/\/sandbox\.polar\.sh/.test(readFileSync(f, 'utf8')))) {
+  problems.push('no chunk carries Polar\'s embedded checkout (@polar-sh/checkout/embed)');
 }
 
 if (problems.length) {

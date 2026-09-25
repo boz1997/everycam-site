@@ -464,6 +464,7 @@ export const en = {
   'checkout.paying': 'Finish the payment in the checkout window.',
   'checkout.sandbox': 'Sandbox · test payments',
   'checkout.footnote': 'Prices in USD (the same list price as the App Store in the US). In the app, Apple charges in your local currency; on the web, Paddle may show your local currency and tax at checkout. Payments are processed by Paddle, our merchant of record.',
+  'checkout.footnote.polar': 'Prices in USD (the same list price as the App Store in the US). In the app, Apple charges in your local currency; on the web you pay in US dollars, and Polar shows any tax at checkout. Payments are processed by Polar, our merchant of record.',
   'checkout.soonTitle': 'Buying on the web is coming soon',
   'checkout.soonOff': 'Packages can’t be bought on the web yet.',
   'checkout.soonPrices': 'These packages aren’t sold on the web yet.',
@@ -486,6 +487,7 @@ export const en = {
   'checkout.slowBody': 'Your payment is in. {plan} will be applied within minutes; you can leave this page. If it isn’t active within an hour, write to us.',
   'checkout.doneTitle': 'Done 🎉', // app: paywall.doneTitle
   'checkout.doneBody': '{plan} package is active. Paddle sends the receipt to your email.', // app: paywall.active (+ receipt)
+  'checkout.doneBody.polar': '{plan} package is active. Polar sends the receipt to your email.', // app: paywall.active (+ receipt, Polar)
   'checkout.toOverview': 'Go to event', // app: qr.goToEvent (web: sentence case)
   'checkout.coveredTitle': 'This event already has {plan}',
   'checkout.coveredBody': 'If you paid twice, we refund the extra payment. Questions: {email}',

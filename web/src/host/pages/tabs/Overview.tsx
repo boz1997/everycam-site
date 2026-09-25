@@ -176,7 +176,7 @@ function UploadCard({ event }: { event: HostEvent }) {
   );
 }
 
-export function Overview({ event, fresh, paid }: { event: HostEvent; fresh: boolean; paid?: PlanId }) {
+export function Overview({ event, fresh, paid, via }: { event: HostEvent; fresh: boolean; paid?: PlanId; via?: 'polar' }) {
   const pro = tierOf(event) === 'pro';
   const waiting = awaitingProPackage(event);
   // "{plan} is active" only while it is true (a reloaded or bookmarked ?paid= link
@@ -203,10 +203,10 @@ export function Overview({ event, fresh, paid }: { event: HostEvent; fresh: bool
   return (
     <div className="stack" style={{ ['--gap' as string]: '20px' }}>
       {paidNow ? (
-        // Landed here from the package page after a payment (PlanTab → ?paid=).
+        // Landed here from the package page after a payment (PlanTab → ?paid=[&via=polar]).
         <div data-paid-notice={paidNow}>
           <Notice icon={<span style={{ color: 'var(--verde)' }}><IconCheck s={20} /></span>} title={t('checkout.doneTitle')}>
-            {t('checkout.doneBody', { plan: planName(paidNow) })}
+            {t(via === 'polar' ? 'checkout.doneBody.polar' : 'checkout.doneBody', { plan: planName(paidNow) })}
             {fresh && ` ${pro ? t('overview.createdBodyPro') : t('overview.createdBody')}`}
           </Notice>
         </div>

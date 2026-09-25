@@ -460,6 +460,7 @@ const nl: Dict = {
   'checkout.paying': 'Rond de betaling af in het betaalvenster.',
   'checkout.sandbox': 'Sandbox · testbetalingen',
   'checkout.footnote': 'Prijzen in USD (dezelfde catalogusprijs als in de App Store in de VS). In de app rekent Apple af in je lokale valuta; op het web kan Paddle bij het afrekenen je lokale valuta en btw tonen. Betalingen worden verwerkt door Paddle, onze officiële wederverkoper (merchant of record).',
+  'checkout.footnote.polar': 'Prijzen in USD (dezelfde catalogusprijs als in de App Store in de VS). In de app rekent Apple af in je lokale valuta; op het web betaal je in Amerikaanse dollars en toont Polar bij het afrekenen eventuele btw. Betalingen worden verwerkt door Polar, onze officiële wederverkoper (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
   'checkout.soonTitle': 'Kopen op het web komt binnenkort',
   'checkout.soonOff': 'Pakketten zijn nog niet op het web te koop.',
   'checkout.soonPrices': 'Deze pakketten worden nog niet op het web verkocht.',
@@ -482,6 +483,7 @@ const nl: Dict = {
   'checkout.slowBody': 'Je betaling is binnen. {plan} wordt binnen enkele minuten actief; je kunt deze pagina verlaten. Is het na een uur nog niet actief, schrijf ons dan.',
   'checkout.doneTitle': 'Klaar 🎉', // app: paywall.doneTitle
   'checkout.doneBody': 'Het pakket {plan} is actief. Paddle stuurt de bon naar je e-mailadres.', // app: paywall.active (+ receipt)
+  'checkout.doneBody.polar': 'Het pakket {plan} is actief. Polar stuurt de bon naar je e-mailadres.', // app: paywall.active (+ receipt, Polar)
   'checkout.toOverview': 'Naar het evenement', // app: qr.goToEvent
   'checkout.coveredTitle': 'Dit evenement heeft al {plan}',
   'checkout.coveredBody': 'Heb je twee keer betaald? Dan betalen we de extra betaling terug. Vragen: {email}',

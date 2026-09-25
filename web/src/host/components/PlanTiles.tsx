@@ -1,4 +1,4 @@
-import type { PreviewOption } from '../lib/checkout';
+import type { PreviewOption, WebProvider } from '../lib/checkout';
 import { HIGHLIGHT, PLANS, planName, type PlanId } from '../lib/plans';
 import { backend } from '../../backend/active';
 import { fmtNumber, fmtUsd, t } from '../i18n';
@@ -90,13 +90,14 @@ export function PlanTile({ m, selected, onSelect, soon, disabled, readOnly }: { 
   );
 }
 
-/** The footnote every checkout carries (plan §3.4, D20): USD, Paddle as merchant
- *  of record, refund policy and web purchase terms. */
-export function CheckoutFootnote() {
+/** The footnote every checkout carries (plan §3.4, D20): USD, the provider that
+ *  sells (Paddle or Polar, the server's preview) as merchant of record, refund
+ *  policy and web purchase terms. */
+export function CheckoutFootnote({ provider = 'paddle' }: { provider?: WebProvider }) {
   const site = backend.siteOrigin;
   return (
-    <p className="footnote">
-      {t('checkout.footnote')}{' '}
+    <p className="footnote" data-provider={provider}>
+      {t(provider === 'polar' ? 'checkout.footnote.polar' : 'checkout.footnote')}{' '}
       <a href={`${site}/refund-policy.html`}>{t('legal.refund')}</a> · <a href={`${site}/web-terms.html`}>{t('legal.webTerms')}</a>
     </p>
   );

@@ -11,9 +11,12 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "e2e:local": "node e2e/local-host.mjs",
+    "e2e:local:polar-panel": "node e2e/local-polar-panel.mjs",
+    "e2e:polar-embed": "node e2e/polar-embed.mjs",
     "test:dates": "node --test scripts/dates.test.mjs"
   },
   "dependencies": {
+    "@polar-sh/checkout": "0.4.1",
     "firebase": "^12.0.0",
     "qrcode-generator": "^2.0.4",
     "react": "^18.3.1",

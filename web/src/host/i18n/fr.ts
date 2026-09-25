@@ -460,6 +460,7 @@ const fr: Dict = {
   'checkout.paying': 'Terminez le paiement dans la fenêtre de paiement.',
   'checkout.sandbox': 'Sandbox · paiements de test',
   'checkout.footnote': 'Prix en USD (le même prix catalogue que sur l’App Store aux États-Unis). Dans l’app, Apple facture dans votre devise locale ; sur le web, Paddle peut afficher votre devise locale et les taxes au moment du paiement. Les paiements sont traités par Paddle, notre revendeur officiel (merchant of record).',
+  'checkout.footnote.polar': 'Prix en USD (le même prix catalogue que sur l’App Store aux États-Unis). Dans l’app, Apple facture dans votre devise locale ; sur le web, vous payez en dollars américains et Polar affiche les éventuelles taxes au moment du paiement. Les paiements sont traités par Polar, notre revendeur officiel (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
   'checkout.soonTitle': 'L’achat sur le web arrive bientôt',
   'checkout.soonOff': 'Les formules ne peuvent pas encore être achetées sur le web.',
   'checkout.soonPrices': 'Ces formules ne sont pas encore vendues sur le web.',
@@ -482,6 +483,7 @@ const fr: Dict = {
   'checkout.slowBody': 'Votre paiement est bien arrivé. La formule {plan} sera activée dans quelques minutes ; vous pouvez quitter cette page. Si elle n’est pas active d’ici une heure, écrivez-nous.',
   'checkout.doneTitle': 'C’est fait 🎉', // app: paywall.doneTitle
   'checkout.doneBody': 'La formule {plan} est active. Paddle envoie le reçu à votre adresse e-mail.', // app: paywall.active (+ receipt)
+  'checkout.doneBody.polar': 'La formule {plan} est active. Polar envoie le reçu à votre adresse e-mail.', // app: paywall.active (+ receipt, Polar)
   'checkout.toOverview': 'Aller à l’événement', // app: qr.goToEvent
   'checkout.coveredTitle': 'Cet événement a déjà la formule {plan}',
   'checkout.coveredBody': 'Si vous avez payé deux fois, nous remboursons le paiement en trop. Questions : {email}',
