@@ -4,7 +4,7 @@ import { dropPaymentLink, dropPolarReturn, orderStatus, paddleDriver, paymentLin
 import { hrefFor, navigate, parseHash, useRoute } from './lib/router';
 import { isPlanId } from './lib/plans';
 import { useHostUser } from './hooks/useHostUser';
-import { APPLY_WAIT_MS, FAILED_STATUSES } from './hooks/useCheckout';
+import { FAILED_STATUSES } from './hooks/useCheckout';
 import { getLang, t, useLang } from './i18n';
 import { Shell } from './components/Shell';
 import { Button, Loading, Notice, ToastProvider } from './components/ui';
@@ -46,8 +46,10 @@ export default function App() {
   // and the page goes to that order's event: applied → its own page ("{plan} is
   // active", via=polar); not applied yet → its package page, waiting for the
   // webhook exactly as after an embedded payment; refused or a duplicate → the
-  // package page, which asks the order at once and says why. Anything else
-  // (expired, superseded) opens nothing.
+  // package page, which says why at once (the outcome travels with the pending
+  // payment: a duplicate means the event already has that plan or a higher one,
+  // so waiting for the plan to arrive would drop it unseen — WP4 review).
+  // Anything else (expired, superseded) opens nothing.
   const resumed = useRef(false);
   useEffect(() => {
     if (!ready || !user || resumed.current) return;
@@ -63,7 +65,7 @@ export default function App() {
           if (s.status === 'applied') return navigate({ name: 'event', id, tab: 'overview', paid: s.planId, via: 'polar' }, true);
           const settled = s.status === 'duplicate' || FAILED_STATUSES.has(s.status);
           if (s.status !== 'created' && !settled) return;
-          rememberPayment({ eventId: id, plan: s.planId, txn: polar, at: Date.now() - (settled ? APPLY_WAIT_MS : 0), purchasedAt: null, provider: 'polar' });
+          rememberPayment({ eventId: id, plan: s.planId, txn: polar, at: Date.now(), purchasedAt: null, provider: 'polar', ...(settled ? { outcome: s.status } : {}) });
           navigate({ name: 'event', id, tab: 'plan' }, true);
         })
         .catch(() => dropPolarReturn());

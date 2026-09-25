@@ -21,13 +21,14 @@ import { getLang } from '../i18n';
 //   pick → (declaration, pro without the server's declaration doc) → opening → paying
 //   paying → applying (completed) | pick (closed) | failed (checkout.error)
 //   applying → done | covered | slow (> 90 s: poll the order) → done | covered | failed
+//   loading → covered | failed (an order whose end the page already knows: Polar's hosted return)
 //
 // The provider (Paddle or Polar) is the server's: the preview names it, the
 // start reply opens it (driverFor), and applying/slow/done carry it for the
 // receipt line. Polar's embed also says `ready` / `locked`: nothing to change
 // here (open() resolves once it is up; a locked checkout is Polar's to hold).
 
-export const APPLY_WAIT_MS = 90_000;
+const APPLY_WAIT_MS = 90_000;
 const POLL_MS = 8_000;
 export const FAILED_STATUSES = new Set(['declaration-missing', 'cross-tier', 'mismatch', 'discounted', 'refunded-before-apply', 'orphan', 'unknown', 'env-mismatch']);
 
@@ -69,6 +70,14 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
   // 1. Ask the server what may be offered — unless this browser is waiting for a payment it made.
   useEffect(() => {
     const waiting = pendingPayment(event.id);
+    // Its end already known (App.tsx, Polar's hosted return): said before the rank
+    // check — a duplicate is exactly an event that already has this plan or more.
+    // Forgotten by effect 4 once shown, not here: StrictMode's second run must see it too.
+    const outcome = waiting?.outcome;
+    if (waiting && outcome && (outcome === 'duplicate' || FAILED_STATUSES.has(outcome))) {
+      setPhase(outcome === 'duplicate' ? { at: 'covered', plan: event.planId } : { at: 'failed', plan: waiting.plan, why: outcome });
+      return;
+    }
     if (waiting && rankOf(event.refunded ? 'spark' : event.planId) < rankOf(waiting.plan)) {
       const age = Date.now() - waiting.at;
       setPhase({ at: age < APPLY_WAIT_MS ? 'applying' : 'slow', plan: waiting.plan, txn: waiting.txn, provider: waiting.provider });
@@ -153,6 +162,12 @@ export function useCheckout(event: HostEvent, user: User, opts: { autoPlan?: Pla
       alive = false;
       window.clearInterval(id);
     };
+  }, [phase, event.id]);
+
+  // 4. A known end, once said, is not said again (a reload or "back" asks afresh).
+  useEffect(() => {
+    if (phase.at !== 'covered' && phase.at !== 'failed') return;
+    if (pendingPayment(event.id)?.outcome) forgetPayment(event.id);
   }, [phase, event.id]);
 
   useEffect(() => clearTimer, []);

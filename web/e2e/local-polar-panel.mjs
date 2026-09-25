@@ -15,7 +15,8 @@
 // state machine (close → packages, success → applying → done → the event's page
 // with ?paid=&via=polar), the pending payment remembered with its provider, the
 // return from Polar's HOSTED checkout (…/host/?checkout_id=<uuid>: applied /
-// not yet applied / refused / not ours) and the 8 s fallback to the hosted page.
+// not yet applied / refused / duplicate / not ours) and the 8 s fallback to the
+// hosted page.
 // The server side of the same flows is the E2E_PROVIDER=polar run of local-host.mjs.
 //
 //   node e2e/local-polar-panel.mjs [--headed]     (npm run e2e:local:polar-panel)
@@ -274,6 +275,21 @@ try {
   await page.waitForURL((u) => u.hash === `#/e/${id}/plan`, { timeout: 20_000 });
   await page.locator('.status.bad').waitFor({ timeout: 20_000 });
   ok(/could not be applied/.test(await page.locator('.status.bad').innerText()), 'refused order (mismatch) → "Your payment could not be applied"');
+  ok((await pending()) === null, 'said once: the pending payment is forgotten');
+  // a duplicate is an event that already has that plan or more: nothing is left to
+  // arrive, so the page says so at once instead of the package list (WP4 review)
+  await ret('duplicate', 'party');
+  await page.waitForURL((u) => u.hash === `#/e/${id}/plan`, { timeout: 20_000 });
+  await page.getByText('This event already has Wedding').waitFor({ timeout: 20_000 });
+  ok(/If you paid twice, we refund the extra payment/.test(await page.locator('.status').innerText()) && (await pending()) === null, 'duplicate (Party on a Wedding event) → "This event already has Wedding … If you paid twice, we refund the extra payment", pending payment forgotten');
+  await page.reload();
+  await page.locator('.tile[data-plan="unlimited"]').waitFor({ timeout: 20_000 });
+  ok(await page.locator('.status').count() === 0, 'a reload asks afresh: the packages, the notice is not said again');
+  // refused for a plan the event already exceeds → still says why
+  await ret('mismatch', 'party');
+  await page.waitForURL((u) => u.hash === `#/e/${id}/plan`, { timeout: 20_000 });
+  await page.locator('.status.bad').waitFor({ timeout: 20_000 });
+  ok(/could not be applied/.test(await page.locator('.status.bad').innerText()), 'refused order for a plan below the event\'s (mismatch, Party on Wedding) → "Your payment could not be applied"');
   // not ours (or none) → nothing opens
   const cid = randomUUID();
   await page.goto(`${WEB}/host/?checkout_id=${cid}`);

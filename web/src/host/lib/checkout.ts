@@ -126,9 +126,12 @@ export const DECL_TEXT_VERSION = '2026-09-23';
 // look like "nothing bought yet". Per browser, best effort; the server refuses a
 // second checkout anyway (payment-pending). `provider` picks the receipt line
 // ("Polar sends the receipt …"); an entry written before it existed is Paddle's.
+// `outcome` is an order's end already known when the entry is written (Polar's
+// hosted return, App.tsx: 'duplicate' or a refusal): the package page says it at
+// once, whatever plan the event has by then.
 const PENDING_KEY = 'sharecam.host.pendingPayment';
 const PENDING_TTL_MS = 30 * 60_000;
-export interface PendingPayment { eventId: string; plan: PlanId; txn: string | null; at: number; purchasedAt: number | null; provider: WebProvider }
+export interface PendingPayment { eventId: string; plan: PlanId; txn: string | null; at: number; purchasedAt: number | null; provider: WebProvider; outcome?: string }
 
 export function rememberPayment(p: PendingPayment): void {
   try {
@@ -144,7 +147,10 @@ export function pendingPayment(eventId: string, now = Date.now()): PendingPaymen
     const p = JSON.parse(raw) as Partial<PendingPayment>;
     if (p.eventId !== eventId || typeof p.plan !== 'string' || typeof p.at !== 'number') return null;
     if (now - p.at > PENDING_TTL_MS || p.at > now + 60_000) return null;
-    return { eventId: p.eventId, plan: p.plan as PlanId, txn: typeof p.txn === 'string' ? p.txn : null, at: p.at, purchasedAt: typeof p.purchasedAt === 'number' ? p.purchasedAt : null, provider: providerOf(p.provider) };
+    return {
+      eventId: p.eventId, plan: p.plan as PlanId, txn: typeof p.txn === 'string' ? p.txn : null, at: p.at, purchasedAt: typeof p.purchasedAt === 'number' ? p.purchasedAt : null, provider: providerOf(p.provider),
+      ...(typeof p.outcome === 'string' ? { outcome: p.outcome } : {}),
+    };
   } catch {
     return null;
   }
