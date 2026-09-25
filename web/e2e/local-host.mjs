@@ -10,6 +10,19 @@
 // working scratchpad) as D-<step>-<width>.png.
 //
 //   node e2e/local-host.mjs [--headed] [--no-shots] [--only=<step,...>] [--shots=<dir>]
+//   E2E_PROVIDER=polar node e2e/local-host.mjs …   (POLAR-PLAN §7.3)
+//
+// Provider: paddle (default) or polar. With polar the stack's config/web.provider is
+// 'polar' and the mock Polar (EC/local/mockPolar.mjs, WP5) takes the mock Paddle's
+// place: /healthz must say `polar: { seedOrder: 'po_…' }` (C3's seeded web order),
+// the checkout frame is the mock Polar page (mockCheckout.ts mockPolarCheckout;
+// buttons #pay #later #hold #decline #close like the mock Paddle's), and the control
+// endpoints are the same paths keyed by the order id (/api/orders/po_…/refund, …).
+// What differs is asserted per provider: order ids (txn_… / po_<checkout uuid>),
+// ledger rows (redemptions/pd_<txn>, store paddle / redemptions/po_<order uuid>,
+// store polar, storeTransactionId polar_<order uuid>), the currency the order keeps
+// (USD / usd), the footnote and receipt line, the return link (?_ptxn= / Polar's
+// ?checkout_id=). AllShots traffic on the shared Paddle account is Paddle's only.
 //
 // Steps (in order; each needs the ones before only where noted):
 //   signin        sign-in page, wrong password, sign in as host@
@@ -66,6 +79,21 @@ const FS = 'http://127.0.0.1:8380/v1/projects/demo-sharecam/databases/(default)/
 const STORAGE = 'http://127.0.0.1:9480/v0/b/sharecam-1997boz.firebasestorage.app';
 const PASSWORD = 'sharecam-local';
 
+const PROVIDER = process.env.E2E_PROVIDER === 'polar' ? 'polar' : 'paddle';
+const P = PROVIDER === 'polar'
+  ? {
+    name: 'Polar', store: 'polar', currency: 'usd', frameTitle: 'Local test checkout (Polar)', orderRe: /^po_[0-9a-f-]{36}$/,
+    footnote: /Polar, our merchant of record/, receipt: /Polar sends the receipt/, seedOrder: null,
+  }
+  : {
+    name: 'Paddle', store: 'paddle', currency: 'USD', frameTitle: 'Local test checkout', orderRe: /^txn_/,
+    footnote: /Paddle, our merchant of record/, receipt: /Paddle sends the receipt/, seedOrder: 'txn_local_seed_0001',
+  };
+/** An applied web order's ledger row and storeTransactionId (POLAR-PLAN §3.2). */
+const ledgerOf = (order) => (PROVIDER === 'polar'
+  ? { path: `redemptions/po_${order?.data?.polarOrderId}`, tx: `polar_${order?.data?.polarOrderId}` }
+  : { path: `redemptions/pd_${order?.id}`, tx: order?.id });
+
 // ---------------------------------------------------------------- guards
 for (const u of [WEB, MOCK, FS, STORAGE]) {
   const h = new URL(u).hostname;
@@ -75,6 +103,10 @@ async function guard() {
   const r = await fetch(`${MOCK}/healthz`).catch(() => null);
   const j = r && r.ok ? await r.json() : null;
   if (!j || j.project !== 'demo-sharecam') throw new Error('the local stack is not running (EC: npm run local)');
+  if (PROVIDER === 'polar') {
+    if (!j.polar?.seedOrder || !P.orderRe.test(j.polar.seedOrder)) throw new Error('E2E_PROVIDER=polar: the local stack has no mock Polar (EC/local/mockPolar.mjs, POLAR-PLAN WP5)');
+    P.seedOrder = j.polar.seedOrder;
+  }
   const f = await fetch(`${FS}/config/web`, { headers: { Authorization: 'Bearer owner' } }).catch(() => null);
   if (!f || !f.ok) throw new Error('Firestore emulator for demo-sharecam not reachable');
 }
@@ -185,14 +217,14 @@ function compareToRedeem(label, planId, before, after, t0, t1) {
   const extra = changed.filter((k) => !(k in want));
   ok(extra.length === 0, `${label}: changed fields ⊆ redeem's (${changed.sort().join(', ')})${extra.length ? ` — EXTRA: ${extra.join(', ')}` : ''}`);
 }
-/** The ledger row: redeem's keys (purchases.ts:124-135 + rev 2 catalog/limits), Paddle values. */
+/** The ledger row: redeem's keys (purchases.ts:124-135 + rev 2 catalog/limits), the provider's values. */
 function compareLedger(label, row, { uid, eventId, planId, txn }) {
   const keys = ['addon', 'catalog', 'environment', 'eventId', 'limits', 'planId', 'productId', 'purchasedAt', 'redeemedAt', 'store', 'storeTransactionId', 'uid'];
   ok(row && same(Object.keys(row).sort(), keys), `${label}: ledger keys = redeem's (${row ? Object.keys(row).sort().join(', ') : 'no row'})`);
   if (!row) return;
   const product = planId.startsWith('pro') ? `sharecam.pro.${planId.slice(3).toLowerCase()}` : `sharecam.event.${planId}`;
   ok(row.uid === uid && row.eventId === eventId && row.productId === product && row.planId === planId && row.addon === null, `${label}: ledger uid/event/product/plan/addon`);
-  ok(row.storeTransactionId === txn && row.store === 'paddle' && row.environment === 'sandbox' && typeof row.purchasedAt === 'number' && !!row.redeemedAt, `${label}: ledger store paddle, storeTransactionId ${row.storeTransactionId}, env sandbox`);
+  ok(row.storeTransactionId === txn && row.store === P.store && row.environment === 'sandbox' && typeof row.purchasedAt === 'number' && !!row.redeemedAt, `${label}: ledger store ${row.store}, storeTransactionId ${row.storeTransactionId}, env sandbox`);
   ok(row.catalog === 2 && same(row.limits, REDEEM_PLANS[planId].limits2), `${label}: ledger catalog 2 + limits ${JSON.stringify(row.limits)}`);
 }
 async function until(fn, ms = 30_000, step = 400) {
@@ -253,9 +285,10 @@ async function signIn(who) {
   await page.locator('form button[type=submit]').first().click();
   await page.waitForURL((u) => !u.hash.startsWith('#/signin'), { timeout: 20_000 });
 }
-const frame = () => page.frameLocator('iframe[title="Local test checkout"]');
+const FRAME = `iframe[title="${P.frameTitle}"]`;
+const frame = () => page.frameLocator(FRAME);
 async function payInMock(button = '#pay') {
-  await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+  await page.locator(FRAME).waitFor({ timeout: 20_000 });
   await frame().locator(button).click();
 }
 async function lastOrderFor(eventId) {
@@ -273,9 +306,13 @@ const plusMonthsIso = (iso, n) => {
 };
 const focusedDay = () => page.evaluate(() => document.activeElement?.getAttribute('data-day') ?? null);
 const pickerClosed = () => page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5_000 });
-/** After a payment the package page takes the host to the event's own page (?paid=<plan>). */
+/** After a payment the package page takes the host to the event's own page
+ *  (?paid=<plan>, and &via=polar after a Polar payment). */
 async function landedPaid(id, plan, timeout = 45_000) {
-  await page.waitForURL((u) => u.hash.startsWith(`#/e/${id}?`) && new URLSearchParams(u.hash.split('?')[1]).get('paid') === plan, { timeout });
+  await page.waitForURL((u) => {
+    const q = new URLSearchParams(u.hash.split('?')[1]);
+    return u.hash.startsWith(`#/e/${id}?`) && q.get('paid') === plan && (PROVIDER !== 'polar' || q.get('via') === 'polar');
+  }, { timeout });
   await page.locator(`[data-paid-notice="${plan}"]`).waitFor({ timeout });
 }
 
@@ -283,7 +320,7 @@ async function landedPaid(id, plan, timeout = 45_000) {
 const ctxState = {};
 try {
   await guard();
-  log('local stack ok (demo-sharecam)');
+  log(`local stack ok (demo-sharecam, provider ${PROVIDER})`);
 
   if (run('signin')) {
     log('\nsignin');
@@ -422,7 +459,7 @@ try {
     await page.locator('.tile').first().waitFor();
     ok(await page.locator('.tile').count() === 3, 'Spark consumer event: Party / Wedding / Unlimited offered');
     ok(await page.locator('[data-sandbox]').count() === 1, 'sandbox badge (env sandbox)');
-    ok(/Paddle, our merchant of record/.test(await page.locator('.footnote').last().innerText()), 'checkout footnote names Paddle as merchant of record');
+    ok(P.footnote.test(await page.locator('.footnote').last().innerText()), `checkout footnote names ${P.name} as merchant of record`);
     await shot('c1-plan');
     await go('#/e/c1-spark-web/downloads');
     await page.locator('[data-zip]').click();
@@ -504,7 +541,7 @@ try {
     ok(isInt(created.raw.createdAt), 'D8: createdAt is a NUMBER');
     ok(created.data.date === TARGET, `D8: date written as before ('${created.data.date}', YYYY-MM-DD)`);
     ok(created.data.origin === 'web' && created.data.planId === 'spark' && created.data.code && !created.data.code.startsWith('P'), 'created as Spark, origin web, consumer code');
-    await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+    await page.locator(FRAME).waitFor({ timeout: 20_000 });
     ok(true, 'fresh create with ?plan=party opens the checkout by itself');
     ok(/14[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $14.99');
     await shot('checkout-mock', { both: false });
@@ -514,25 +551,32 @@ try {
     await landedPaid(id, 'party');
     const t1 = Date.now();
     ok(/Party package is active/.test(await page.locator('[data-paid-notice]').innerText()) && (await page.locator('#pkg-h').innerText()).trim() === 'Party', 'UI: applying → done → the event\'s own page (not the list): "Party package is active", package card Party');
+    ok(P.receipt.test(await page.locator('[data-paid-notice]').innerText()), `receipt line names ${P.name}`);
     ok(!/Kept until/.test(await page.locator('.ev-head').innerText()) && (await page.locator('[data-deletion]').count()) === 1, 'event header: no "Kept until …" line; the package card keeps its plain "Kept until" fact');
     await shot('buy-done');
     const ev = (await getDoc(`events/${id}`)).data;
     compareToRedeem('Party (web) vs redeem', 'party', before, ev, t0, t1);
     const order = await lastOrderFor(id);
     ctxState.buyTxn = order?.id;
-    ok(order?.data.status === 'applied' && order.data.env === 'sandbox' && Number(order.data.amount) === 1499 && order.data.currency === 'USD', `order ${order?.id} applied (sandbox, ${order?.data.amount} ${order?.data.currency})`);
-    const red = await getDoc(`redemptions/pd_${order?.id}`);
-    compareLedger('Party ledger', red?.data, { uid: created.data.hostId, eventId: id, planId: 'party', txn: order?.id });
+    ok(P.orderRe.test(order?.id ?? '') && order?.data.status === 'applied' && order.data.env === 'sandbox' && Number(order.data.amount) === 1499 && order.data.currency === P.currency, `order ${order?.id} applied (sandbox, ${order?.data.amount} ${order?.data.currency})`);
+    const red = await getDoc(ledgerOf(order).path);
+    compareLedger('Party ledger', red?.data, { uid: created.data.hostId, eventId: id, planId: 'party', txn: ledgerOf(order).tx });
     const redeliver = await mock(`/api/orders/${order.id}/redeliver`);
     ok(redeliver.status === 200 && /duplicate/.test(redeliver.body ?? ''), `redeliver → ${redeliver.status} ${redeliver.body}`);
     // The other app on the shared Paddle account: silent 200, nothing written, nothing alerted (D12).
+    // Polar: an order for a product that is not one of ours, the same way (POLAR-PLAN §3.5).
     const counts = async () => Object.fromEntries(await Promise.all(['webOrders', 'storeNotifications', 'redemptions', 'refundState', 'events'].map(async (c) => [c, await countDocs('', c)])));
     await sleep(1500); // let earlier log lines land
     const [c0, a0] = [await counts(), (await alerts()).count];
-    const foreign = await mock('/api/foreign/transaction');
-    ok(foreign.status === 200 && /other-app/.test(foreign.body ?? '') && /no webOrders doc/.test(foreign.body ?? ''), `AllShots transaction.completed → ${foreign.status} ${foreign.body}`);
-    const foreignAdj = await mock('/api/foreign/adjustment');
-    ok(foreignAdj.status === 200 && /other-app/.test(foreignAdj.body ?? '') && /no webOrders doc/.test(foreignAdj.body ?? ''), `AllShots refund (adjustment) → ${foreignAdj.status} ${foreignAdj.body}`);
+    if (PROVIDER === 'paddle') {
+      const foreign = await mock('/api/foreign/transaction');
+      ok(foreign.status === 200 && /other-app/.test(foreign.body ?? '') && /no webOrders doc/.test(foreign.body ?? ''), `AllShots transaction.completed → ${foreign.status} ${foreign.body}`);
+      const foreignAdj = await mock('/api/foreign/adjustment');
+      ok(foreignAdj.status === 200 && /other-app/.test(foreignAdj.body ?? '') && /no webOrders doc/.test(foreignAdj.body ?? ''), `AllShots refund (adjustment) → ${foreignAdj.status} ${foreignAdj.body}`);
+    } else {
+      const foreign = await mock('/api/foreign/order');
+      ok(foreign.status === 200, `order.paid for a product that is not Sharecam's → ${foreign.status} ${foreign.body}`);
+    }
     await sleep(1500);
     const [c1, a1] = [await counts(), (await alerts()).count];
     ok(same(c0, c1), `foreign traffic wrote nothing (${JSON.stringify(c1)})`);
@@ -542,9 +586,12 @@ try {
     await shot('buy-overview');
     // A Paddle payment link / return (…/join/host/?_ptxn=…, D13) opens the list: it
     // lands on the order's event instead, and a paid order is not opened again.
-    await page.goto(`${WEB}/host/?_ptxn=${order.id}`);
+    // Polar's return after its hosted checkout (…/join/host/?checkout_id=<uuid>,
+    // success_url, POLAR-PLAN P3) does the same.
+    const back = PROVIDER === 'polar' ? ['checkout_id', order.id.slice(3)] : ['_ptxn', order.id];
+    await page.goto(`${WEB}/host/?${back[0]}=${back[1]}`);
     await landedPaid(id, 'party', 20_000);
-    ok(!new URL(page.url()).searchParams.has('_ptxn'), `?_ptxn=<applied order> → #/e/${id} ("Party package is active"), the parameter dropped`);
+    ok(!new URL(page.url()).searchParams.has(back[0]), `?${back[0]}=<applied order> → #/e/${id} ("Party package is active"), the parameter dropped`);
   }
 
   if (run('upgrade')) {
@@ -562,9 +609,10 @@ try {
     ok(/24[.,]99/.test(await page.locator('.tile[data-plan="wedding"]').innerText()), 'Wedding tile shows $24.99');
     await page.locator('.tile[data-plan="wedding"]').click();
     await page.locator('[data-buy]').click();
-    await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+    await page.locator(FRAME).waitFor({ timeout: 20_000 });
     const pending = await lastOrderFor(id);
-    ok(pending?.data.status === 'created' && pending.data.productId === 'sharecam.event.wedding' && pending.data.priceId === 'pri_local_sbx_wedding' && pending.data.from === 'party', `order ${pending?.id}: ${pending?.data.productId}, price ${pending?.data.priceId}, from ${pending?.data.from}`);
+    const priced = PROVIDER === 'polar' ? typeof pending?.data.polarProductId === 'string' : pending?.data.priceId === 'pri_local_sbx_wedding';
+    ok(pending?.data.status === 'created' && pending.data.productId === 'sharecam.event.wedding' && priced && pending.data.from === 'party', `order ${pending?.id}: ${pending?.data.productId}, price ${pending?.data.priceId ?? pending?.data.polarProductId}, from ${pending?.data.from}`);
     ok(/24[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $24.99 (full price)');
     await shot('upgrade-checkout', { both: false });
     const before = (await getDoc(`events/${id}`)).data;
@@ -577,8 +625,9 @@ try {
     compareToRedeem('Party → Wedding (web) vs redeem', 'wedding', before, ev, t0, t1);
     const order = await getDoc(`webOrders/${pending.id}`);
     ok(order?.data.status === 'applied' && Number(order.data.amount) === 2499 && order.data.planBefore === 'party', `charged ${order?.data.amount} cents = the full Wedding price (not the $10.00 difference), planBefore ${order?.data.planBefore}`);
-    const red = await getDoc(`redemptions/pd_${pending.id}`);
-    compareLedger('Wedding ledger', red?.data, { uid: ev.hostId, eventId: id, planId: 'wedding', txn: pending.id });
+    const upOrder = { id: pending.id, data: order?.data };
+    const red = await getDoc(ledgerOf(upOrder).path);
+    compareLedger('Wedding ledger', red?.data, { uid: ev.hostId, eventId: id, planId: 'wedding', txn: ledgerOf(upOrder).tx });
     ctxState.upTxn = pending.id;
     await shot('upgrade-done');
   }
@@ -648,7 +697,7 @@ try {
     const inv0 = await inventory('c3-wedding-web');
     await sleep(1500);
     const a0 = (await alerts()).count;
-    const cb = await mock('/api/orders/txn_local_seed_0001/chargeback');
+    const cb = await mock(`/api/orders/${P.seedOrder}/chargeback`);
     ok(cb.status === 200, `chargeback → ${cb.status} ${cb.body}`);
     const s = await until(async () => { const d = (await getDoc('events/c3-wedding-web')).data; return d.refunded === true ? d : null; });
     ok(s?.planId === 'spark' && s?.aiPeopleEnabled === false && s?.limits?.retentionDays === 180 && s?.limits?.photos === 50 && !s?.retentionAnchorAt, `C3 suspended (Spark quotas ${JSON.stringify(s?.limits)}, AI off, paid retention kept, no deletion clock)`);
@@ -660,7 +709,7 @@ try {
     await go('#/e/c3-wedding-web');
     await page.locator('[data-code]').waitFor();
     await shot('chargeback-overview');
-    const rev = await mock('/api/orders/txn_local_seed_0001/chargeback-reverse');
+    const rev = await mock(`/api/orders/${P.seedOrder}/chargeback-reverse`);
     ok(rev.status === 200, `chargeback reverse → ${rev.status} ${rev.body}`);
     const back = await until(async () => { const d = (await getDoc('events/c3-wedding-web')).data; return d.refunded === false ? d : null; });
     ok(back?.planId === 'wedding' && back?.limits?.photos === 500, `restored: plan ${back?.planId}, limits ${JSON.stringify(back?.limits)}`);
@@ -686,17 +735,19 @@ try {
     await page.locator('.status.bad').waitFor({ timeout: 30_000 });
     ok(/could not be applied/.test(await page.locator('.status.bad').innerText()), 'UI: "Your payment could not be applied; we refund it"');
     ok((await getDoc('events/c1-spark-web')).data.planId === 'spark', 'event still Spark');
-    ok((await getDoc(`redemptions/pd_${order.id}`)) === null && (await getDoc(`webOrders/${order.id}`))?.data.status === 'discounted', 'no ledger row, order "discounted"');
+    const dOrder = await getDoc(`webOrders/${order.id}`);
+    ok((await getDoc(ledgerOf({ id: order.id, data: dOrder?.data }).path)) === null && dOrder?.data.status === 'discounted', 'no ledger row, order "discounted"');
     const dAlert = (await until(async () => { const al = (await alerts()).alerts; return al.find((x) => (x.body ?? '').includes(order.id)) ?? null; }, 15_000));
     ok(!!dAlert && !dAlert.muted && /İndirimli ya da sıfır tutarlı/.test(dAlert.body ?? ''), `discount alert: ${dAlert ? `${dAlert.title} — ${dAlert.body}` : 'none'}`);
     await shot('discount-failed');
     // A 0.00 payment WITHOUT a discount code (a mis-set price or a $0 payment link): subtotal 0.
     const opened = await mock('/api/call', { who: 'host', fn: 'webCheckoutStart', data: { eventId: 'c1-spark-web', planId: 'party' } });
-    const zTxn = opened.result?.transactionId;
-    ok(opened.ok && /^txn_/.test(zTxn ?? ''), `second order opened through webCheckoutStart: ${zTxn}`);
+    const zTxn = opened.result?.orderId ?? opened.result?.transactionId;
+    ok(opened.ok && P.orderRe.test(zTxn ?? '') && (opened.result?.provider ?? 'paddle') === PROVIDER, `second order opened through webCheckoutStart: ${zTxn}`);
     const z = await mock(`/api/orders/${zTxn}/zero-amount`);
     ok(z.status === 200 && /discounted|mismatch/.test(z.body ?? ''), `0.00 delivery → ${z.status} ${z.body}`);
-    ok((await getDoc('events/c1-spark-web')).data.planId === 'spark' && (await getDoc(`redemptions/pd_${zTxn}`)) === null, 'still Spark, no ledger row');
+    const zOrder = await getDoc(`webOrders/${zTxn}`);
+    ok((await getDoc('events/c1-spark-web')).data.planId === 'spark' && (await getDoc(ledgerOf({ id: zTxn, data: zOrder?.data }).path)) === null, 'still Spark, no ledger row');
     const zAlert = (await until(async () => { const al = (await alerts()).alerts; return al.find((x) => (x.body ?? '').includes(zTxn)) ?? null; }, 15_000));
     ok(!!zAlert && !zAlert.muted, `0.00 alert: ${zAlert ? `${zAlert.title} — ${zAlert.body}` : 'none'}`);
   }
@@ -744,7 +795,7 @@ try {
     ok(await until(async () => (await getDoc(`faceHostDeclarations/${id}`)) !== null), 'faceHostDeclarations doc written by the server');
     const decl = (await getDoc(`faceHostDeclarations/${id}`)).data;
     ok(decl.declTextVersion === '2026-09-23' && decl.declLang === 'en', `declaration: text ${decl.declTextVersion}, lang ${decl.declLang}`);
-    await page.locator('iframe[title="Local test checkout"]').waitFor({ timeout: 20_000 });
+    await page.locator(FRAME).waitFor({ timeout: 20_000 });
     ok(/89[.,]99/.test(await frame().locator('body').innerText()), 'checkout shows $89.99');
     const before = (await getDoc(`events/${id}`)).data;
     const t0 = Date.now();
@@ -755,7 +806,7 @@ try {
     compareToRedeem('Pro 1000 (web) vs redeem', 'pro1000', before, ev, t0, Date.now());
     const proOrder = await lastOrderFor(id);
     ok(proOrder?.data.status === 'applied' && Number(proOrder.data.amount) === 8999 && proOrder.data.tier === 'pro', `order ${proOrder?.id}: ${proOrder?.data.status}, ${proOrder?.data.amount} cents, tier ${proOrder?.data.tier}`);
-    compareLedger('Pro 1000 ledger', (await getDoc(`redemptions/pd_${proOrder?.id}`))?.data, { uid: ev.hostId, eventId: id, planId: 'pro1000', txn: proOrder?.id });
+    compareLedger('Pro 1000 ledger', (await getDoc(ledgerOf(proOrder).path))?.data, { uid: ev.hostId, eventId: id, planId: 'pro1000', txn: ledgerOf(proOrder).tx });
     await go(`#/e/${id}`);
     await page.locator('[data-upload-link]').waitFor();
     ok((await page.locator('[data-upload-link]').getAttribute('href')) === `../upload/?event=${id}`, 'Upload originals → /join/upload/?event=<id>');
@@ -923,7 +974,7 @@ try {
     await shot('covered');
     const order = await lastOrderFor('c2-party-appstore');
     const del = await mock(`/api/orders/${order.id}/deliver`);
-    ok(/duplicate/.test(del.body ?? ''), `the late web payment → ${del.body} (refund in Paddle)`);
+    ok(/duplicate/.test(del.body ?? ''), `the late web payment → ${del.body} (refund in ${P.name})`);
   }
 
   if (run('files')) {
