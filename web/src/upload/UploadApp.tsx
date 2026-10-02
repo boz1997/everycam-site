@@ -524,6 +524,10 @@ export function UploadApp() {
           {event.code} · {t('upLiveCount').replace('{n}', String(liveCount ?? event.photoCount))}
           {(liveVideos ?? event.videoCount) > 0 && <> · {t('upLiveVideos').replace('{n}', String(liveVideos ?? event.videoCount))}</>}
         </p>
+        {/* Yeni sekmede: bu sekme kapanırsa/başka sayfaya giderse kuyruk durur. */}
+        <a className="btn ghost" style={{ display: 'inline-flex', width: 'auto', margin: '12px 0 8px', padding: '8px 16px', fontSize: 14, textDecoration: 'none' }} href={`../host/#/e/${encodeURIComponent(event.id)}/gallery`} target="_blank" rel="noopener">
+          {t('upOpenGallery')} →
+        </a>
       </div>
       <div className="wrap">
         <div
