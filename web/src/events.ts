@@ -343,7 +343,7 @@ interface Prepared {
  * Düğün wifi'ında farkı yaratan şey bu — native tarafta da aynı eşik var.
  * Video olduğu gibi gider; yalnız süresi ve boyutu okunur.
  */
-async function prepare(file: File): Promise<Prepared> {
+export async function prepare(file: File): Promise<Prepared> {
   if (file.type.startsWith('video/')) {
     const meta = await readVideoMeta(file);
     return { blob: file, ext: file.name.split('.').pop()?.toLowerCase() || 'mp4', ...meta };
@@ -418,7 +418,7 @@ const POSTER_TIMEOUT_MS = 8000;
  * ikisi de TARAYICIDA, yükleme öncesi. Üretilemezse null döner ve yükleme
  * etkilenmez; doküman thumbUri'siz yazılır, ızgara eski davranışına döner.
  */
-async function makeThumb(file: File): Promise<Blob | null> {
+export async function makeThumb(file: File): Promise<Blob | null> {
   if (file.type.startsWith('video/')) return videoPoster(file);
   try {
     const bitmap = await createImageBitmap(file);

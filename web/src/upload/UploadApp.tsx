@@ -24,7 +24,7 @@ import { guestFunctions, hostAuth, hostDb, migrateLegacyHostSession } from '../h
 import { detectLang, LANG_LABEL, LANGS, makeT, saveLang, type Lang } from '../i18n';
 import { asMedia, collectDrop, hasFiles } from '../intake';
 import { fileSeed } from '../events';
-import { originalVerdict, uploadOriginal, ORIGINAL_MAX_BYTES } from './originals';
+import { originalVerdict, uploadOriginal, uploadVideo, VideoQuotaError, ORIGINAL_MAX_BYTES } from './originals';
 import { IconPlus } from '../components/Brand';
 import { Header } from '../components/Header';
 import { QrPairing, type PairResult } from './QrPairing';
@@ -53,6 +53,9 @@ interface HostEvent {
   name: string;
   planId: string;
   photoCount: number;
+  videoCount: number;
+  /** Paketin video limiti (donmuş `limits.videos`): -1 sınırsız, 0 = pakette video yok. */
+  videoLimit: number;
   uploadPolicy: string;
   createdAt: number;
 }
@@ -80,6 +83,8 @@ function toHostEvents(docs: { id: string; data: () => Record<string, unknown> }[
         name: String(x.name ?? ''),
         planId: String(x.planId ?? 'spark'),
         photoCount: Number(x.photoCount ?? 0),
+        videoCount: Number(x.videoCount ?? 0),
+        videoLimit: Number((x.limits as { videos?: unknown } | undefined)?.videos ?? -1),
         uploadPolicy: String(x.uploadPolicy ?? 'all'),
         createdAt: Number(x.createdAt ?? 0),
       };
@@ -114,6 +119,7 @@ export function UploadApp() {
   const activeRef = useRef(0);
   const [dragging, setDragging] = useState(false);
   const [liveCount, setLiveCount] = useState<number | null>(null);
+  const [liveVideos, setLiveVideos] = useState<number | null>(null);
   const dirRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -256,7 +262,10 @@ export function UploadApp() {
   // ---- Seçili etkinliğin canlı sayacı: "galeride kaç kare var" (tek doküman)
   useEffect(() => {
     if (!event) return;
-    return onSnapshot(doc(hostDb, 'events', event.id), (snap) => setLiveCount(Number(snap.get('photoCount') ?? 0)));
+    return onSnapshot(doc(hostDb, 'events', event.id), (snap) => {
+      setLiveCount(Number(snap.get('photoCount') ?? 0));
+      setLiveVideos(Number(snap.get('videoCount') ?? 0));
+    });
   }, [event?.id]);
 
   // ---- Kuyruk
@@ -273,9 +282,14 @@ export function UploadApp() {
       if (!next) break;
       activeRef.current += 1;
       patch(next.id, { status: 'uploading', progress: 0 });
-      void uploadOriginal(event.id, uid, t('upOwnerName'), next.file, (p) => patch(next.id, { progress: p }))
+      const send = next.file.type.startsWith('video/') ? uploadVideo : uploadOriginal;
+      void send(event.id, uid, t('upOwnerName'), next.file, (p) => patch(next.id, { progress: p }))
         .then((res) => patch(next.id, { status: res === 'exists' ? 'exists' : 'done', progress: 1 }))
-        .catch((e) => patch(next.id, { status: 'failed', note: String((e as { code?: string })?.code ?? (e as Error)?.message ?? 'error') }))
+        .catch((e) =>
+          e instanceof VideoQuotaError
+            ? patch(next.id, { status: 'skipped', note: t('upVideoLimit') })
+            : patch(next.id, { status: 'failed', note: String((e as { code?: string })?.code ?? (e as Error)?.message ?? 'error') }),
+        )
         .finally(() => {
           activeRef.current -= 1;
           pump();
@@ -296,18 +310,19 @@ export function UploadApp() {
         if (seenRef.current.has(seed)) continue;
         seenRef.current.add(seed);
         const verdict = originalVerdict(media);
+        const noVideos = verdict === 'video' && event?.videoLimit === 0;
         fresh.push({
           id: `${stamp}_${i++}_${media.name}`,
           file: media,
-          status: verdict === 'ok' ? 'queued' : 'skipped',
+          status: verdict === 'ok' || (verdict === 'video' && !noVideos) ? 'queued' : 'skipped',
           progress: 0,
           note:
             verdict === 'unsupported'
               ? t('upSkipUnsupported')
               : verdict === 'too-large'
                 ? t('upSkipTooLarge').replace('{max}', String(ORIGINAL_MAX_BYTES / 1048576))
-                : verdict === 'video'
-                  ? t('upSkipVideo')
+                : noVideos
+                  ? t('upSkipVideoPlan')
                   : undefined,
         });
       }
@@ -316,7 +331,7 @@ export function UploadApp() {
       commit([...rowsRef.current, ...fresh]);
       pump();
     },
-    [pump, t],
+    [pump, t, event?.videoLimit],
   );
 
   const retryFailed = () => {
@@ -507,6 +522,7 @@ export function UploadApp() {
         <h1>{event.name}</h1>
         <p className="date">
           {event.code} · {t('upLiveCount').replace('{n}', String(liveCount ?? event.photoCount))}
+          {(liveVideos ?? event.videoCount) > 0 && <> · {t('upLiveVideos').replace('{n}', String(liveVideos ?? event.videoCount))}</>}
         </p>
       </div>
       <div className="wrap">
@@ -517,7 +533,7 @@ export function UploadApp() {
           <p style={{ fontFamily: 'var(--serif)', fontSize: 22, margin: 0 }}>{t('upDropTitle')}</p>
           <p className="muted">{t('upDropBody')}</p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 14 }}>
-            <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
+            <input ref={fileRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
             <input ref={dirRef} type="file" multiple hidden {...({ webkitdirectory: '' } as Record<string, string>)} onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
             <button className="btn" style={{ width: 'auto' }} onClick={() => dirRef.current?.click()}>
               <IconPlus /> {t('addFolder')}
