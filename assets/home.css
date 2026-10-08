@@ -49,7 +49,6 @@
   font: 600 1rem/1.3 var(--sans); color: var(--verde);
   text-decoration: none;
 }
-.text-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .28em; }
 .text-link span { display: inline-block; transition: transform 180ms var(--ease); }
 .text-link:hover span { transform: translateX(3px); }
 .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 32px; }
