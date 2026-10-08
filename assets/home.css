@@ -47,11 +47,15 @@
 .text-link {
   display: inline-flex; align-items: center; gap: .4em; min-height: 44px;
   font: 600 1rem/1.3 var(--sans); color: var(--verde);
-  text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .28em;
+  text-decoration: none;
 }
+.text-link:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .28em; }
 .text-link span { display: inline-block; transition: transform 180ms var(--ease); }
 .text-link:hover span { transform: translateX(3px); }
 .cta-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 28px; margin-top: 32px; }
+/* filled + outlined pair: side by side when they fit, full-width stack on phones */
+.cta-row:has(> .btn.ghost) { column-gap: 12px; }
+@media (max-width: 559.98px) { .cta-row:has(> .btn.ghost) > .btn { flex: 1 1 100%; } }
 /* shape rule: text buttons are square (.btn); icon-only buttons are round (.btn-icon), as in C's hand of cards */
 .btn-icon {
   flex: none; display: grid; place-items: center;
@@ -128,10 +132,11 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
 .hero .lead { margin-top: 18px; }
 .hero .cta-row { margin-top: 24px; }
 .hero .reassure { margin-top: 14px; }
+.hero .join-link { margin-top: 2px; font-size: .9375rem; }
 .only-wide { display: none; }
 @media (max-width: 767.98px) {
   .hero-fig .cap { display: none; }  /* keeps the primary button in a 390x664 first view */
-  .hero .cta-row { gap: 4px 24px; }
+  .hero .cta-row { gap: 10px 12px; }
 }
 @media (min-width: 768px) {
   .only-wide { display: block; }
@@ -151,7 +156,7 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
   .hero-copy { grid-column: 2 / 6; grid-row: 1; padding: 0 8px 46px 0; }
   .hero .display { font-size: clamp(3.5rem, 1rem + 5.4vw, 5.5rem); font-family: var(--serif-display); }
   .hero .lead { font-size: 1.125rem; }
-  .hero .cta-row { column-gap: 20px; }  /* button + link stay on one line from 900 px, with either font */
+  .hero .cta-row { column-gap: 12px; }
 }
 /* 900–1299: the reassurance line always takes two balanced lines (no orphan, and no re-wrap when the font swaps) */
 @media (min-width: 900px) and (max-width: 1299.98px) { .hero .reassure { max-width: 30em; text-wrap: balance; } }
