@@ -166,6 +166,56 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
   .hero .lead { font-size: var(--t-lead); max-width: 26em; margin-top: 32px; }
 }
 
+/* ================================================================ 1b · hero, face-first: the album wall */
+/* every guest's photos, dimmed; one selfie lights up the ones she's in (CSS only, once, after load) */
+.facewall-fig { position: relative; overflow: hidden; }
+.facewall {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px;
+  height: min(52svh, 78vw); overflow: hidden; align-content: start;
+}
+.fw-tile { position: relative; aspect-ratio: 1; }
+.fw-tile img { width: 100%; height: 100%; object-fit: cover; opacity: .5; filter: saturate(.3); }
+.fw-tile.her img { animation: fw-found 700ms var(--ease) both; animation-delay: calc(1300ms + var(--i) * 260ms); }
+.fw-tile.her::after {
+  content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 3px var(--cream);
+  opacity: 0; animation: fw-ring 500ms var(--ease) both; animation-delay: calc(1300ms + var(--i) * 260ms);
+}
+.fw-tile.her::before {
+  content: ""; position: absolute; z-index: 1; right: 8px; top: 8px; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--verde) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F3EEE2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 14px no-repeat;
+  transform: scale(0); animation: fw-check 360ms var(--ease) both; animation-delay: calc(1500ms + var(--i) * 260ms);
+}
+@keyframes fw-found { to { opacity: 1; filter: none; } }
+@keyframes fw-ring { to { opacity: 1; } }
+@keyframes fw-check { to { transform: scale(1); } }
+.selfie {
+  position: absolute; left: 16px; bottom: 16px; z-index: 2;
+  display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 8px;
+  background: var(--cream); box-shadow: 0 10px 30px rgba(20, 43, 32, .22);
+  border-radius: 999px; animation: fw-pop 520ms var(--ease) 500ms both;
+}
+.selfie img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.selfie p { display: grid; gap: 2px; font: 500 var(--t-small)/1.2 var(--sans); color: var(--ink-soft-strong); }
+.selfie strong { font: 700 1rem/1.2 var(--sans); color: var(--verde); }
+@keyframes fw-pop { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .fw-tile.her img, .fw-tile.her::after, .fw-tile.her::before, .selfie { animation-duration: 1ms; animation-delay: 0s; }
+}
+@media (min-width: 900px) {
+  .facewall-fig { align-self: stretch; }
+  .facewall { height: clamp(520px, calc(100svh - var(--header-h) - 24px - 72px), 800px); gap: 8px; }
+  .selfie { left: 24px; bottom: 24px; padding: 10px 24px 10px 10px; gap: 16px; }
+  .selfie img { width: 72px; height: 72px; }
+  .selfie strong { font-size: 1.125rem; }
+}
+@font-face { /* the face-first hero's italic line: full Latin, Fraunces Light Italic */
+  font-family: "Fraunces Hero Italic"; src: url("fonts/fraunces-italic-hero.woff2") format("woff2");
+  font-style: italic; font-weight: 300; font-display: swap;
+}
+.hero-face .display em { font-family: "Fraunces Hero Italic", var(--serif-display); font-variation-settings: normal; }
+.hero-face .display { font-size: clamp(3rem, 1rem + 6vw, 4.25rem); }
+@media (min-width: 900px) { .hero-face .display { font-size: clamp(3.25rem, .5rem + 4.6vw, 5rem); } }
+
 /* ================================================================ 2 · the album (A's spread) */
 .album { padding-top: 0; }
 .album-head { row-gap: 24px; margin-bottom: 48px; }
