@@ -175,31 +175,37 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
 }
 .fw-tile { position: relative; aspect-ratio: 1; }
 .fw-tile img { width: 100%; height: 100%; object-fit: cover; opacity: .5; filter: saturate(.3); }
-.fw-tile.her img { animation: fw-found 700ms var(--ease) both; animation-delay: calc(1300ms + var(--i) * 260ms); }
+.fw-tile.her { --d: calc(1100ms + var(--i) * 260ms); }
+.fw-tile.her img { animation: fw-found 7s var(--ease) var(--d) infinite both; }
 .fw-tile.her::after {
   content: ""; position: absolute; inset: 0; box-shadow: inset 0 0 0 3px var(--cream);
-  opacity: 0; animation: fw-ring 500ms var(--ease) both; animation-delay: calc(1300ms + var(--i) * 260ms);
+  opacity: 0; animation: fw-ring 7s var(--ease) var(--d) infinite both;
 }
 .fw-tile.her::before {
   content: ""; position: absolute; z-index: 1; right: 8px; top: 8px; width: 22px; height: 22px; border-radius: 50%;
   background: var(--verde) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F3EEE2' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / 14px no-repeat;
-  transform: scale(0); animation: fw-check 360ms var(--ease) both; animation-delay: calc(1500ms + var(--i) * 260ms);
+  transform: scale(0); animation: fw-check 7s var(--ease) var(--d) infinite both;
 }
-@keyframes fw-found { to { opacity: 1; filter: none; } }
-@keyframes fw-ring { to { opacity: 1; } }
-@keyframes fw-check { to { transform: scale(1); } }
+/* per photo: lights up (0–9 %), holds, dims back (60–70 %), rests; the stagger makes it a wave each way */
+@keyframes fw-found { 0% { opacity: .5; filter: saturate(.3); } 9%, 60% { opacity: 1; filter: none; } 70%, 100% { opacity: .5; filter: saturate(.3); } }
+@keyframes fw-ring { 0% { opacity: 0; } 9%, 60% { opacity: 1; } 70%, 100% { opacity: 0; } }
+@keyframes fw-check { 0%, 3% { transform: scale(0); } 10%, 58% { transform: scale(1); } 66%, 100% { transform: scale(0); } }
 .selfie {
   position: absolute; left: 16px; bottom: 16px; z-index: 2;
   display: flex; align-items: center; gap: 12px; padding: 8px 18px 8px 8px;
   background: var(--cream); box-shadow: 0 10px 30px rgba(20, 43, 32, .22);
   border-radius: 999px; animation: fw-pop 520ms var(--ease) 500ms both;
 }
-.selfie img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; }
+.selfie img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; animation: fw-scan 7s var(--ease) 700ms infinite both; }
+@keyframes fw-scan { 0% { box-shadow: 0 0 0 0 rgba(31, 61, 46, .45); } 12% { box-shadow: 0 0 0 10px rgba(31, 61, 46, 0); } 100% { box-shadow: 0 0 0 0 rgba(31, 61, 46, 0); } }
 .selfie p { display: grid; gap: 2px; font: 500 var(--t-small)/1.2 var(--sans); color: var(--ink-soft-strong); }
 .selfie strong { font: 700 1rem/1.2 var(--sans); color: var(--verde); }
 @keyframes fw-pop { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) {
-  .fw-tile.her img, .fw-tile.her::after, .fw-tile.her::before, .selfie { animation-duration: 1ms; animation-delay: 0s; }
+@media (prefers-reduced-motion: reduce) {  /* no loop: the found state, still */
+  .fw-tile.her img, .fw-tile.her::after, .fw-tile.her::before, .selfie, .selfie img { animation: none; }
+  .fw-tile.her img { opacity: 1; filter: none; }
+  .fw-tile.her::after { opacity: 1; }
+  .fw-tile.her::before { transform: none; }
 }
 @media (min-width: 900px) {
   .facewall-fig { align-self: stretch; }
@@ -328,7 +334,8 @@ header.site > .nav-desktop, header.site > .nav-login { display: none; }
 
 /* a · keep it a surprise: B's grid and settings card, C's visible toggle (the label names the switch) */
 .tile-surprise { position: relative; }
-.reveal-input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; }
+/* fixed, not absolute: a label click focuses this box, and an off-screen box made the page jump up to it */
+.reveal-input { position: fixed; top: 0; left: 0; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
 .reveal-toggle {
   display: inline-flex; align-items: center; gap: 14px; min-height: 44px; margin-top: 20px;
   font: 600 1.0625rem/1.3 var(--sans); color: var(--verde); cursor: pointer;

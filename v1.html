@@ -13,16 +13,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light">
-<title>Sharecam — One selfie, every photo you’re in</title>
-<meta name="description" content="Every guest’s phone fills one live album. Take one selfie and Sharecam finds every photo you’re in, even the ones you’d never have seen. No app, no account.">
+<title>Sharecam — Every guest’s photos in one live album</title>
+<meta name="description" content="Put a QR code on the tables. Guests scan it and share photos and videos from their phone's browser. No app, no account. One live album.">
 <link rel="canonical" href="https://sharecam.app/">
+<meta name="robots" content="noindex"><!-- v1 home (until 9 Oct 2026), kept for switching back: see README -->
 <meta name="theme-color" content="#F3EEE2">
 <meta name="apple-itunes-app" content="app-id=6801534049">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Sharecam">
 <meta property="og:locale" content="en_US">
 <meta property="og:url" content="https://sharecam.app/">
-<meta property="og:title" content="Sharecam — One selfie, every photo you’re in">
+<meta property="og:title" content="Sharecam — Every guest's photos in one live album">
 <meta property="og:description" content="Guests scan a QR code and share from their browser. Everything lands in one live album. Free to start, pay once per event.">
 <meta property="og:image" content="https://sharecam.app/assets/img/og.jpg">
 <meta property="og:image:width" content="1200">
@@ -35,6 +36,7 @@
 <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <link rel="preload" href="assets/fonts/fraunces-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="assets/fonts/fraunces-italic-collected.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" as="image" type="image/avif" imagesrcset="assets/img/hero-800.avif 800w, assets/img/hero-1200.avif 1200w, assets/img/hero-1680.avif 1680w" imagesizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw" fetchpriority="high">
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="assets/home.css?v=2026100903">
 <script>document.documentElement.classList.add('js');if(matchMedia('(prefers-reduced-motion: no-preference)').matches)document.documentElement.classList.add('motion');</script>
@@ -78,80 +80,27 @@
 
 <main id="main">
 
-<!-- 1 · HERO (face matching first: the album wall dims, one selfie lights up the photos she's in) -->
-<section class="hero hero-face" aria-labelledby="hero-title">
+<!-- 1 · HERO (A: "The spread"; new plate, recropped so the phone reads ≥ 200 px at 1440) -->
+<section class="hero" aria-labelledby="hero-title">
   <div class="bleed-grid hero-grid">
-    <figure class="hero-fig facewall-fig">
-      <ul class="facewall" aria-hidden="true">
-        <li class="fw-tile"><img src="assets/img/wall/w01.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:0"><img src="assets/img/wall/w02.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w03.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w04.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:1"><img src="assets/img/wall/w06.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w05.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w07.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:2"><img src="assets/img/wall/w08.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w09.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w10.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:3"><img src="assets/img/wall/w11.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w12.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:4"><img src="assets/img/wall/w14.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w13.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w15.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w17.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w18.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile her" style="--i:5"><img src="assets/img/wall/w16.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w19.webp" width="360" height="360" alt="" decoding="async"></li>
-        <li class="fw-tile"><img src="assets/img/wall/w20.webp" width="360" height="360" alt="" decoding="async"></li>
-      </ul>
-      <div class="selfie" aria-hidden="true">
-        <img src="assets/img/wall/selfie.webp" width="240" height="240" alt="" decoding="async">
-        <p><span>One selfie</span><strong>Found 6 photos of you</strong></p>
-      </div>
-      <figcaption class="sr-only">A wall of wedding photos from every guest's phone. One selfie of the bride lights up the six photos she appears in.</figcaption>
+    <figure class="hero-fig">
+      <picture>
+        <source type="image/avif" srcset="assets/img/hero-800.avif 800w, assets/img/hero-1200.avif 1200w, assets/img/hero-1680.avif 1680w" sizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw">
+        <img src="assets/img/hero-1200.webp" srcset="assets/img/hero-800.webp 800w, assets/img/hero-1200.webp 1200w, assets/img/hero-1680.webp 1680w" sizes="(min-width: 1200px) 58vw, (min-width: 900px) 56vw, 100vw" width="1680" height="1470" fetchpriority="high" decoding="async" alt="A guest films the couple's embrace on his phone, the Sharecam camera open on the screen, while the table applauds under the olive trees.">
+      </picture>
+      <figcaption class="cap">From table four, just after the toasts.</figcaption>
     </figure>
     <div class="hero-copy">
-      <h1 id="hero-title" class="display">One selfie.<br> <em>Every photo<br> you’re&nbsp;in.</em></h1>
-      <p class="lead only-wide">Every guest’s phone fills one live album, often with thousands of photos. Take one selfie and Sharecam finds the ones you’re in, including the ones you’d never have seen. No app, no scrolling.</p>
-      <p class="lead only-narrow">Thousands of photos from every phone. One selfie finds the ones you’re in.</p>
+      <h1 id="hero-title" class="display">Every shot, <em>collected.</em></h1>
+      <p class="lead only-wide">Put a QR code on the tables. Guests scan it, type their name and share photos and videos straight from their phone’s browser. No app, no account. Everything lands in one live album.</p>
+      <p class="lead only-narrow">Guests scan a QR code and share from their browser. Everything lands in one live album.</p>
       <div class="cta-row">
         <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
         <a class="btn ghost" href="https://sharecam.app/host/#/new">Create your event</a>
       </div>
-      <p class="reassure">Free to start. Face matching is a $9.99 add-on per event where available, and included in photographer packages.</p>
+      <p class="reassure">Free to start. Pay once per event if you need more. No subscription.</p>
       <a class="text-link join-link" href="https://sharecam.app/join/">Have a code? Join an event <span aria-hidden="true">→</span></a>
     </div>
-  </div>
-</section>
-
-<!-- 2 · FIND YOUR PHOTOS (moved up: the page now leads with face matching) -->
-<section class="section face" id="face-matching" aria-labelledby="face-title">
-  <div class="wrap grid face-grid">
-    <div class="face-copy">
-      <p class="label">Optional add-on · $9.99 per event</p>
-      <h2 id="face-title" class="h2">The photos of you, found.</h2>
-      <p class="lead">Guests share from every phone, and a photographer can add the whole gallery. Each guest takes a selfie in the browser and sees only the photos they appear in, ready to save. No scrolling through thousands.</p>
-      <h3 class="h4 face-h">How it’s handled</h3>
-      <ul class="handled">
-        <li>Off until the host turns it on and accepts the host terms.</li>
-        <li>Each guest decides for themselves. Declining costs nothing and never limits access to the album.</li>
-        <li>Selfies are processed on our servers (Amazon Web Services, Frankfurt), not on the phone. The search signature is deleted as soon as the search finishes, within 24&nbsp;hours at the latest, and the selfie is never added to the album.</li>
-        <li>There’s no list of people. Even the host searches with their own selfie.</li>
-        <li>Never sold, never used to train AI, never used to identify anyone across events.</li>
-        <li>A search covers only the photos uploaded to that one event’s album: never the web, social media or any other public or leaked source. Nothing is generated: no face swaps, no deepfakes.</li>
-        <li>Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can’t confirm the location.</li>
-      </ul>
-      <p class="price-line">$9.99 once per event, on any package.</p>
-      <p class="face-links">
-        <a class="text-link" href="https://sharecam.app/face-grouping">How face matching works <span aria-hidden="true">→</span></a>
-        <a class="text-link" href="https://sharecam.app/host-terms.html">Host terms <span aria-hidden="true">→</span></a>
-      </p>
-    </div>
-    <figure class="face-fig">
-      <!-- HTML re-creation of the /face/ result step (face/index.html + face/i18n.js EN) -->
-      <div class="phone phone-neutral"><img src="assets/img/screen-face-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="A guest's browser on sharecam.app/face: Found 9 photos, These are the photos you appear in, Save all to Photos, Download all as a ZIP, and nine photos of her."></div>
-      <figcaption class="cap">A guest’s own result, in the browser.</figcaption>
-    </figure>
   </div>
 </section>
 
@@ -381,6 +330,37 @@
         <img src="assets/img/walltv-1600.webp" srcset="assets/img/walltv-960.webp 960w, assets/img/walltv-1600.webp 1600w, assets/img/walltv-2400.webp 2400w" sizes="(min-width: 1200px) 64vw, 100vw" width="2400" height="1340" loading="lazy" decoding="async" alt="Guests point at a TV on an easel in a stone courtyard. It shows the live wall: a guest photo full screen, with the event name, code and a QR code in the corner.">
       </picture>
       <figcaption class="cap">The live wall on a TV at the venue.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 7 · FIND YOUR PHOTOS (C type + B's phone in a neutral browser frame) -->
+<section class="section face" id="face-matching" aria-labelledby="face-title">
+  <div class="wrap grid face-grid">
+    <div class="face-copy">
+      <p class="label">Optional add-on · $9.99 per event</p>
+      <h2 id="face-title" class="h2">Find your photos.</h2>
+      <p class="lead">A guest takes a selfie and sees only the photos they appear in. No scrolling through hundreds.</p>
+      <h3 class="h4 face-h">How it’s handled</h3>
+      <ul class="handled">
+        <li>Off until the host turns it on and accepts the host terms.</li>
+        <li>Each guest decides for themselves. Declining costs nothing and never limits access to the album.</li>
+        <li>Selfies are processed on our servers (Amazon Web Services, Frankfurt), not on the phone. The search signature is deleted as soon as the search finishes, within 24&nbsp;hours at the latest, and the selfie is never added to the album.</li>
+        <li>There’s no list of people. Even the host searches with their own selfie.</li>
+        <li>Never sold, never used to train AI, never used to identify anyone across events.</li>
+        <li>A search covers only the photos uploaded to that one event’s album: never the web, social media or any other public or leaked source. Nothing is generated: no face swaps, no deepfakes.</li>
+        <li>Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can’t confirm the location.</li>
+      </ul>
+      <p class="price-line">$9.99 once per event, on any package.</p>
+      <p class="face-links">
+        <a class="text-link" href="https://sharecam.app/face-grouping">How face matching works <span aria-hidden="true">→</span></a>
+        <a class="text-link" href="https://sharecam.app/host-terms.html">Host terms <span aria-hidden="true">→</span></a>
+      </p>
+    </div>
+    <figure class="face-fig">
+      <!-- HTML re-creation of the /face/ result step (face/index.html + face/i18n.js EN) -->
+      <div class="phone phone-neutral"><img src="assets/img/screen-face-640.webp" width="640" height="1391" loading="lazy" decoding="async" alt="A guest's browser on sharecam.app/face: Found 9 photos, These are the photos you appear in, Save all to Photos, Download all as a ZIP, and nine photos of her."></div>
+      <figcaption class="cap">A guest’s own result, in the browser.</figcaption>
     </figure>
   </div>
 </section>
@@ -646,7 +626,7 @@
 <section class="section closing" aria-labelledby="closing-title">
   <div class="wrap grid closing-grid">
     <div class="closing-copy">
-      <h2 id="closing-title" class="h2 h2-xl">Every photo you’re&nbsp;in, one selfie away.</h2>
+      <h2 id="closing-title" class="h2 h2-xl">Your guests are already taking the photos.</h2>
       <div class="cta-row">
         <a class="btn" href="https://apps.apple.com/app/id6801534049">Start free on iPhone</a>
         <a class="btn ghost" href="https://sharecam.app/host/#/new">Create your event</a>

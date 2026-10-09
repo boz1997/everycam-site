@@ -40,3 +40,15 @@ klasörleri yayınlamaz ve `.well-known` sessizce 404 olur.
   yönlendirir ama iki isim arasında gezinmek karışıklık üretir.
 - Destek adresi sayfalarda `app.sharecam@gmail.com`. Sharecam kutusuna geçilecekse
   önce hesap açılmalı, sonra buradaki 5 bağlantı birden değişmeli.
+
+## Anasayfa sürümleri
+
+- **v2 (9 Eki 2026'dan beri `index.html`)** — yüz eşleştirme önde: "One selfie. Every photo you're in."
+  başlığı, sürekli dönen fotoğraf duvarı (`assets/img/wall/`, `assets/home.css` "1b" bölümü,
+  `assets/fonts/fraunces-italic-hero.woff2`), "Find your photos" bölümü başlığın hemen altında.
+- **v1 (`v1.html`, sharecam.app/v1)** — önceki anasayfa ("Every shot, collected."), `noindex`.
+  Git'te `home-v1` etiketi de aynı hali tutar.
+- **v1'e dönmek:** `cp v1.html index.html`, `noindex` satırını sil, commit + push.
+  `home.css` iki sürümle de çalışır (v2 kuralları yalnız `.hero-face` / `.facewall` altında).
+- `home.css?v=` anahtarını değiştirdiysen, yayın inene kadar o yeni adresi çekme: Cloudflare
+  inmeden önce çekilen eski dosyayı 4 saat önbellekte tutar.
