@@ -167,9 +167,15 @@ export default function App() {
     </select>
   );
 
+  // MİSAFİR → HOST DÖNGÜSÜ (Berk 16 Eki 2026, organik plan 1): her etkinlik ~100
+  // misafire görünür; galerinin sonunda kendi etkinliğini açma daveti. Ölçüm yok
+  // (sitede analitik yok, gizlilik sayfası öyle diyor); link siteye gider.
   const footer = (
     <div className="footnote">
-      <p>{t('appPitch')}</p>
+      <p className="own-title">{t('ownEventTitle')}</p>
+      <p>{t('ownEventBody')}</p>
+      <a className="own-cta" href="https://sharecam.app/?ref=guest">{t('ownEventCta')} →</a>
+      <p className="own-app">{t('appPitch')}</p>
       <a href={APP_STORE_URL}>{t('getApp')} →</a>
     </div>
   );

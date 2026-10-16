@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://sharecam.app/sitemap.xml

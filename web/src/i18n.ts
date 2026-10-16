@@ -137,6 +137,9 @@ const en: Dict = {
   photos: 'photos',
   getApp: 'Get the app',
   appPitch: 'Prefer the app? Camera, live gallery and one-tap sharing.',
+  ownEventTitle: 'Planning your own event?',
+  ownEventBody: 'Guests scan a QR and every photo lands in one live album. Your first event is free.',
+  ownEventCta: 'Create your event',
   ended: 'This album is closed.',
   close: 'Close',
 };
@@ -264,6 +267,9 @@ const tr: Dict = {
   photos: 'fotoğraf',
   getApp: 'Uygulamayı indir',
   appPitch: 'Uygulama daha rahat: kamera, canlı galeri, tek dokunuşla paylaşım.',
+  ownEventTitle: 'Senin de bir etkinliğin mi var?',
+  ownEventBody: 'Misafirler QR okutur, her fotoğraf tek canlı albümde toplanır. İlk etkinliğin ücretsiz.',
+  ownEventCta: 'Etkinliğini oluştur',
   ended: 'Bu albüm kapandı.',
   close: 'Kapat',
 };
@@ -391,6 +397,9 @@ const es: Dict = {
   photos: 'fotos',
   getApp: 'Descargar la app',
   appPitch: '¿Prefieres la app? Cámara, galería en vivo y compartir con un toque.',
+  ownEventTitle: '¿Organizas tu propio evento?',
+  ownEventBody: 'Los invitados escanean un QR y cada foto llega a un único álbum en vivo. Tu primer evento es gratis.',
+  ownEventCta: 'Crea tu evento',
   ended: 'Este álbum está cerrado.',
   close: 'Cerrar',
 };
@@ -518,6 +527,9 @@ const de: Dict = {
   photos: 'Fotos',
   getApp: 'App laden',
   appPitch: 'Lieber die App? Kamera, Live-Galerie und Teilen mit einem Fingertipp.',
+  ownEventTitle: 'Planst du selbst ein Event?',
+  ownEventBody: 'Gäste scannen einen QR-Code, und jedes Foto landet in einem Live-Album. Dein erstes Event ist kostenlos.',
+  ownEventCta: 'Event erstellen',
   ended: 'Dieses Album ist geschlossen.',
   close: 'Schließen',
 };
@@ -645,6 +657,9 @@ const fr: Dict = {
   photos: 'photos',
   getApp: 'Télécharger l’app',
   appPitch: 'Vous préférez l’app ? Appareil photo, galerie en direct et partage en un geste.',
+  ownEventTitle: 'Vous organisez un événement ?',
+  ownEventBody: 'Les invités scannent un QR code et chaque photo rejoint un seul album en direct. Votre premier événement est gratuit.',
+  ownEventCta: 'Créer votre événement',
   ended: 'Cet album est fermé.',
   close: 'Fermer',
 };
@@ -772,6 +787,9 @@ const it: Dict = {
   photos: 'foto',
   getApp: 'Scarica l’app',
   appPitch: 'Preferisci l’app? Fotocamera, galleria dal vivo e condivisione con un tocco.',
+  ownEventTitle: 'Organizzi anche tu un evento?',
+  ownEventBody: 'Gli ospiti scansionano un QR e ogni foto finisce in un unico album dal vivo. Il primo evento è gratis.',
+  ownEventCta: 'Crea il tuo evento',
   ended: 'Questo album è chiuso.',
   close: 'Chiudi',
 };
@@ -899,6 +917,9 @@ const pt: Dict = {
   photos: 'fotos',
   getApp: 'Obter a app',
   appPitch: 'Prefere a app? Câmara, galeria ao vivo e partilha num toque.',
+  ownEventTitle: 'Também vai organizar um evento?',
+  ownEventBody: 'Os convidados leem um QR e cada foto entra num único álbum ao vivo. O primeiro evento é grátis.',
+  ownEventCta: 'Criar o seu evento',
   ended: 'Este álbum está fechado.',
   close: 'Fechar',
 };
@@ -1026,6 +1047,9 @@ const nl: Dict = {
   photos: 'foto’s',
   getApp: 'App downloaden',
   appPitch: 'Liever de app? Camera, livegalerij en delen met één tik.',
+  ownEventTitle: 'Zelf een evenement op komst?',
+  ownEventBody: 'Gasten scannen een QR-code en elke foto komt in één livealbum. Je eerste evenement is gratis.',
+  ownEventCta: 'Maak je evenement',
   ended: 'Dit album is gesloten.',
   close: 'Sluiten',
 };
@@ -1153,6 +1177,9 @@ const pl: Dict = {
   photos: 'zdj.',
   getApp: 'Pobierz aplikację',
   appPitch: 'Wolisz aplikację? Aparat, galeria na żywo i udostępnianie jednym dotknięciem.',
+  ownEventTitle: 'Planujesz własne wydarzenie?',
+  ownEventBody: 'Goście skanują kod QR, a każde zdjęcie trafia do jednego albumu na żywo. Pierwsze wydarzenie jest bezpłatne.',
+  ownEventCta: 'Utwórz wydarzenie',
   ended: 'Ten album jest zamknięty.',
   close: 'Zamknij',
 };
