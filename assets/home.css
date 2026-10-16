@@ -541,7 +541,7 @@ html.motion .fan-card { transition: transform 420ms var(--ease); }
 .tier-price { --soft: 100; font: 850 1.75rem/1 var(--serif); font-variation-settings: "SOFT" 100, "WONK" 1; color: var(--verde); font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.01em; }
 .tier-limits { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 16px; margin-top: 6px; font-size: var(--t-small); color: var(--ink-soft); }
 .tier-limits div { display: flex; gap: 5px; }
-.tier-limits dd { color: var(--ink); font-weight: 600; }
+.tier-limits dd { color: var(--ink); font-weight: 600; text-align: right; }
 .tier-note { grid-column: 1 / -1; font-size: var(--t-small); color: var(--sage-text); margin-top: 2px; }
 .tier-top { background: var(--verde); border-color: var(--verde); }
 .tier-top .tier-name, .tier-top .tier-price, .tier-top dd { color: var(--cream); }
