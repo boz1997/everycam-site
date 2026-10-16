@@ -152,10 +152,10 @@ const de: Dict = {
   'list.photosShort': '{v} Fotos',
   'list.keptUntil': 'Gespeichert bis {date}',
   'list.deletion': 'Gespeichert bis',
-  'list.waiting': 'Noch kein Paket – der QR-Code öffnet sich, sobald eines aktiv ist',
+  'list.waiting': 'Noch kein Paket – der QR-Code wird freigeschaltet, sobald eines aktiv ist',
   'list.emptyTitle': 'Noch keine Events', // app: dashboard.emptyTitle
   'list.emptyBody': 'In 60 Sekunden fertig: Name, Datum, Privatsphäre – dein QR-Code druckbereit. Events in der App erstellt? Melde dich hier mit demselben Konto an wie dort.', // app: dashboard.emptyBody (+ one sentence)
-  'list.findHint': 'Du findest ein Event aus der App nicht? Melde dich mit demselben Konto an wie dort (Einstellungen → Konto). Events einer App ohne Anmeldung bleiben auf diesem Handy, bis du dich dort anmeldest.',
+  'list.findHint': 'Du findest ein Event aus der App nicht? Melde dich mit demselben Konto an wie dort (Einstellungen → Konto). War die App nie angemeldet, bleiben ihre Events auf dem Handy, bis du dich dort anmeldest.',
 
   // ---------------------------------------------------------------- stats, units, plans
   'stat.guests': 'Gäste',
@@ -250,7 +250,7 @@ const de: Dict = {
   // overview
   'overview.createdTitle': 'Event erstellt!', // app: qr.createdTitle
   'overview.createdBody': 'Teile den QR-Code mit deinen Gästen – jedes Foto landet in deiner Galerie.', // app: qr.createdSubtitle
-  'overview.createdBodyPro': 'Lade deine Fotos von diesem Computer hoch. Gäste scannen den QR-Code, sehen das Album und finden sich selbst.',
+  'overview.createdBodyPro': 'Lade deine Fotos von diesem Computer hoch. Gäste scannen den QR-Code, sehen das Album und finden sich per Selfie.',
   'overview.stats': 'Bisher',
   'overview.statsPro': 'Im Album',
   'overview.package': 'Paket', // app: hostEvent.planTitle
@@ -294,7 +294,7 @@ const de: Dict = {
   'wall.privateWarning': 'Im privaten Modus bleiben Uploads bis zur Enthüllung verborgen, daher ist die Wand aus. Wechsle zur offenen Galerie, um die Wand zu nutzen.', // app: wall.privateWarning
   'await.kicker': 'Fotografen-Event',
   'await.title': 'Wähle ein Paket für deinen QR-Code',
-  'await.body': 'Dieses Event hat noch kein Fotografen-Paket. QR-Code, Code und Upload-Seite werden aktiv, sobald ein Paket aktiv ist. Name und Datum sind gespeichert.',
+  'await.body': 'Dieses Event hat noch kein Paket für Fotografen. QR-Code, Code und Upload-Seite werden freigeschaltet, sobald ein Paket aktiv ist. Name und Datum sind gespeichert.',
   'await.cta': 'Paket wählen',
 
   // expiry (D19)
@@ -353,15 +353,15 @@ const de: Dict = {
   'guests.banBody': 'Diese Person kann nicht erneut beitreten oder hochladen. Bereits hochgeladene Fotos bleiben erhalten (du kannst sie in der Galerie löschen).', // app: guests.banBody
   'guests.owner': 'Albumbesitzer',
   'guests.noName': 'Gast',
-  'guests.joined': '{time} beigetreten',
+  'guests.joined': 'Beigetreten: {time}',
   'guests.removedToast': '{name} wurde entfernt.',
   'guests.restoredToast': '{name} kann wieder beitreten.',
-  'guests.capTitle': 'Gäste in diesem Event',
+  'guests.capTitle': 'Gäste bei diesem Event',
   'guests.capBody': 'Entfernte Gäste zählen nicht; ihr Platz wird wieder frei.',
   'guests.full': 'Gästelimit erreicht ({limit}). Mit einem größeren Paket können mehr Gäste beitreten.', // app: guests.limitFull (adapted)
 
   // settings
-  'settings.galleryTitle': 'Wer beitritt, wer sieht',
+  'settings.galleryTitle': 'Wer beitritt, wer was sieht',
   'settings.privateTitle': 'Privater Modus', // app: hostEvent.privateTitle
   'settings.privateOn': 'Gäste sehen nur ihre eigenen Fotos.', // app: hostEvent.privateOn
   'settings.privateOff': 'Alle sehen die ganze Galerie.', // app: hostEvent.privateOff
@@ -392,7 +392,7 @@ const de: Dict = {
   'settings.coverChange': 'Titelbild ändern',
   'settings.coverSaved': 'Titelbild gespeichert.',
   'settings.coverRemoved': 'Titelbild entfernt.',
-  'settings.lockedNote': 'Name und Datum sind gesperrt.',
+  'settings.lockedNote': 'Name und Datum lassen sich nicht mehr ändern.',
   'settings.saved': 'Gespeichert.',
   'settings.dangerTitle': 'Gefahrenzone', // app: hostEvent.dangerTitle
   'settings.dangerBody': 'Beim Löschen verschwinden das Event, seine Fotos und die Gästeliste für alle – auch für deine Gäste. Das lässt sich nicht rückgängig machen.', // app: hostEvent.dangerBody
@@ -458,8 +458,8 @@ const de: Dict = {
   'checkout.opening': 'Der sichere Checkout wird geöffnet…',
   'checkout.paying': 'Schließe die Zahlung im Checkout-Fenster ab.',
   'checkout.sandbox': 'Sandbox · Testzahlungen',
-  'checkout.footnote': 'Preise in USD (derselbe Listenpreis wie im App Store in den USA). In der App berechnet Apple in deiner Landeswährung; im Web zeigt Paddle beim Bezahlen eventuell deine Landeswährung und Steuern an. Die Zahlungen wickelt Paddle ab, unser Merchant of Record.',
-  'checkout.footnote.polar': 'Preise in USD (derselbe Listenpreis wie im App Store in den USA). In der App berechnet Apple in deiner Landeswährung; im Web bezahlst du in US-Dollar, und Polar zeigt beim Bezahlen eventuell anfallende Steuern an. Die Zahlungen wickelt Polar ab, unser Merchant of Record.', // Polar (POLAR-PLAN §4.4): new, native check before go-live
+  'checkout.footnote': 'Preise in USD (derselbe Listenpreis wie im App Store in den USA). In der App rechnet Apple in deiner Landeswährung ab; im Web zeigt Paddle beim Bezahlen eventuell deine Landeswährung und Steuern an. Die Zahlungen wickelt Paddle ab, unser Merchant of Record (Verkäufer).',
+  'checkout.footnote.polar': 'Preise in USD (derselbe Listenpreis wie im App Store in den USA). In der App rechnet Apple in deiner Landeswährung ab; im Web bezahlst du in US-Dollar, und Polar zeigt beim Bezahlen eventuell anfallende Steuern an. Die Zahlungen wickelt Polar ab, unser Merchant of Record (Verkäufer).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
   'checkout.soonTitle': 'Kaufen im Web kommt bald',
   'checkout.soonOff': 'Pakete lassen sich im Web noch nicht kaufen.',
   'checkout.soonPrices': 'Diese Pakete werden im Web noch nicht verkauft.',
@@ -538,7 +538,7 @@ const de: Dict = {
   'account.linked': 'Anmeldung hinzugefügt.',
   'account.signOutTitle': 'Abmelden', // app: account.signOut
   'account.signOutBody': 'Deine Events bleiben in deinem Konto. Melde dich jederzeit wieder an.',
-  'account.signOutPaired': 'Ohne eigene Anmeldung kommt dieser Computer nur zurück, indem du ihn erneut mit der App verbindest.',
+  'account.signOutPaired': 'Ohne eigene Anmeldung kommst du auf diesem Computer nur zurück, indem du ihn erneut mit der App verbindest.',
   'account.deleteCta': 'Konto & Daten löschen', // app: account.deleteCta
   'account.deleteTitle': 'Konto und Daten löschen?', // app: account.deleteTitle
   'account.deleteBody': 'Dein Konto, alle von dir erstellten Events, sämtliche Fotos und Gästelisten werden dauerhaft gelöscht – auf allen Geräten. Das lässt sich nicht rückgängig machen.', // app: account.deleteBody

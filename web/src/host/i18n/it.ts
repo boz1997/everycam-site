@@ -74,7 +74,7 @@ const it: Dict = {
   'signin.appBody': 'Gli eventi che hai creato nell’app Sharecam compaiono qui quando accedi con lo stesso account che usi nell’app (Impostazioni → Account).',
   'auth.google': 'Continua con Google', // app: account.continueGoogle
   'auth.apple': 'Continua con Apple', // app: account.continueApple
-  'auth.soon': 'Presto',
+  'auth.soon': 'In arrivo',
   'auth.appleSoon': 'Hai effettuato l’accesso con Apple nell’app? L’accesso con Apple sul web arriverà presto.',
   'auth.orEmail': 'oppure con l’e-mail',
   'auth.email': 'E-mail',
@@ -89,7 +89,7 @@ const it: Dict = {
   'auth.toReset': 'Password dimenticata?',
   'auth.toSignin': 'Torna all’accesso',
   'auth.haveAccount': 'Hai già un account? Accedi',
-  'auth.createWithEmail': 'Crea un account con questa email',
+  'auth.createWithEmail': 'Crea un account con questa e-mail',
   'auth.errWrong': 'E-mail o password errata.',
   'auth.errEmailTaken': 'Questa e-mail ha già un account. Accedi.',
   'auth.errWeak': 'Scegli una password di almeno 6 caratteri.',
@@ -135,7 +135,7 @@ const it: Dict = {
   'link.apple': 'Aggiungi accesso con Apple',
   'link.emailCta': 'Aggiungi accesso con e-mail',
   'link.inUseTitle': 'Questo accesso ha già un account Sharecam',
-  'link.inUseBody': 'Accedi con questo nell’app (Impostazioni → Account); l’app vi sposta i tuoi eventi. Poi accedi qui con lo stesso account.',
+  'link.inUseBody': 'Accedi con questo metodo nell’app (Impostazioni → Account): l’app sposterà lì i tuoi eventi. Poi accedi qui con lo stesso account.',
   'link.inUseBack': 'Prova un altro accesso',
 
   // ---------------------------------------------------------------- event list
@@ -151,8 +151,8 @@ const it: Dict = {
   'list.count': '{n} in totale',
   'list.guestsShort': '{v} ospiti',
   'list.photosShort': '{v} foto',
-  'list.keptUntil': 'Conservato fino al {date}',
-  'list.deletion': 'Conservato fino al',
+  'list.keptUntil': 'Fine archiviazione: {date}',
+  'list.deletion': 'Fine archiviazione',
   'list.waiting': 'Ancora nessun pacchetto — il QR si apre quando un pacchetto è attivo',
   'list.emptyTitle': 'Ancora nessun evento', // app: dashboard.emptyTitle
   'list.emptyBody': 'Pronto in 60 secondi: nome, data, privacy — il tuo QR pronto da stampare. Hai creato eventi nell’app? Accedi qui con lo stesso account che usi lì.', // app: dashboard.emptyBody (+ one sentence)
@@ -251,18 +251,18 @@ const it: Dict = {
   // overview
   'overview.createdTitle': 'Evento creato!', // app: qr.createdTitle
   'overview.createdBody': 'Condividi il codice QR con i tuoi ospiti — ogni scatto arriva nella tua galleria.', // app: qr.createdSubtitle
-  'overview.createdBodyPro': 'Carica le tue foto da questo computer. Gli ospiti scansionano il QR per sfogliare l’album e ritrovarsi.',
+  'overview.createdBodyPro': 'Carica le tue foto da questo computer. Gli ospiti scansionano il QR per sfogliare l’album e ritrovarsi con un selfie.',
   'overview.stats': 'Finora',
   'overview.statsPro': 'Nell’album',
   'overview.package': 'Pacchetto', // app: hostEvent.planTitle
-  'overview.keptUntil': 'Conservato fino al',
+  'overview.keptUntil': 'Fine archiviazione',
   'overview.face': 'Riconoscimento facciale', // app: hostEvent.aiTitle
   'overview.faceNot': 'Non incluso',
   'overview.wall': 'Parete foto dal vivo', // app: hostEvent.wallTitle
-  'overview.included': 'Incluso',
+  'overview.included': 'Inclusa',
   'overview.changePackage': 'Cambia pacchetto',
   'overview.refundedNote': 'Il pagamento di questo evento è stato rimborsato. L’album resta fino alla fine dell’archiviazione; acquistando di nuovo un pacchetto si riattiva.',
-  'overview.privateLine': 'Privato: gli ospiti vedono solo le proprie foto. Apri la galleria in Impostazioni.',
+  'overview.privateLine': 'Modalità privata: gli ospiti vedono solo le proprie foto. Apri la galleria nelle Impostazioni.',
   'qr.kicker': 'Invito',
   'qr.title': 'Gli ospiti entrano in un solo passaggio', // app: qr.title
   'qr.body': 'Metti il QR sui tavoli o invia il link. Gli ospiti scrivono il proprio nome e condividono dal browser del telefono — niente app, niente account.',
@@ -274,7 +274,7 @@ const it: Dict = {
   'qr.png': 'Scarica il QR (PNG)',
   'qr.share': 'Condividi l’invito', // app: qr.share
   'qr.shareText': 'Unisciti all’album fotografico “{name}” (codice {code})',
-  'qr.faceLine': 'Il riconoscimento facciale è attivo: il QR stampato riporta l’avviso di una riga per gli ospiti.',
+  'qr.faceLine': 'Il riconoscimento facciale è attivo: il QR stampato riporta la breve nota per gli ospiti.',
   'upload.kicker': 'Caricamento',
   'upload.title': 'Carica dal tuo computer', // app: uploadLink.title
   'upload.body': 'Trascina un’intera cartella dal computer. Gli originali restano a piena risoluzione; gli ospiti vedono anteprime leggere.', // app: uploadLink.subtitle
@@ -302,8 +302,8 @@ const it: Dict = {
   'expiry.title': 'Le foto di “{name}” verranno eliminate tra {n} giorni',
   'expiry.titleOne': 'Le foto di “{name}” verranno eliminate domani',
   'expiry.todayTitle': 'Le foto di “{name}” verranno eliminate oggi',
-  'expiry.body': 'L’archiviazione termina il {date}. Scarica l’album prima di allora — dopo non si potrà più recuperare.',
-  'expiry.refundedBody': 'L’archiviazione termina il {date}. I download sono disattivati perché il pagamento è stato rimborsato. Riacquistando un pacchetto tornano disponibili.',
+  'expiry.body': 'L’archiviazione termina in data {date}. Scarica l’album prima di allora — dopo non si potrà più recuperare.',
+  'expiry.refundedBody': 'L’archiviazione termina in data {date}. I download sono disattivati perché il pagamento è stato rimborsato. Riacquistando un pacchetto tornano disponibili.',
   'expiry.download': 'Scarica',
   'expiry.listTitle': 'L’archiviazione sta per finire',
   'expiry.listBody': 'Dopo questa data le foto vengono eliminate e non si possono recuperare. Scarica ciò che vuoi conservare.',
@@ -315,7 +315,7 @@ const it: Dict = {
   'expiry.icsShort': 'Promemoria',
   'expiry.ics': 'Aggiungi un promemoria al calendario',
   'expiry.icsTitle': 'Scarica le tue foto Sharecam: {name}',
-  'expiry.icsBody': 'Le foto di “{name}” verranno eliminate il {date}. Apri l’area organizzatore per scaricarle.',
+  'expiry.icsBody': 'Le foto di “{name}” verranno eliminate in data {date}. Apri l’area organizzatore per scaricarle.',
 
   // gallery
   'gallery.count': '{n} elementi · {shown} caricati',
@@ -342,7 +342,7 @@ const it: Dict = {
   'gallery.openItem': 'Apri la foto di {name}',
   'gallery.photoAlt': 'Foto di {name}',
   'gallery.unknownOwner': 'Ospite',
-  'gallery.openFull': 'Apri a dimensione piena',
+  'gallery.openFull': 'Apri a piena risoluzione',
 
   // guests
   'guests.emptyTitle': 'Ancora nessun ospite', // app: guests.emptyTitle
@@ -404,7 +404,7 @@ const it: Dict = {
   'settings.deleteTitle2': 'Sei assolutamente sicuro?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'È definitivo — non c’è modo di recuperare l’evento.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Evento eliminato.',
-  'settings.deletePairedNote': 'Per eliminare questo evento, accedi su questo computer con l’accesso dell’account (non tramite il collegamento con l’app) oppure eliminalo dall’app.',
+  'settings.deletePairedNote': 'Per eliminare questo evento, accedi su questo computer con le credenziali dell’account (non tramite il collegamento con l’app) oppure eliminalo dall’app.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Riconoscimento facciale', // app: hostEvent.aiTitle
@@ -416,13 +416,13 @@ const it: Dict = {
   'face.hostConfirmBody': 'I tuoi ospiti potranno trovare le proprie foto con un selfie. Sei tu a doverli informare che è attivo — ti diamo il testo per l’invito e un biglietto da tavolo. La funzione non deve essere usata per registrare le presenze né per identificare chi non ha chiesto di essere identificato.', // app: face.hostConfirmBody
   'face.hostConfirmCta': 'Attiva', // app: face.hostConfirmCta
   'face.remindTitle': 'Avvisa subito i tuoi ospiti', // app: face.noticeTitle (adapted)
-  'face.remindBody': 'Copia il testo qui sotto nell’invito o nella chat di gruppo e stampa il QR con la sua riga di avviso.',
+  'face.remindBody': 'Copia il testo qui sotto nell’invito o nella chat di gruppo e stampa il QR con la breve nota per gli ospiti.',
   'face.noticeTitle': 'Avvisa i tuoi ospiti', // app: face.noticeTitle
   'face.noticeSub': 'Incolla questo nell’invito, nella chat di gruppo o su un cartoncino sui tavoli.', // app: face.noticeSub
   'face.noticeText': 'Le foto di questo evento vengono raccolte in un album condiviso. Include il riconoscimento facciale facoltativo per trovare le tue foto. La scelta è tua e puoi rifiutare. Dettagli: sharecam.app/face-grouping', // app: face.noticeText
   'face.noticeCopy': 'Copia il testo', // app: face.noticeCopy
   'face.noticeCopied': 'Copiato', // app: face.noticeCopied
-  'face.noticePrint': 'Il QR che scarichi dalla Panoramica riporta l’avviso di una riga per i biglietti stampati.',
+  'face.noticePrint': 'Il QR che scarichi dalla Panoramica riporta già la breve nota per gli ospiti, pronta per i biglietti stampati.',
   'face.cardNotice': 'Riconoscimento facciale facoltativo in questo album · sharecam.app/face-grouping', // app: face.cardNotice
   'face.regionTitle': 'Non disponibile nella tua regione', // app: face.regionTitle
   'face.regionBody': 'Il riconoscimento facciale non è ancora disponibile dove ti trovi. Lo offriamo solo dove possiamo rispettare le regole locali sui dati del volto, così non ti vendiamo mai qualcosa che i tuoi ospiti non potrebbero usare.', // app: face.regionBody
@@ -456,11 +456,11 @@ const it: Dict = {
   'checkout.upgradeRule': 'Passare a un pacchetto superiore costa il prezzo pieno del pacchetto più grande.',
   'checkout.choose': 'Scegli un pacchetto',
   'checkout.cta': 'Paga {price} · {plan}',
-  'checkout.opening': 'Apertura del pagamento sicuro…',
-  'checkout.paying': 'Completa il pagamento nella finestra di pagamento.',
+  'checkout.opening': 'Apertura della finestra di pagamento sicura',
+  'checkout.paying': 'Completa il pagamento nella finestra che si è aperta.',
   'checkout.sandbox': 'Sandbox · pagamenti di prova',
-  'checkout.footnote': 'Prezzi in USD (lo stesso prezzo di listino dell’App Store negli Stati Uniti). Nell’app Apple addebita nella tua valuta locale; sul web, al pagamento Paddle può mostrare la tua valuta locale e le imposte. I pagamenti sono gestiti da Paddle, il nostro rivenditore autorizzato (merchant of record).',
-  'checkout.footnote.polar': 'Prezzi in USD (lo stesso prezzo di listino dell’App Store negli Stati Uniti). Nell’app Apple addebita nella tua valuta locale; sul web paghi in dollari statunitensi e al pagamento Polar mostra le eventuali imposte. I pagamenti sono gestiti da Polar, il nostro rivenditore autorizzato (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
+  'checkout.footnote': 'Prezzi in USD (lo stesso prezzo di listino dell’App Store negli Stati Uniti). Nell’app, Apple addebita nella tua valuta locale; sul web, Paddle può mostrare la tua valuta locale e le imposte al momento del pagamento. I pagamenti sono gestiti da Paddle, il nostro rivenditore autorizzato (merchant of record).',
+  'checkout.footnote.polar': 'Prezzi in USD (lo stesso prezzo di listino dell’App Store negli Stati Uniti). Nell’app, Apple addebita nella tua valuta locale; sul web paghi in dollari statunitensi e Polar mostra le eventuali imposte al momento del pagamento. I pagamenti sono gestiti da Polar, il nostro rivenditore autorizzato (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
   'checkout.soonTitle': 'L’acquisto sul web arriverà presto',
   'checkout.soonOff': 'I pacchetti non si possono ancora acquistare sul web.',
   'checkout.soonPrices': 'Questi pacchetti non sono ancora in vendita sul web.',
@@ -476,7 +476,7 @@ const it: Dict = {
   'checkout.refundedBody': 'Acquistare di nuovo un pacchetto lo riattiva: tornano i caricamenti, il riconoscimento facciale (se incluso) e i download.',
   'checkout.abandonedTitle': 'Il tuo evento è su Spark (gratis)',
   'checkout.abandoned': 'Non ti è stato addebitato nulla. Scegli un pacchetto quando vuoi: il tuo QR funziona già con Spark.',
-  'checkout.closedNote': 'Il pagamento è stato chiuso. Non ti è stato addebitato nulla.',
+  'checkout.closedNote': 'La finestra di pagamento è stata chiusa. Non ti è stato addebitato nulla.',
   'checkout.applyingTitle': 'Pagamento ricevuto',
   'checkout.applyingBody': 'Stiamo attivando {plan} su questo evento. La pagina si aggiorna da sola.',
   'checkout.slowTitle': 'Pagamento ricevuto — ci siamo quasi',
@@ -489,9 +489,9 @@ const it: Dict = {
   'checkout.coveredBody': 'Se hai pagato due volte, ti rimborsiamo il pagamento in più. Domande: {email}',
   'checkout.failedTitle': 'Non è stato possibile applicare il tuo pagamento',
   'checkout.failedBody': 'Te lo rimborsiamo — non devi fare nulla. Domande: {email}',
-  'checkout.openFailedTitle': 'Impossibile aprire il pagamento',
+  'checkout.openFailedTitle': 'Impossibile aprire la finestra di pagamento',
   'checkout.openFailedBody': 'Non ti è stato addebitato nulla. Riprova tra un momento.',
-  'checkout.tooMany': 'Oggi sono stati aperti troppi pagamenti. Riprova domani o scrivici.',
+  'checkout.tooMany': 'Oggi la finestra di pagamento è stata aperta troppe volte. Riprova domani o scrivici.',
   'checkout.backToPackages': 'Torna ai pacchetti',
   'checkout.contact': 'Contatta l’assistenza',
   'checkout.mailSlow': 'Pagamento web non ancora applicato',
@@ -525,7 +525,7 @@ const it: Dict = {
   'downloads.nothing': 'Non c’è ancora niente da scaricare.',
   'downloads.failed': 'Impossibile creare lo ZIP.', // app: download.zipFailed
   'downloads.keepTitle': 'Conserva una copia',
-  'downloads.keepBody': 'L’archiviazione termina il {date}. Scarica l’album prima di allora.',
+  'downloads.keepBody': 'L’archiviazione termina in data {date}. Scarica l’album prima di allora.',
   'downloads.keepBodyNoDate': 'Scarica l’album prima che finisca l’archiviazione.',
 
   // ---------------------------------------------------------------- account
@@ -539,14 +539,14 @@ const it: Dict = {
   'account.linked': 'Metodo di accesso aggiunto.',
   'account.signOutTitle': 'Esci', // app: account.signOut
   'account.signOutBody': 'I tuoi eventi restano nel tuo account. Accedi di nuovo quando vuoi.',
-  'account.signOutPaired': 'Senza un accesso proprio, questo computer può tornare solo collegandolo di nuovo con l’app.',
+  'account.signOutPaired': 'Senza un metodo di accesso proprio, da questo computer potrai rientrare solo collegandolo di nuovo all’app.',
   'account.deleteCta': 'Elimina account e dati', // app: account.deleteCta
   'account.deleteTitle': 'Eliminare account e dati?', // app: account.deleteTitle
   'account.deleteBody': 'Il tuo account, tutti gli eventi che hai creato, le foto e gli elenchi ospiti vengono eliminati definitivamente, su ogni dispositivo. Azione irreversibile.', // app: account.deleteBody
   'account.deleteConfirm': 'Elimina tutto', // app: account.deleteConfirm
   'account.deleted': 'Il tuo account e i tuoi dati sono stati eliminati.', // app: account.deleted
   'account.deleteFailed': 'Non è stato possibile eliminare il tuo account. Riprova.', // app: account.deleteFailed
-  'account.deletePairedNote': 'Per eliminare l’account, accedi su questo computer con il suo accesso (non tramite il collegamento con l’app) oppure eliminalo dall’app (Impostazioni → Account).',
+  'account.deletePairedNote': 'Per eliminare l’account, accedi su questo computer con le credenziali dell’account (non tramite il collegamento con l’app) oppure eliminalo dall’app (Impostazioni → Account).',
 };
 
 export default it;

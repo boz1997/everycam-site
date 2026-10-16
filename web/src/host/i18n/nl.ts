@@ -130,7 +130,7 @@ const nl: Dict = {
   'link.kicker': 'Nog één stap',
   'link.title': 'Voeg een inlogmethode toe aan dit account',
   'link.lead': 'Je evenementen blijven waar ze zijn. Daarna kun je hier daarmee inloggen, en de app blijft gewoon werken.',
-  'link.buyLead': 'Voor een aankoop op het web heb je een account nodig waar je naar terug kunt: bonnen gaan naar een e-mailadres en het pakket hoort de hele opslagperiode bij dit evenement. Voeg eerst een inlogmethode toe; je evenementen blijven waar ze zijn.',
+  'link.buyLead': 'Voor een aankoop op het web heb je een account nodig waar je naar terug kunt: het betaalbewijs gaat naar een e-mailadres en het pakket hoort de hele opslagperiode bij dit evenement. Voeg eerst een inlogmethode toe; je evenementen blijven waar ze zijn.',
   'link.google': 'Inloggen met Google toevoegen',
   'link.apple': 'Inloggen met Apple toevoegen',
   'link.emailCta': 'Inloggen met e-mail toevoegen',
@@ -179,7 +179,7 @@ const nl: Dict = {
   'plan.webSoon': 'Binnenkort op het web',
   'plan.none': 'Nog geen pakket',
   'plan.wallIncluded': 'Inclusief livemuur',
-  'plan.awaitingBody': 'Kies een pakket om de QR en het uploaden te openen.',
+  'plan.awaitingBody': 'Kies een pakket om de QR en het uploaden te activeren.',
   'plan.videosFromApp': 'Video’s upload je vanuit de iPhone-app.',
 
   // ---------------------------------------------------------------- create
@@ -456,7 +456,7 @@ const nl: Dict = {
   'checkout.upgradeRule': 'Upgraden kost de volle prijs van het grotere pakket.',
   'checkout.choose': 'Kies een pakket',
   'checkout.cta': '{price} betalen · {plan}',
-  'checkout.opening': 'Beveiligde betaling wordt geopend…',
+  'checkout.opening': 'Beveiligd betaalvenster wordt geopend',
   'checkout.paying': 'Rond de betaling af in het betaalvenster.',
   'checkout.sandbox': 'Sandbox · testbetalingen',
   'checkout.footnote': 'Prijzen in USD (dezelfde catalogusprijs als in de App Store in de VS). In de app rekent Apple af in je lokale valuta; op het web kan Paddle bij het afrekenen je lokale valuta en btw tonen. Betalingen worden verwerkt door Paddle, onze officiële wederverkoper (merchant of record).',
@@ -475,23 +475,23 @@ const nl: Dict = {
   'checkout.refundedTitle': 'Dit evenement is terugbetaald',
   'checkout.refundedBody': 'Opnieuw een pakket kopen maakt het weer actief: uploads, gezichtsherkenning (als die erbij zit) en downloads komen terug.',
   'checkout.abandonedTitle': 'Je evenement staat op Spark (gratis)',
-  'checkout.abandoned': 'Er is niets afgeschreven. Kies wanneer je wilt een pakket – je QR werkt al op Spark.',
-  'checkout.closedNote': 'De betaling is gesloten. Er is niets in rekening gebracht.',
+  'checkout.abandoned': 'Er is niets in rekening gebracht. Kies een pakket wanneer je wilt – je QR werkt al op Spark.',
+  'checkout.closedNote': 'Het betaalvenster is gesloten. Er is niets in rekening gebracht.',
   'checkout.applyingTitle': 'Betaling ontvangen',
   'checkout.applyingBody': 'We activeren {plan} voor dit evenement. Deze pagina werkt zichzelf bij.',
   'checkout.slowTitle': 'Betaling ontvangen – bijna klaar',
   'checkout.slowBody': 'Je betaling is binnen. {plan} wordt binnen enkele minuten actief; je kunt deze pagina verlaten. Is het na een uur nog niet actief, schrijf ons dan.',
   'checkout.doneTitle': 'Klaar 🎉', // app: paywall.doneTitle
-  'checkout.doneBody': 'Het pakket {plan} is actief. Paddle stuurt de bon naar je e-mailadres.', // app: paywall.active (+ receipt)
-  'checkout.doneBody.polar': 'Het pakket {plan} is actief. Polar stuurt de bon naar je e-mailadres.', // app: paywall.active (+ receipt, Polar)
+  'checkout.doneBody': 'Het pakket {plan} is actief. Paddle stuurt het betaalbewijs naar je e-mailadres.', // app: paywall.active (+ receipt)
+  'checkout.doneBody.polar': 'Het pakket {plan} is actief. Polar stuurt het betaalbewijs naar je e-mailadres.', // app: paywall.active (+ receipt, Polar)
   'checkout.toOverview': 'Naar het evenement', // app: qr.goToEvent
   'checkout.coveredTitle': 'Dit evenement heeft al {plan}',
-  'checkout.coveredBody': 'Heb je twee keer betaald? Dan betalen we de extra betaling terug. Vragen: {email}',
-  'checkout.failedTitle': 'Je betaling kon niet worden verwerkt',
-  'checkout.failedBody': 'We betalen hem terug – je hoeft niets te doen. Vragen: {email}',
-  'checkout.openFailedTitle': 'De betaling kon niet worden geopend',
+  'checkout.coveredBody': 'Heb je twee keer betaald? Dan storten we het extra bedrag terug. Vragen: {email}',
+  'checkout.failedTitle': 'Betaling ontvangen – pakket niet geactiveerd',
+  'checkout.failedBody': 'We betalen het bedrag terug – je hoeft niets te doen. Vragen: {email}',
+  'checkout.openFailedTitle': 'Het betaalvenster kon niet worden geopend',
   'checkout.openFailedBody': 'Er is niets in rekening gebracht. Probeer het zo meteen opnieuw.',
-  'checkout.tooMany': 'Er zijn vandaag te veel betalingen geopend. Probeer het morgen opnieuw of schrijf ons.',
+  'checkout.tooMany': 'Het betaalvenster is vandaag te vaak geopend. Probeer het morgen opnieuw of schrijf ons.',
   'checkout.backToPackages': 'Terug naar de pakketten',
   'checkout.contact': 'Contact met support',
   'checkout.mailSlow': 'Webbetaling nog niet verwerkt',
@@ -504,7 +504,7 @@ const nl: Dict = {
 
   // ---------------------------------------------------------------- downloads
   'downloads.zipTitle': 'Album downloaden',
-  'downloads.zipBody': 'Alle foto’s en video’s in één ZIP-bestand. Grote albums hebben een minuut nodig om voor te bereiden.',
+  'downloads.zipBody': 'Alle foto’s en video’s in één ZIP-bestand. Bij grote albums duurt het voorbereiden een minuut.',
   'downloads.zipCta': 'ZIP downloaden', // app: download.zip
   'downloads.zipWorking': 'Inpakken…', // app: download.zipWorking
   'downloads.zipReady': 'ZIP downloaden ({n} items)',

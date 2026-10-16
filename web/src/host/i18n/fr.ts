@@ -49,7 +49,7 @@ const fr: Dict = {
   'shell.signOut': 'Se déconnecter', // app: account.signOut
   'shell.signedInAs': 'Connecté en tant que {who}',
   'shell.paired': 'Connecté via l’app',
-  'shell.pairedLong': 'Cet ordinateur est connecté via l’app Sharecam. Il n’a pas encore de moyen de connexion propre.',
+  'shell.pairedLong': 'Cet ordinateur est connecté via l’app Sharecam. Il n’a pas encore son propre moyen de connexion.',
   'shell.linkBannerTitle': 'Ajoutez un moyen de connexion pour garder ce compte',
   'shell.linkBannerBody': 'Cet ordinateur est connecté via votre app Sharecam. Ajoutez une connexion par e-mail ou Google pour revenir sans l’app. Elle est aussi nécessaire pour acheter une formule sur le web.',
   'shell.linkBannerCta': 'Ajouter une connexion',
@@ -76,7 +76,7 @@ const fr: Dict = {
   'auth.apple': 'Continuer avec Apple', // app: account.continueApple
   'auth.soon': 'Bientôt',
   'auth.appleSoon': 'Connecté avec Apple dans l’app ? La connexion avec Apple sur le web arrive bientôt.',
-  'auth.orEmail': 'ou avec un e-mail',
+  'auth.orEmail': 'ou par e-mail',
   'auth.email': 'E-mail',
   'auth.password': 'Mot de passe',
   'auth.passwordHint': '6 caractères minimum.',
@@ -113,8 +113,8 @@ const fr: Dict = {
   'pair.step2': 'Touchez « Importer depuis l’ordinateur », puis « Scanner le QR de l’ordinateur ».',
   'pair.step3': 'Confirmez sur le téléphone. Cette page se connecte toute seule.',
   'pair.qrAlt': 'Code de connexion pour l’app Sharecam',
-  'pair.qrFoot': 'Le code se renouvelle toutes les quelques minutes.',
-  'pair.qrError': 'Le code n’a pas pu être créé. Utilisez plutôt le code à 6 caractères ci-dessous.',
+  'pair.qrFoot': 'Le code se renouvelle régulièrement.',
+  'pair.qrError': 'Le code QR n’a pas pu être créé. Utilisez plutôt le code à 6 caractères ci-dessous.',
   'pair.connecting': 'Connexion…',
   'pair.orCode': 'ou saisissez le code de l’app',
   'pair.codeLabel': 'Code de l’app',
@@ -129,13 +129,13 @@ const fr: Dict = {
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'Encore une étape',
   'link.title': 'Ajoutez un moyen de connexion à ce compte',
-  'link.lead': 'Vos événements restent où ils sont. Vous pourrez ensuite vous connecter ici avec ce moyen, et l’app continue de fonctionner comme avant.',
+  'link.lead': 'Vos événements restent où ils sont. Vous pourrez ensuite vous connecter ici avec ce moyen, et l’app continuera de fonctionner comme avant.',
   'link.buyLead': 'Un achat sur le web nécessite un compte auquel vous pouvez revenir : les reçus sont envoyés par e-mail, et la formule appartient à cet événement pendant toute sa durée de stockage. Ajoutez d’abord un moyen de connexion ; vos événements restent où ils sont.',
   'link.google': 'Ajouter la connexion Google',
   'link.apple': 'Ajouter la connexion Apple',
   'link.emailCta': 'Ajouter la connexion par e-mail',
   'link.inUseTitle': 'Cette connexion a déjà un compte Sharecam',
-  'link.inUseBody': 'Connectez-vous avec dans l’app (Réglages → Compte) ; l’app y transfère vos événements. Connectez-vous ensuite ici avec le même compte.',
+  'link.inUseBody': 'Connectez-vous avec ce moyen dans l’app (Réglages → Compte) ; l’app y transfère vos événements. Connectez-vous ensuite ici avec le même compte.',
   'link.inUseBack': 'Essayer une autre connexion',
 
   // ---------------------------------------------------------------- event list
@@ -156,7 +156,7 @@ const fr: Dict = {
   'list.waiting': 'Pas encore de formule — le QR s’ouvre dès qu’une formule est active',
   'list.emptyTitle': 'Aucun événement pour l’instant', // app: dashboard.emptyTitle
   'list.emptyBody': 'Prêt en 60 secondes : nom, date, confidentialité — votre QR prêt à imprimer. Vous avez créé des événements dans l’app ? Connectez-vous ici avec le même compte que dans l’app.', // app: dashboard.emptyBody (+ one sentence)
-  'list.findHint': 'Vous ne trouvez pas un événement créé dans l’app ? Connectez-vous avec le même compte que dans l’app (Réglages → Compte). Les événements d’une app où personne ne s’est jamais connecté restent sur ce téléphone jusqu’à ce que vous vous y connectiez.',
+  'list.findHint': 'Vous ne trouvez pas un événement créé dans l’app ? Connectez-vous avec le même compte que dans l’app (Réglages → Compte). Les événements d’une app où personne ne s’est jamais connecté restent sur ce téléphone-là jusqu’à ce que vous vous y connectiez.',
 
   // ---------------------------------------------------------------- stats, units, plans
   'stat.guests': 'Invités',
@@ -197,7 +197,7 @@ const fr: Dict = {
   'new.namePlaceholder': 'Le mariage de Claire & Julien', // app: create.namePlaceholder
   'new.nameRequired': 'Veuillez donner un nom à l’événement.',
   'new.date': 'Date de l’événement (facultatif)', // app: create.dateLabel
-  'new.dateHint': 'Le stockage commence ce jour-là (ou aujourd’hui si vous laissez vide).',
+  'new.dateHint': 'Le stockage commence ce jour-là (ou aujourd’hui si vous laissez le champ vide).',
   'date.pick': 'Choisir une date',
   'date.clear': 'Retirer la date', // app: create.clearDate
   'date.today': 'Aujourd’hui',
@@ -251,7 +251,7 @@ const fr: Dict = {
   // overview
   'overview.createdTitle': 'Événement créé !', // app: qr.createdTitle
   'overview.createdBody': 'Partagez le code QR avec vos invités — chaque photo arrive dans votre galerie.', // app: qr.createdSubtitle
-  'overview.createdBodyPro': 'Importez vos photos depuis cet ordinateur. Les invités scannent le QR pour parcourir l’album et se retrouver.',
+  'overview.createdBodyPro': 'Importez vos photos depuis cet ordinateur. Les invités scannent le QR pour parcourir l’album et retrouver leurs photos avec un selfie.',
   'overview.stats': 'Jusqu’ici',
   'overview.statsPro': 'Dans l’album',
   'overview.package': 'Formule', // app: hostEvent.planTitle
@@ -267,14 +267,14 @@ const fr: Dict = {
   'qr.title': 'Vos invités rejoignent l’album en une étape', // app: qr.title
   'qr.body': 'Posez le QR sur les tables ou envoyez le lien. Les invités saisissent leur nom et partagent depuis le navigateur de leur téléphone — sans app, sans compte.',
   'qr.titlePro': 'Le QR des invités',
-  'qr.bodyPro': 'Les invités le scannent pour parcourir l’album, enregistrer des photos et se retrouver avec un selfie. Vous seul importez.',
+  'qr.bodyPro': 'Les invités le scannent pour parcourir l’album, enregistrer des photos et retrouver les leurs avec un selfie. Vous seul importez.',
   'qr.codeLabel': 'Code de l’événement', // app: qr.codeLabel
   'qr.linkLabel': 'Lien invités',
   'qr.alt': 'Code QR de l’événement {code}',
   'qr.png': 'Télécharger le QR (PNG)',
   'qr.share': 'Partager l’invitation', // app: qr.share
   'qr.shareText': 'Rejoignez l’album photo « {name} » (code {code})',
-  'qr.faceLine': 'La reconnaissance faciale est activée : le QR imprimé porte la mention d’une ligne pour les invités.',
+  'qr.faceLine': 'La reconnaissance faciale est activée : le QR imprimé porte une courte mention pour les invités.',
   'upload.kicker': 'Importation',
   'upload.title': 'Importer depuis votre ordinateur', // app: uploadLink.title
   'upload.body': 'Glissez un dossier entier depuis votre ordinateur. Les originaux sont conservés en pleine résolution ; les invités voient des aperçus légers.', // app: uploadLink.subtitle
@@ -354,7 +354,7 @@ const fr: Dict = {
   'guests.banBody': 'Cette personne ne pourra plus rejoindre l’événement ni envoyer de photos. Ses photos restent (vous pouvez les supprimer depuis la galerie).', // app: guests.banBody
   'guests.owner': 'Propriétaire de l’album',
   'guests.noName': 'Invité',
-  'guests.joined': 'a rejoint {time}',
+  'guests.joined': 'Arrivée : {time}',
   'guests.removedToast': '{name} ne fait plus partie de l’événement.',
   'guests.restoredToast': '{name} peut à nouveau rejoindre l’événement.',
   'guests.capTitle': 'Invités de cet événement',
@@ -362,7 +362,7 @@ const fr: Dict = {
   'guests.full': 'Limite d’invités atteinte ({limit}). Passez à une formule supérieure pour en accueillir plus.', // app: guests.limitFull (adapted)
 
   // settings
-  'settings.galleryTitle': 'Qui rejoint, qui voit',
+  'settings.galleryTitle': 'Accès et visibilité',
   'settings.privateTitle': 'Mode privé', // app: hostEvent.privateTitle
   'settings.privateOn': 'Les invités ne voient que leurs propres photos.', // app: hostEvent.privateOn
   'settings.privateOff': 'Tout le monde voit toute la galerie.', // app: hostEvent.privateOff
@@ -404,7 +404,7 @@ const fr: Dict = {
   'settings.deleteTitle2': 'En êtes-vous absolument sûr ?', // app: hostEvent.deleteEventTitle2
   'settings.deleteBody2': 'C’est définitif — impossible de récupérer l’événement.', // app: hostEvent.deleteEventBody2
   'settings.deleted': 'Événement supprimé.',
-  'settings.deletePairedNote': 'Pour supprimer cet événement, connectez-vous sur cet ordinateur avec le propre moyen de connexion du compte (pas via la connexion avec l’app), ou supprimez-le dans l’app.',
+  'settings.deletePairedNote': 'Pour supprimer cet événement, connectez-vous sur cet ordinateur avec le moyen de connexion propre au compte (et non via l’app), ou supprimez-le dans l’app.',
 
   // face matching (the app's versioned texts, face.* 2026-09-23 — copy verbatim)
   'face.title': 'Reconnaissance faciale', // app: hostEvent.aiTitle
@@ -422,7 +422,7 @@ const fr: Dict = {
   'face.noticeText': 'Les photos de cet événement sont réunies dans un album partagé. Il propose une reconnaissance faciale facultative pour retrouver vos propres photos. C\'est votre choix et vous pouvez refuser. Détails : sharecam.app/face-grouping', // app: face.noticeText
   'face.noticeCopy': 'Copier le texte', // app: face.noticeCopy
   'face.noticeCopied': 'Copié', // app: face.noticeCopied
-  'face.noticePrint': 'Le QR téléchargé depuis l’aperçu porte la mention d’une ligne pour les cartes imprimées.',
+  'face.noticePrint': 'Le QR téléchargé depuis l’onglet Aperçu porte une courte mention pour les cartes imprimées.',
   'face.cardNotice': 'Reconnaissance faciale facultative dans cet album · sharecam.app/face-grouping', // app: face.cardNotice
   'face.regionTitle': 'Indisponible dans votre région', // app: face.regionTitle
   'face.regionBody': 'La reconnaissance faciale n’est pas encore proposée chez vous. Nous ne l’ouvrons que là où nous pouvons respecter les règles locales sur les données faciales : nous ne vous vendons jamais une fonction que vos invités ne pourraient pas utiliser.', // app: face.regionBody
@@ -453,11 +453,11 @@ const fr: Dict = {
   'checkout.subtitle': 'Paiement unique — pas d’abonnement. Choisissez la taille adaptée à votre liste d’invités.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Paiement unique par événement. Vous importez depuis votre ordinateur ; les invités scannent le QR, parcourent l’album et retrouvent leurs photos avec un selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Actuelle',
-  'checkout.upgradeRule': 'Passer à une formule supérieure coûte son prix complet.',
+  'checkout.upgradeRule': 'Le passage à une formule supérieure se paie au prix plein de la nouvelle formule.',
   'checkout.choose': 'Choisir une formule',
   'checkout.cta': 'Payer {price} · {plan}',
   'checkout.opening': 'Ouverture du paiement sécurisé…',
-  'checkout.paying': 'Terminez le paiement dans la fenêtre de paiement.',
+  'checkout.paying': 'Finalisez le paiement dans la fenêtre qui vient de s’ouvrir.',
   'checkout.sandbox': 'Sandbox · paiements de test',
   'checkout.footnote': 'Prix en USD (le même prix catalogue que sur l’App Store aux États-Unis). Dans l’app, Apple facture dans votre devise locale ; sur le web, Paddle peut afficher votre devise locale et les taxes au moment du paiement. Les paiements sont traités par Paddle, notre revendeur officiel (merchant of record).',
   'checkout.footnote.polar': 'Prix en USD (le même prix catalogue que sur l’App Store aux États-Unis). Dans l’app, Apple facture dans votre devise locale ; sur le web, vous payez en dollars américains et Polar affiche les éventuelles taxes au moment du paiement. Les paiements sont traités par Polar, notre revendeur officiel (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
@@ -476,7 +476,7 @@ const fr: Dict = {
   'checkout.refundedBody': 'Racheter une formule le réactive : les envois, la reconnaissance faciale (si incluse) et les téléchargements reviennent.',
   'checkout.abandonedTitle': 'Votre événement est sur Spark (gratuit)',
   'checkout.abandoned': 'Rien n’a été débité. Choisissez une formule quand vous voulez : votre QR fonctionne déjà avec Spark.',
-  'checkout.closedNote': 'Le paiement a été fermé. Rien n’a été débité.',
+  'checkout.closedNote': 'La fenêtre de paiement a été fermée. Rien n’a été débité.',
   'checkout.applyingTitle': 'Paiement reçu',
   'checkout.applyingBody': 'Nous activons la formule {plan} sur cet événement. Cette page se met à jour toute seule.',
   'checkout.slowTitle': 'Paiement reçu — presque fini',
@@ -489,9 +489,9 @@ const fr: Dict = {
   'checkout.coveredBody': 'Si vous avez payé deux fois, nous remboursons le paiement en trop. Questions : {email}',
   'checkout.failedTitle': 'Votre paiement n’a pas pu être appliqué',
   'checkout.failedBody': 'Nous vous le remboursons — vous n’avez rien à faire. Questions : {email}',
-  'checkout.openFailedTitle': 'Le paiement n’a pas pu s’ouvrir',
+  'checkout.openFailedTitle': 'La fenêtre de paiement n’a pas pu s’ouvrir',
   'checkout.openFailedBody': 'Rien n’a été débité. Réessayez dans un instant.',
-  'checkout.tooMany': 'Trop de paiements ont été ouverts aujourd’hui. Réessayez demain ou écrivez-nous.',
+  'checkout.tooMany': 'Trop de tentatives de paiement aujourd’hui. Réessayez demain ou écrivez-nous.',
   'checkout.backToPackages': 'Retour aux formules',
   'checkout.contact': 'Contacter l’assistance',
   'checkout.mailSlow': 'Paiement web pas encore appliqué',
@@ -532,14 +532,14 @@ const fr: Dict = {
   'account.kicker': 'Compte', // app: account.title
   'account.title': 'Votre compte',
   'account.signins': 'Moyens de connexion',
-  'account.pairedOnly': 'Cet ordinateur est connecté via l’app Sharecam. Le compte n’a pas encore de moyen de connexion propre.',
+  'account.pairedOnly': 'Cet ordinateur est connecté via l’app Sharecam. Le compte n’a pas encore son propre moyen de connexion.',
   'account.sameAsApp': 'Vos événements appartiennent à ce compte — celui que vous utilisez dans l’app Sharecam.',
   'account.addAnother': 'Ajouter un autre moyen de connexion',
   'account.addAnotherBody': 'Un second accès, pour le jour où vous perdriez le premier.',
   'account.linked': 'Moyen de connexion ajouté.',
   'account.signOutTitle': 'Se déconnecter', // app: account.signOut
   'account.signOutBody': 'Vos événements restent dans votre compte. Reconnectez-vous quand vous voulez.',
-  'account.signOutPaired': 'Sans moyen de connexion propre, cet ordinateur ne peut revenir qu’en étant de nouveau connecté via l’app.',
+  'account.signOutPaired': 'Sans moyen de connexion qui lui soit propre, cet ordinateur ne pourra se reconnecter qu’en passant de nouveau par l’app.',
   'account.deleteCta': 'Supprimer le compte et les données', // app: account.deleteCta
   'account.deleteTitle': 'Supprimer votre compte et vos données ?', // app: account.deleteTitle
   'account.deleteBody': 'Votre compte, tous les événements que vous avez créés, les photos et les listes d’invités sont définitivement supprimés, sur tous vos appareils. Action irréversible.', // app: account.deleteBody

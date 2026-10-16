@@ -68,7 +68,7 @@ const pt: Dict = {
   'signin.title': 'Inicie sessão nos seus eventos',
   'signin.lead': 'Os seus eventos, convidados e fotos num só lugar, em qualquer computador ou telemóvel.',
   'signin.newTitle': 'É novo no Sharecam?',
-  'signin.newCta': 'Crie o seu evento, sem precisar da app',
+  'signin.newCta': 'Criar o seu evento — sem precisar da app',
   'signin.appKicker': 'Já usa a app?',
   'signin.appTitle': 'A mesma conta, os mesmos eventos',
   'signin.appBody': 'Os eventos que criou na app Sharecam aparecem aqui quando inicia sessão com a mesma conta que usa na app (Definições → Conta).',
@@ -84,7 +84,7 @@ const pt: Dict = {
   'auth.createCta': 'Criar conta',
   'auth.resetCta': 'Enviar link de reposição',
   'auth.resetTitle': 'Repor a palavra-passe',
-  'auth.resetSent': 'Se {email} tiver uma conta, enviámos um link para repor a palavra-passe. Consulte a sua caixa de entrada.',
+  'auth.resetSent': 'Se {email} tiver uma conta, vai receber um link para repor a palavra-passe. Consulte a sua caixa de entrada.',
   'auth.toCreate': 'É novo por aqui? Crie uma conta',
   'auth.toReset': 'Esqueceu-se da palavra-passe?',
   'auth.toSignin': 'Voltar ao início de sessão',
@@ -113,7 +113,7 @@ const pt: Dict = {
   'pair.step2': 'Toque em «Enviar do computador» e depois em «Ler o QR do computador».',
   'pair.step3': 'Confirme no telemóvel. Esta página inicia sessão sozinha.',
   'pair.qrAlt': 'Código de ligação para a app Sharecam',
-  'pair.qrFoot': 'O código renova-se a cada poucos minutos.',
+  'pair.qrFoot': 'O código renova-se de poucos em poucos minutos.',
   'pair.qrError': 'Não foi possível criar o código. Use antes o código de 6 caracteres abaixo.',
   'pair.connecting': 'A ligar…',
   'pair.orCode': 'ou introduza o código da app',
@@ -130,7 +130,7 @@ const pt: Dict = {
   'link.kicker': 'Só mais um passo',
   'link.title': 'Adicione um início de sessão a esta conta',
   'link.lead': 'Os seus eventos ficam onde estão. Depois pode iniciar sessão aqui com ele, e a app continua a funcionar como antes.',
-  'link.buyLead': 'Para comprar na web precisa de uma conta à qual possa voltar: os recibos vão para um e-mail e o pacote pertence a este evento durante todo o armazenamento. Adicione primeiro um início de sessão; os seus eventos ficam onde estão.',
+  'link.buyLead': 'Para comprar na web precisa de uma conta à qual possa voltar: os recibos vão para um e-mail e o pacote pertence a este evento durante todo o período de armazenamento. Adicione primeiro um início de sessão; os seus eventos ficam onde estão.',
   'link.google': 'Adicionar início de sessão com o Google',
   'link.apple': 'Adicionar início de sessão com a Apple',
   'link.emailCta': 'Adicionar início de sessão com e-mail',
@@ -143,7 +143,7 @@ const pt: Dict = {
   'list.title': 'Os seus eventos',
   'list.lead': 'Tudo o que organiza, na web e na app.',
   'list.leadEmpty': 'Crie um evento, partilhe o QR e reúna todas as fotos.', // app: welcome.hostDesc
-  'list.create': 'Crie o seu evento',
+  'list.create': 'Criar evento',
   'list.createPro': 'Evento de fotógrafo',
   'list.groupPro': 'Eventos de fotógrafo',
   'list.groupEvents': 'Eventos',
@@ -188,7 +188,7 @@ const pt: Dict = {
   'new.title': 'Crie o seu evento',
   'new.titlePro': 'Crie um evento de fotógrafo',
   'new.lead': 'Dê-lhe um nome, decida quem vê as fotos e escolha um pacote. Todos os eventos começam grátis com o Spark.',
-  'new.leadPro': 'Envia as fotos a partir do computador e os originais ficam guardados. Os convidados leem o QR, veem o álbum e encontram as suas fotos com uma selfie.',
+  'new.leadPro': 'O fotógrafo envia as fotos a partir do computador e os originais ficam guardados. Os convidados leem o QR, veem o álbum e encontram as suas fotos com uma selfie.',
   'new.tierLabel': 'Tipo de evento',
   'new.tierEvents': 'Eventos',
   'new.tierPro': 'Fotógrafos',
@@ -211,7 +211,7 @@ const pt: Dict = {
   'new.coverChange': 'Alterar',
   'new.locked': 'O nome e a data não podem ser alterados depois.',
   'new.package': 'Pacote',
-  'new.consumerSoon': 'Os pacotes pagos chegam em breve à web. Comece já grátis com o Spark e melhore mais tarde, aqui ou na app.',
+  'new.consumerSoon': 'Os pacotes pagos chegam em breve à web. Comece já grátis com o Spark e melhore o pacote mais tarde, aqui ou na app.',
   'new.proSoonTitle': 'Os pacotes para fotógrafos chegam em breve à web',
   'new.proSoonBody': 'Os pacotes para fotógrafos chegam à web e à app Sharecam para iPhone com a próxima atualização. Os eventos que criar agora mantêm o nome e a data.',
   'new.proSoonBodyApp': 'Até lá, são vendidos na app Sharecam para iPhone. Os eventos que criar lá aparecem aqui com o mesmo início de sessão.',
@@ -251,7 +251,7 @@ const pt: Dict = {
   // overview
   'overview.createdTitle': 'Evento criado!', // app: qr.createdTitle
   'overview.createdBody': 'Partilhe o código QR com os seus convidados — cada foto chega à sua galeria.', // app: qr.createdSubtitle
-  'overview.createdBodyPro': 'Envie as suas fotos a partir deste computador. Os convidados leem o QR para ver o álbum e encontrar-se.',
+  'overview.createdBodyPro': 'Envie as suas fotos a partir deste computador. Os convidados leem o QR para ver o álbum e encontrar as suas fotos.',
   'overview.stats': 'Até agora',
   'overview.statsPro': 'No álbum',
   'overview.package': 'Pacote', // app: hostEvent.planTitle
@@ -267,14 +267,14 @@ const pt: Dict = {
   'qr.title': 'Os convidados entram num passo', // app: qr.title
   'qr.body': 'Coloque o QR nas mesas ou envie o link. Os convidados escrevem o nome e partilham a partir do navegador do telemóvel — sem app, sem conta.',
   'qr.titlePro': 'O QR dos convidados',
-  'qr.bodyPro': 'Os convidados leem-no para ver o álbum, guardar fotos e encontrar-se com uma selfie. Só o fotógrafo envia fotos.',
+  'qr.bodyPro': 'Os convidados leem-no para ver o álbum, guardar fotos e encontrar as suas fotos com uma selfie. Só o fotógrafo envia fotos.',
   'qr.codeLabel': 'Código do evento', // app: qr.codeLabel
   'qr.linkLabel': 'Link para convidados',
   'qr.alt': 'Código QR do evento {code}',
   'qr.png': 'Descarregar QR (PNG)',
   'qr.share': 'Partilhar convite', // app: qr.share
   'qr.shareText': 'Entre no álbum de fotos «{name}» (código {code})',
-  'qr.faceLine': 'A correspondência facial está ligada: o QR impresso leva o aviso de uma linha para os convidados.',
+  'qr.faceLine': 'A correspondência facial está ligada: o QR impresso inclui a linha de aviso para os convidados.',
   'upload.kicker': 'Envio',
   'upload.title': 'Enviar do seu computador', // app: uploadLink.title
   'upload.body': 'Arraste uma pasta inteira do computador. Os originais ficam em resolução máxima; os convidados veem pré-visualizações leves.', // app: uploadLink.subtitle
@@ -318,7 +318,7 @@ const pt: Dict = {
   'expiry.icsBody': 'As fotos de «{name}» são eliminadas a {date}. Abra o painel do anfitrião para as descarregar.',
 
   // gallery
-  'gallery.count': '{n} itens · {shown} carregados',
+  'gallery.count': '{n} itens · {shown} mostrados',
   'gallery.filter': 'Mostrar',
   'gallery.all': 'Todas', // app: gallery.all
   'gallery.reportedN': 'Denunciadas ({n})', // app: hostEvent.reportedFilter
@@ -336,8 +336,8 @@ const pt: Dict = {
   'gallery.emptyTitle': 'Ainda sem fotos', // app: hostEvent.emptyTitle
   'gallery.emptyBody': 'Coloque o QR nas mesas — a primeira foto aparece aqui.',
   'gallery.emptyPro': 'Envie as fotos a partir do computador: os originais ficam guardados e os convidados veem a galeria em poucos minutos.', // app: hostEvent.emptyProBody
-  'gallery.noneReported': 'Nada denunciado entre os itens carregados.',
-  'gallery.noneHidden': 'Nada oculto entre os itens carregados.',
+  'gallery.noneReported': 'Nada denunciado entre os itens já mostrados.',
+  'gallery.noneHidden': 'Nada oculto entre os itens já mostrados.',
   'gallery.viewer': 'Visualizador de fotos',
   'gallery.openItem': 'Abrir foto de {name}',
   'gallery.photoAlt': 'Foto de {name}',
@@ -422,7 +422,7 @@ const pt: Dict = {
   'face.noticeText': 'As fotos deste evento são reunidas num álbum partilhado. Inclui correspondência facial opcional para encontrar as suas próprias fotos. A escolha é sua e pode recusar. Detalhes: sharecam.app/face-grouping', // app: face.noticeText
   'face.noticeCopy': 'Copiar o texto', // app: face.noticeCopy
   'face.noticeCopied': 'Copiado', // app: face.noticeCopied
-  'face.noticePrint': 'O QR que descarrega no Resumo leva o aviso de uma linha para os cartões impressos.',
+  'face.noticePrint': 'O QR que descarrega no Resumo inclui a linha de aviso para os cartões impressos.',
   'face.cardNotice': 'Correspondência facial opcional neste álbum · sharecam.app/face-grouping', // app: face.cardNotice
   'face.regionTitle': 'Indisponível na sua região', // app: face.regionTitle
   'face.regionBody': 'A correspondência facial ainda não está disponível na sua região. Só a disponibilizamos onde conseguimos cumprir as regras locais sobre dados faciais, por isso nunca lhe vendemos algo que os seus convidados não possam usar.', // app: face.regionBody
@@ -453,15 +453,15 @@ const pt: Dict = {
   'checkout.subtitle': 'Pagamento único — não é uma subscrição. Escolha o tamanho certo para a sua lista de convidados.', // app: paywall.subtitle
   'checkout.subtitlePro': 'Pagamento único por evento. O fotógrafo envia as fotos a partir do computador; os convidados leem o QR, veem o álbum e encontram as suas fotos com uma selfie.', // app: paywall.subtitlePro
   'checkout.current': 'Agora',
-  'checkout.upgradeRule': 'Melhorar custa o preço total do pacote maior.',
+  'checkout.upgradeRule': 'Ao melhorar, paga o preço total do pacote maior.',
   'checkout.choose': 'Escolher pacote',
   'checkout.cta': 'Pagar {price} · {plan}',
   'checkout.opening': 'A abrir o pagamento seguro…',
   'checkout.paying': 'Conclua o pagamento na janela de pagamento.',
   'checkout.sandbox': 'Sandbox · pagamentos de teste',
-  'checkout.footnote': 'Preços em USD (o mesmo preço de tabela da App Store nos EUA). Na app, a Apple cobra na sua moeda local; na web, a Paddle pode mostrar a sua moeda local e os impostos no pagamento. Os pagamentos são processados pela Paddle, o nosso revendedor oficial (merchant of record).',
-  'checkout.footnote.polar': 'Preços em USD (o mesmo preço de tabela da App Store nos EUA). Na app, a Apple cobra na sua moeda local; na web, paga em dólares americanos e a Polar mostra os eventuais impostos no pagamento. Os pagamentos são processados pela Polar, o nosso revendedor oficial (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
-  'checkout.soonTitle': 'Comprar na web chega em breve',
+  'checkout.footnote': 'Preços em USD (o mesmo preço de tabela da App Store nos EUA). Na app, a Apple cobra na sua moeda local; na web, a Paddle pode mostrar a sua moeda local e os impostos no pagamento. Os pagamentos são processados pela Paddle, o nosso comerciante registado (merchant of record).',
+  'checkout.footnote.polar': 'Preços em USD (o mesmo preço de tabela da App Store nos EUA). Na app, a Apple cobra na sua moeda local; na web, paga em dólares americanos e a Polar mostra os eventuais impostos no pagamento. Os pagamentos são processados pela Polar, o nosso comerciante registado (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
+  'checkout.soonTitle': 'As compras na web chegam em breve',
   'checkout.soonOff': 'Ainda não é possível comprar pacotes na web.',
   'checkout.soonPrices': 'Estes pacotes ainda não são vendidos na web.',
   'checkout.soonApp': 'Até lá, os pacotes são vendidos na app Sharecam para iPhone — este evento aparece lá com o mesmo início de sessão.',
@@ -476,7 +476,7 @@ const pt: Dict = {
   'checkout.refundedBody': 'Comprar um pacote novamente reativa-o: voltam os carregamentos, a correspondência facial (se incluída) e os descarregamentos.',
   'checkout.abandonedTitle': 'O seu evento está no Spark (grátis)',
   'checkout.abandoned': 'Nada foi cobrado. Escolha um pacote quando quiser: o seu QR já funciona no Spark.',
-  'checkout.closedNote': 'O pagamento foi fechado. Não foi feita nenhuma cobrança.',
+  'checkout.closedNote': 'A janela de pagamento foi fechada. Não foi feita nenhuma cobrança.',
   'checkout.applyingTitle': 'Pagamento recebido',
   'checkout.applyingBody': 'Estamos a ativar o {plan} neste evento. Esta página atualiza-se sozinha.',
   'checkout.slowTitle': 'Pagamento recebido — quase pronto',

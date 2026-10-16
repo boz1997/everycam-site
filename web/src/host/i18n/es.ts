@@ -30,7 +30,7 @@ const es: Dict = {
   'common.loading': 'Cargando…',
   'common.loadFailed': 'No se pudo cargar esta página',
   'common.checkConnection': 'Comprueba tu conexión e inténtalo de nuevo.',
-  'common.tryAgain': 'Algo ha fallado. Inténtalo de nuevo.',
+  'common.tryAgain': 'Algo salió mal. Inténtalo de nuevo.',
   'common.prev': 'Anterior',
   'common.next': 'Siguiente',
 
@@ -66,7 +66,7 @@ const es: Dict = {
   // ---------------------------------------------------------------- sign in
   'signin.kicker': 'Panel del anfitrión',
   'signin.title': 'Inicia sesión en tus eventos',
-  'signin.lead': 'Tus eventos, invitados y fotos en un solo lugar, en cualquier ordenador o móvil.',
+  'signin.lead': 'Tus eventos, invitados y fotos en un solo lugar, en cualquier ordenador o teléfono.',
   'signin.newTitle': '¿Nuevo en Sharecam?',
   'signin.newCta': 'Crea tu evento, sin necesidad de app',
   'signin.appKicker': '¿Ya usas la app?',
@@ -84,9 +84,9 @@ const es: Dict = {
   'auth.createCta': 'Crear cuenta',
   'auth.resetCta': 'Enviar enlace para restablecerla',
   'auth.resetTitle': 'Restablece tu contraseña',
-  'auth.resetSent': 'Si {email} tiene una cuenta, te hemos enviado un enlace para restablecerla. Revisa tu bandeja de entrada.',
+  'auth.resetSent': 'Si {email} tiene una cuenta, te hemos enviado un enlace para restablecer la contraseña. Revisa tu bandeja de entrada.',
   'auth.toCreate': '¿Eres nuevo? Crea una cuenta',
-  'auth.toReset': '¿Has olvidado la contraseña?',
+  'auth.toReset': '¿Olvidaste tu contraseña?',
   'auth.toSignin': 'Volver a iniciar sesión',
   'auth.haveAccount': '¿Ya tienes cuenta? Inicia sesión',
   'auth.createWithEmail': 'Crear una cuenta con este correo',
@@ -96,7 +96,7 @@ const es: Dict = {
   'auth.errEmail': 'Introduce un correo electrónico válido.',
   'auth.errPopupBlocked': 'Tu navegador ha bloqueado la ventana de inicio de sesión. Permite las ventanas emergentes para este sitio e inténtalo de nuevo.',
   'auth.errProviderOff': 'Este inicio de sesión aún no está disponible en este sitio. Usa el correo electrónico.',
-  'auth.errOffline': 'Sin conexión. Comprueba tu internet e inténtalo de nuevo.',
+  'auth.errOffline': 'Sin conexión. Comprueba tu acceso a internet e inténtalo de nuevo.',
   'auth.errTooMany': 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.',
   'auth.errDisabled': 'Esta cuenta está desactivada. Escríbenos desde la página de soporte.',
   'auth.errRecent': 'Por tu seguridad, cierra sesión y vuelve a iniciarla; después repite este paso.',
@@ -111,7 +111,7 @@ const es: Dict = {
   'pair.qrTitle': 'Escanea este código con la app',
   'pair.step1': 'Abre tu evento de fotógrafo en la app Sharecam.',
   'pair.step2': 'Toca «Subir desde el ordenador» y después «Escanear QR del ordenador».',
-  'pair.step3': 'Confírmalo en el móvil. Esta página inicia sesión sola.',
+  'pair.step3': 'Confírmalo en el teléfono. Esta página inicia sesión sola.',
   'pair.qrAlt': 'Código de conexión para la app Sharecam',
   'pair.qrFoot': 'El código se renueva cada pocos minutos.',
   'pair.qrError': 'No se pudo crear el código. Usa el código de 6 caracteres de abajo.',
@@ -124,7 +124,7 @@ const es: Dict = {
   'pair.errExpired': 'Ese código ha caducado. Genera uno nuevo en la app.',
   'pair.errUsed': 'Ese código ya se ha usado. Genera uno nuevo en la app.',
   'pair.errGeneric': 'No hemos podido conectar este ordenador. Comprueba tu conexión e inténtalo de nuevo.',
-  'pair.phoneNote': 'La conexión con la app es para ordenadores. En este móvil, inicia sesión.',
+  'pair.phoneNote': 'La conexión con la app es para ordenadores. En este teléfono, inicia sesión.',
 
   // ---------------------------------------------------------------- link a sign-in (paired accounts)
   'link.kicker': 'Un paso más',
@@ -156,7 +156,7 @@ const es: Dict = {
   'list.waiting': 'Aún sin paquete: el QR se abre cuando haya uno activo',
   'list.emptyTitle': 'Aún no hay eventos', // app: dashboard.emptyTitle
   'list.emptyBody': 'Listo en 60 segundos: nombre, fecha y privacidad. Tu QR, listo para imprimir. ¿Creaste eventos en la app? Inicia sesión aquí con la misma cuenta que usas allí.', // app: dashboard.emptyBody (+ one sentence)
-  'list.findHint': '¿No encuentras un evento que creaste en la app? Inicia sesión con la misma cuenta que usas allí (Ajustes → Cuenta). Los eventos de una app sin sesión iniciada se quedan en ese móvil hasta que inicies sesión allí.',
+  'list.findHint': '¿No encuentras un evento que creaste en la app? Inicia sesión con la misma cuenta que usas allí (Ajustes → Cuenta). Los eventos de una app sin sesión iniciada se quedan en ese teléfono hasta que inicies sesión allí.',
 
   // ---------------------------------------------------------------- stats, units, plans
   'stat.guests': 'Invitados',
@@ -203,7 +203,7 @@ const es: Dict = {
   'date.today': 'Hoy',
   'date.prevMonth': 'Mes anterior',
   'date.nextMonth': 'Mes siguiente',
-  'date.help': 'Las flechas te mueven entre los días, Re Pág y Av Pág cambian de mes, Intro elige el día y Esc cierra.',
+  'date.help': 'Las flechas te mueven entre los días, Re Pág y Av Pág cambian de mes, Enter elige el día y Esc cierra.',
   'new.who': '¿Quién ve las fotos?', // app: create.titleMode
   'new.modeHint': 'Puedes cambiarlo después en Ajustes.', // app: create.modeHint
   'new.cover': 'Foto de portada (opcional)',
@@ -211,7 +211,7 @@ const es: Dict = {
   'new.coverChange': 'Cambiar',
   'new.locked': 'El nombre y la fecha no se pueden cambiar después.',
   'new.package': 'Paquete',
-  'new.consumerSoon': 'Los paquetes de pago llegarán pronto a la web. Empieza gratis con Spark y mejora más tarde, aquí o en la app.',
+  'new.consumerSoon': 'Los paquetes de pago llegarán pronto a la web. Empieza gratis con Spark y mejora tu paquete más tarde, aquí o en la app.',
   'new.proSoonTitle': 'Los paquetes para fotógrafos llegarán pronto a la web',
   'new.proSoonBody': 'Los paquetes para fotógrafos llegan a la web y a la app Sharecam para iPhone con su próxima actualización. Los eventos que crees ahora conservan su nombre y su fecha.',
   'new.proSoonBodyApp': 'Mientras tanto se venden en la app Sharecam para iPhone. Los eventos que crees allí aparecen aquí con el mismo inicio de sesión.',
@@ -222,7 +222,7 @@ const es: Dict = {
   'new.created': 'Evento creado.',
   'new.createFailed': 'No se pudo crear el evento. Comprueba tu conexión e inténtalo de nuevo.',
   'new.backToForm': 'Volver al formulario',
-  'new.stepAccount': 'Ya casi está',
+  'new.stepAccount': 'Casi listo',
   'new.accountTitle': 'Guarda tu evento en una cuenta',
   'new.accountLead': 'Tu evento necesita una cuenta a la que puedas volver. Si ya tienes un inicio de sesión en la app, usa el mismo.',
   'new.summary': 'Tu evento',
@@ -251,7 +251,7 @@ const es: Dict = {
   // overview
   'overview.createdTitle': '¡Evento creado!', // app: qr.createdTitle
   'overview.createdBody': 'Comparte el código QR con tus invitados: cada foto llega a tu galería.', // app: qr.createdSubtitle
-  'overview.createdBodyPro': 'Sube tus fotos desde este ordenador. Los invitados escanean el QR para ver el álbum y encontrarse.',
+  'overview.createdBodyPro': 'Sube tus fotos desde este ordenador. Los invitados escanean el QR para ver el álbum y encontrar sus fotos.',
   'overview.stats': 'Hasta ahora',
   'overview.statsPro': 'En el álbum',
   'overview.package': 'Paquete', // app: hostEvent.planTitle
@@ -265,9 +265,9 @@ const es: Dict = {
   'overview.privateLine': 'Privado: los invitados solo ven sus propias fotos. Abre la galería en Ajustes.',
   'qr.kicker': 'Invitación',
   'qr.title': 'Tus invitados se unen en un paso', // app: qr.title
-  'qr.body': 'Pon el QR en las mesas o envía el enlace. Los invitados escriben su nombre y comparten desde el navegador del móvil: sin app y sin cuenta.',
+  'qr.body': 'Pon el QR en las mesas o envía el enlace. Los invitados escriben su nombre y comparten desde el navegador de su teléfono: sin app y sin cuenta.',
   'qr.titlePro': 'El QR de los invitados',
-  'qr.bodyPro': 'Los invitados lo escanean para ver el álbum, guardar fotos y encontrarse con un selfi. Solo tú subes fotos.',
+  'qr.bodyPro': 'Los invitados lo escanean para ver el álbum, guardar fotos y encontrar sus fotos con un selfi. Solo tú subes fotos.',
   'qr.codeLabel': 'Código del evento', // app: qr.codeLabel
   'qr.linkLabel': 'Enlace para invitados',
   'qr.alt': 'Código QR del evento {code}',
@@ -325,7 +325,7 @@ const es: Dict = {
   'gallery.hiddenN': 'Ocultas ({n})',
   'gallery.hidden': 'Oculta',
   'gallery.reported': 'Denunciada',
-  'gallery.hide': 'Ocultar a los invitados',
+  'gallery.hide': 'Ocultar para los invitados',
   'gallery.show': 'Mostrar a los invitados',
   'gallery.hiddenToast': 'Oculta para los invitados.',
   'gallery.shownToast': 'Visible de nuevo para los invitados.',
@@ -358,7 +358,7 @@ const es: Dict = {
   'guests.removedToast': 'Has retirado a {name}.',
   'guests.restoredToast': '{name} puede volver a unirse.',
   'guests.capTitle': 'Invitados de este evento',
-  'guests.capBody': 'Los invitados retirados no cuentan; su plaza queda libre.',
+  'guests.capBody': 'Los invitados retirados no cuentan; su lugar queda libre.',
   'guests.full': 'Límite de invitados alcanzado ({limit}). Mejora tu paquete para que entren más.', // app: guests.limitFull (adapted)
 
   // settings
@@ -461,7 +461,7 @@ const es: Dict = {
   'checkout.sandbox': 'Sandbox · pagos de prueba',
   'checkout.footnote': 'Precios en USD (el mismo precio de lista que en el App Store de EE. UU.). En la app, Apple cobra en tu moneda local; en la web, Paddle puede mostrar tu moneda local y los impuestos al pagar. Los pagos los procesa Paddle, nuestro revendedor autorizado (merchant of record).',
   'checkout.footnote.polar': 'Precios en USD (el mismo precio de lista que en el App Store de EE. UU.). En la app, Apple cobra en tu moneda local; en la web pagas en dólares estadounidenses y Polar muestra los impuestos que correspondan al pagar. Los pagos los procesa Polar, nuestro revendedor autorizado (merchant of record).', // Polar (POLAR-PLAN §4.4): new, native check before go-live
-  'checkout.soonTitle': 'Comprar en la web llegará pronto',
+  'checkout.soonTitle': 'Pronto podrás comprar en la web',
   'checkout.soonOff': 'Todavía no se pueden comprar paquetes en la web.',
   'checkout.soonPrices': 'Estos paquetes aún no se venden en la web.',
   'checkout.soonApp': 'Mientras tanto, los paquetes se venden en la app Sharecam para iPhone; este evento aparece allí con el mismo inicio de sesión.',
@@ -479,7 +479,7 @@ const es: Dict = {
   'checkout.closedNote': 'Has cerrado el pago. No se te ha cobrado nada.',
   'checkout.applyingTitle': 'Pago recibido',
   'checkout.applyingBody': 'Estamos activando {plan} en este evento. Esta página se actualiza sola.',
-  'checkout.slowTitle': 'Pago recibido: ya casi está',
+  'checkout.slowTitle': 'Pago recibido: casi listo',
   'checkout.slowBody': 'Tu pago ha llegado. {plan} se aplicará en unos minutos; puedes salir de esta página. Si no está activo en una hora, escríbenos.',
   'checkout.doneTitle': 'Listo 🎉', // app: paywall.doneTitle
   'checkout.doneBody': 'El paquete {plan} está activo. Paddle envía el recibo a tu correo.', // app: paywall.active (+ receipt)
