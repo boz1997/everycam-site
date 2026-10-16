@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { fileSeed, uploadOne, UploadError, VIDEO_MAX_BYTES } from '../events';
+import { fileSeed, uploadOne, UploadError } from '../events';
+import { videoMaxSeconds } from '../mediaRules';
 import { asMedia, collectDrop, hasFiles } from '../intake';
 import type { EventDoc, UploadItem } from '../types';
 import { IconPlus } from './Brand';
@@ -73,9 +74,9 @@ export function Uploader({ event, uid, name, t }: Props) {
       }, 1200);
     } catch (e) {
       const reason =
-        e instanceof UploadError && e.message === 'video-too-large'
-          ? // Sayı metne GÖMÜLMEZ: tavan değişince dokuz dil de sessizce yalan söylerdi.
-            t('videoTooLarge').replace('{max}', String(VIDEO_MAX_BYTES / 1048576))
+        e instanceof UploadError && e.message === 'video-too-long'
+          ? // Sayı metne GÖMÜLMEZ: tavan pakete göre değişir, dokuz dil de aynı değeri basar.
+            t('videoTooLong').replace('{sec}', String(videoMaxSeconds(event.planId) ?? 0))
           : e instanceof UploadError && e.message === 'quota-reached'
             ? t('quotaReached')
             : t('uploadFailed');

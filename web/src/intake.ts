@@ -3,22 +3,12 @@
 // (upload/) bunu kullanır; eleme kuralı tek yerde dursun.
 
 // MIME boş gelen dosyalar için uzantı listesi. Klasör seçiminde ve sürükle-
-// bırakta tarayıcı her dosyayı getirir (accept yok sayılır); .DS_Store, .xmp,
-// RAW (.cr2/.nef/.arw) gibi dosyalar burada elenir. RAW BİLEREK yok: tarayıcı
-// açamaz, sunucu da (sharp) açamaz — B2B kararı gelene kadar kabul edilmiyor.
-const IMAGE_EXT: Record<string, string> = {
-  jpg: 'image/jpeg',
-  jpeg: 'image/jpeg',
-  png: 'image/png',
-  gif: 'image/gif',
-  webp: 'image/webp',
-  heic: 'image/heic',
-  heif: 'image/heif',
-  avif: 'image/avif',
-  bmp: 'image/bmp',
-  tif: 'image/tiff',
-  tiff: 'image/tiff',
-};
+// bırakta tarayıcı her dosyayı getirir (accept yok sayılır); .DS_Store, .xmp
+// gibi dosyalar burada elenir. RAW (.cr2/.nef/.arw/.dng…) 16 Eki 2026'dan beri
+// KABUL: sunucu gömülü JPEG önizlemesinden türetir (functions/src/decode.ts).
+import { ORIGINAL_TYPES } from './mediaRules';
+
+const IMAGE_EXT: Record<string, string> = { ...ORIGINAL_TYPES, jpeg: 'image/jpeg', tiff: 'image/tiff' };
 const VIDEO_EXT: Record<string, string> = {
   mp4: 'video/mp4',
   m4v: 'video/x-m4v',

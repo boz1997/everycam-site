@@ -13,7 +13,8 @@
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytesResumable } from 'firebase/storage';
 import { hostDb as db, hostStorage as storage } from '../hostSession';
-import { makeThumb, prepare, VIDEO_MAX_BYTES } from '../events';
+import { makeThumb, prepare } from '../events';
+import { ORIGINAL_TYPES, originalExt } from '../mediaRules';
 
 /**
  * İÇERİK kimliği: ilk 4 MB'ın SHA-256'sı + boyut. Misafir yükleyicisi ad|boyut|mtime
@@ -28,33 +29,28 @@ export async function originalId(file: File, uid: string): Promise<string> {
   return `o${hex}${file.size.toString(36)}_${uid}`;
 }
 
-// Sunucu (sharp, prebuilt libvips) açabildiği biçimler. HEIC/HEIF BİLEREK yok:
-// HEVC çözücü lisans yüzünden prebuilt sharp'ta bulunmuyor; fotoğrafçı zaten
-// JPEG export eder. RAW da yok (aynı sebep + tarayıcı önizleyemez).
-const ORIGINAL_EXT: Record<string, string> = {
-  jpg: 'jpg',
-  jpeg: 'jpg',
-  png: 'png',
-  webp: 'webp',
-  tif: 'tif',
-  tiff: 'tif',
-};
-export const ORIGINAL_MAX_BYTES = 200 * 1024 * 1024; // storage.rules ile aynı
+// Sunucunun açabildiği biçimler (functions/src/derive.ts + decode.ts, 16 Eki 2026):
+// JPEG/PNG/WebP/TIFF/GIF/AVIF doğrudan sharp; HEIC/HEIF WASM libheif; RAW dosyaya
+// gömülü JPEG önizlemesinden. Asıl her zaman olduğu gibi saklanır. Boyut tavanı yok.
+export const ORIGINAL_EXT: Record<string, string> = Object.fromEntries(
+  Object.keys(ORIGINAL_TYPES).flatMap((e) => (e === 'jpg' ? [['jpg', 'jpg'], ['jpeg', 'jpg']] : e === 'tif' ? [['tif', 'tif'], ['tiff', 'tif']] : [[e, e]])),
+);
 
-export type OriginalVerdict = 'ok' | 'unsupported' | 'too-large' | 'video';
+export type OriginalVerdict = 'ok' | 'unsupported' | 'video';
 
 /** Paketin video kotası doldu ya da pakette video yok: kural medya dokümanını reddetti. */
 export class VideoQuotaError extends Error {}
+/** Video paketin süre tavanını aşıyor (120 sn; Pro Unlimited süresiz). */
+export class VideoTooLongError extends Error {}
 
 /** Bu dosya orijinal olarak yüklenebilir mi? */
 export function originalVerdict(file: File): OriginalVerdict {
   // Video (2 Eki 2026, Berk: "her şeyi aç"): orijinal yoluna DEĞİL, misafir
   // istemcisinin video yoluna gider (uploadVideo) — sunucu türetmesi yok, kapak
   // karesini tarayıcı çıkarır. Kota (paket video limiti) firestore.rules'ta.
-  if (file.type.startsWith('video/')) return file.size > VIDEO_MAX_BYTES ? 'too-large' : 'video';
+  if (file.type.startsWith('video/')) return 'video';
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
   if (!ORIGINAL_EXT[ext]) return 'unsupported';
-  if (file.size >= ORIGINAL_MAX_BYTES) return 'too-large';
   return 'ok';
 }
 
@@ -76,10 +72,11 @@ export async function uploadOriginal(
   const existing = await getDoc(doc(db, 'events', eventId, 'media', stem));
   if (existing.exists()) return 'exists';
 
-  const ext = ORIGINAL_EXT[file.name.split('.').pop()?.toLowerCase() ?? ''] ?? 'jpg';
+  const ext = originalExt(file.name);
   const path = `events/${eventId}/${uid}/orig/${stem}.${ext}`;
+  // MIME uzantıdan: tarayıcı RAW/HEIC için boş tip verebilir, kural `image/*` ister.
   const task = uploadBytesResumable(storageRef(storage, path), file, {
-    contentType: file.type || 'image/jpeg',
+    contentType: ORIGINAL_TYPES[ext] ?? file.type ?? 'image/jpeg',
     // Sunucu türetirken okur: kimin adına, ne zaman çekildi (EXIF yoksa dosya
     // tarihi), orijinal dosya adı (indirmede geri verilir).
     customMetadata: { ownerName, takenAt: String(file.lastModified || Date.now()), origName: file.name.slice(0, 200) },
@@ -111,12 +108,15 @@ export async function uploadVideo(
   ownerName: string,
   file: File,
   onProgress: (p: number) => void,
+  maxSeconds: number | null,
 ): Promise<OriginalResult> {
   const id = await originalId(file, uid);
   const mediaRef = doc(db, 'events', eventId, 'media', id);
   if ((await getDoc(mediaRef)).exists()) return 'exists';
 
   const prepared = await prepare(file);
+  // SÜRE tavanı pakete göre; ölçülemeyen süre (0) geçer, boyut tavanı yok.
+  if (maxSeconds !== null && (prepared.durationSec ?? 0) > maxSeconds) throw new VideoTooLongError('video-too-long');
   const path = `events/${eventId}/${uid}/${id}.${prepared.ext}`;
   const task = uploadBytesResumable(storageRef(storage, path), prepared.blob, {
     contentType: prepared.blob.type || file.type || 'video/mp4',

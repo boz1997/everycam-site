@@ -3,7 +3,7 @@ import type { HostEvent } from '../../lib/types';
 import { backend } from '../../../backend/active';
 import { callableError, fn } from '../../lib/data';
 import { logError } from '../../lib/errorLog';
-import { deletionAt, flagsOf } from '../../lib/plans';
+import { deletionAt, flagsOf, plan } from '../../lib/plans';
 import { fmtDate, fmtNumber, t } from '../../i18n';
 import { Button, IconDownload, Notice } from '../../components/ui';
 
@@ -114,7 +114,8 @@ function Zip({ event }: { event: HostEvent }) {
 }
 
 export function Downloads({ event }: { event: HostEvent }) {
-  const pro = flagsOf(event).hostOnly;
+  // Originals archive for photographer events and for Unlimited (guests' originals are kept, 16 Oct 2026).
+  const pro = flagsOf(event).hostOnly || plan(event.planId).originals;
   const del = deletionAt(event);
   return (
     <div className="grid-main">

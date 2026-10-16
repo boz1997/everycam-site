@@ -180,7 +180,7 @@ const it: Dict = {
   'plan.none': 'Nessun pacchetto',
   'plan.wallIncluded': 'Parete foto dal vivo inclusa',
   'plan.awaitingBody': 'Scegli un pacchetto per attivare il QR e i caricamenti.',
-  'plan.videosFromApp': 'I video si caricano dall’app per iPhone.',
+  'plan.videosFromApp': 'Video fino a 2 minuti · durata libera con Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nuovo evento',
@@ -511,7 +511,7 @@ const it: Dict = {
   'downloads.displayTitle': 'Per condividere — 2048 px',
   'downloads.displayBody': 'L’intero album in parti ZIP da 500 foto, dimensionate per schermi e social.',
   'downloads.originalTitle': 'Originali — piena risoluzione',
-  'downloads.originalBody': 'I tuoi caricamenti così come sono, in parti ZIP da 150 foto.',
+  'downloads.originalBody': 'Gli originali esattamente come caricati, in parti ZIP da 150 foto.',
   'downloads.prepare': 'Prepara il download',
   'downloads.again': 'Prepara di nuovo',
   'downloads.preparing': 'Preparazione della parte {done} di {total}…',

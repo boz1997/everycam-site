@@ -16,6 +16,7 @@ import {
 } from 'firebase/firestore';
 import { getDownloadURL, ref as storageRef, uploadBytesResumable } from 'firebase/storage';
 import { authPhases, db, ensureAnon, storage } from './firebase';
+import { keepsOriginals, ORIGINAL_TYPES, originalExt, videoMaxSeconds } from './mediaRules';
 import { errorCode, logError } from './errorLog';
 import type { EventDoc, MediaDoc, MediaKind } from './types';
 
@@ -28,10 +29,7 @@ import type { EventDoc, MediaDoc, MediaKind } from './types';
 // söylüyor, o yüzden reddedilen yazımları da yakalayıp anlamlı hataya çeviriyoruz.
 
 const MAX_EDGE = 2048; // native mediaService ile aynı: 12MP HEIC → ~700KB JPEG
-// storage.rules tavanıyla AYNI sayı olmak zorunda (uygulamada src/plans.ts >
-// VIDEO_MAX_BYTES). Ayrışırsa istemci yükletir, kural reddeder ve kullanıcı
-// sebebini göremez. 2026-08-24'te 50 → 200 MB: düğün videoları için darmış.
-export const VIDEO_MAX_BYTES = 200 * 1024 * 1024;
+// Video BOYUT tavanı yok (16 Eki 2026); SÜRE tavanı pakete göre (mediaRules.ts).
 
 export function normalizeCode(raw: string): string {
   return raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
@@ -513,12 +511,15 @@ export async function uploadOne(
   file: File,
   onProgress: (p: number) => void,
 ): Promise<void> {
-  if (file.type.startsWith('video/') && file.size > VIDEO_MAX_BYTES) {
-    throw new UploadError('video-too-large');
-  }
-
+  const isVideo = file.type.startsWith('video/');
   const id = await contentId(file, uid);
   const prepared = await prepare(file);
+  // SÜRE tavanı pakete göre (120 sn; Pro Unlimited süresiz). Ölçülemeyen süre
+  // (Safari .mov sessizliği) 0 gelir ve geçer — eskiden de öyleydi.
+  const maxSec = videoMaxSeconds(event.planId);
+  if (isVideo && maxSec !== null && (prepared.durationSec ?? 0) > maxSec) {
+    throw new UploadError('video-too-long');
+  }
   onProgress(0.1);
 
   const path = `events/${event.id}/${uid}/${id}.${prepared.ext}`;
@@ -539,6 +540,24 @@ export async function uploadOne(
 
   const uri = await getDownloadURL(task.snapshot.ref);
   onProgress(0.92);
+
+  // ASIL (Unlimited, 16 Eki 2026): 2048px kopyanın yanına dosyanın kendisi, orig/
+  // altına, appOriginal=1 ile (sunucu türetmez; dokümanı burası yazar). Düşerse
+  // ana yükleme etkilenmez.
+  let origPath: string | null = null;
+  if (!isVideo && keepsOriginals(event.planId)) {
+    try {
+      const ext = originalExt(file.name);
+      const candidate = `events/${event.id}/${uid}/orig/${id}.${ext}`;
+      await uploadBytesResumable(storageRef(storage, candidate), file, {
+        contentType: ORIGINAL_TYPES[ext] ?? file.type ?? 'image/jpeg',
+        customMetadata: { appOriginal: '1', origName: file.name.slice(0, 200) },
+      });
+      origPath = candidate;
+    } catch {
+      origPath = null;
+    }
+  }
 
   // EN İYİ ÇABA: poster üretimi ya da yüklemesi düşerse ana yükleme etkilenmez.
   let thumbUri: string | null = null;
@@ -574,6 +593,11 @@ export async function uploadOne(
   if (thumbUri && thumbPath) {
     payload.thumbUri = thumbUri;
     payload.thumbPath = thumbPath;
+  }
+  if (origPath) {
+    payload.origPath = origPath;
+    payload.origBytes = file.size;
+    payload.origName = file.name.slice(0, 200);
   }
 
   const mediaRef = doc(db, 'events', event.id, 'media', id);

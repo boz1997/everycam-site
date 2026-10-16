@@ -180,7 +180,7 @@ const nl: Dict = {
   'plan.none': 'Nog geen pakket',
   'plan.wallIncluded': 'Inclusief livemuur',
   'plan.awaitingBody': 'Kies een pakket om de QR en het uploaden te activeren.',
-  'plan.videosFromApp': 'Video’s upload je vanuit de iPhone-app.',
+  'plan.videosFromApp': 'Video’s tot 2 minuten · elke lengte bij Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nieuw evenement',
@@ -511,7 +511,7 @@ const nl: Dict = {
   'downloads.displayTitle': 'Om te delen – 2048 px',
   'downloads.displayBody': 'Het hele album in ZIP-delen van 500 foto’s, op maat voor schermen en social media.',
   'downloads.originalTitle': 'Originelen – volle resolutie',
-  'downloads.originalBody': 'Je uploads precies zoals ze waren, in ZIP-delen van 150 foto’s.',
+  'downloads.originalBody': 'De originelen precies zoals geüpload, in ZIP-delen van 150 foto’s.',
   'downloads.prepare': 'Download voorbereiden',
   'downloads.again': 'Opnieuw voorbereiden',
   'downloads.preparing': 'Deel {done} van {total} wordt voorbereid…',

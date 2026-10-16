@@ -24,7 +24,8 @@ import { guestFunctions, hostAuth, hostDb, migrateLegacyHostSession } from '../h
 import { detectLang, LANG_LABEL, LANGS, makeT, saveLang, type Lang } from '../i18n';
 import { asMedia, collectDrop, hasFiles } from '../intake';
 import { fileSeed } from '../events';
-import { originalVerdict, uploadOriginal, uploadVideo, VideoQuotaError, ORIGINAL_MAX_BYTES } from './originals';
+import { originalVerdict, uploadOriginal, uploadVideo, VideoQuotaError, VideoTooLongError } from './originals';
+import { ORIGINAL_TYPES, videoMaxSeconds } from '../mediaRules';
 import { IconPlus } from '../components/Brand';
 import { Header } from '../components/Header';
 import { QrPairing, type PairResult } from './QrPairing';
@@ -282,13 +283,18 @@ export function UploadApp() {
       if (!next) break;
       activeRef.current += 1;
       patch(next.id, { status: 'uploading', progress: 0 });
-      const send = next.file.type.startsWith('video/') ? uploadVideo : uploadOriginal;
-      void send(event.id, uid, t('upOwnerName'), next.file, (p) => patch(next.id, { progress: p }))
+      const maxSec = videoMaxSeconds(event.planId);
+      const send = next.file.type.startsWith('video/')
+        ? uploadVideo(event.id, uid, t('upOwnerName'), next.file, (p) => patch(next.id, { progress: p }), maxSec)
+        : uploadOriginal(event.id, uid, t('upOwnerName'), next.file, (p) => patch(next.id, { progress: p }));
+      void send
         .then((res) => patch(next.id, { status: res === 'exists' ? 'exists' : 'done', progress: 1 }))
         .catch((e) =>
           e instanceof VideoQuotaError
             ? patch(next.id, { status: 'skipped', note: t('upVideoLimit') })
-            : patch(next.id, { status: 'failed', note: String((e as { code?: string })?.code ?? (e as Error)?.message ?? 'error') }),
+            : e instanceof VideoTooLongError
+              ? patch(next.id, { status: 'skipped', note: t('upSkipVideoLong').replace('{sec}', String(maxSec ?? 0)) })
+              : patch(next.id, { status: 'failed', note: String((e as { code?: string })?.code ?? (e as Error)?.message ?? 'error') }),
         )
         .finally(() => {
           activeRef.current -= 1;
@@ -316,14 +322,7 @@ export function UploadApp() {
           file: media,
           status: verdict === 'ok' || (verdict === 'video' && !noVideos) ? 'queued' : 'skipped',
           progress: 0,
-          note:
-            verdict === 'unsupported'
-              ? t('upSkipUnsupported')
-              : verdict === 'too-large'
-                ? t('upSkipTooLarge').replace('{max}', String(ORIGINAL_MAX_BYTES / 1048576))
-                : noVideos
-                  ? t('upSkipVideoPlan')
-                  : undefined,
+          note: verdict === 'unsupported' ? t('upSkipUnsupported') : noVideos ? t('upSkipVideoPlan') : undefined,
         });
       }
       if (fresh.length === 0) return;
@@ -537,7 +536,7 @@ export function UploadApp() {
           <p style={{ fontFamily: 'var(--serif)', fontSize: 22, margin: 0 }}>{t('upDropTitle')}</p>
           <p className="muted">{t('upDropBody')}</p>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 14 }}>
-            <input ref={fileRef} type="file" accept="image/*,video/*" multiple hidden onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
+            <input ref={fileRef} type="file" accept={`image/*,video/*,${Object.keys(ORIGINAL_TYPES).map((e) => `.${e}`).join(',')}`} multiple hidden onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
             <input ref={dirRef} type="file" multiple hidden {...({ webkitdirectory: '' } as Record<string, string>)} onChange={(e) => { enqueue(Array.from(e.currentTarget.files ?? [])); e.currentTarget.value = ''; }} />
             <button className="btn" style={{ width: 'auto' }} onClick={() => dirRef.current?.click()}>
               <IconPlus /> {t('addFolder')}

@@ -184,7 +184,7 @@ export const en = {
   'plan.none': 'No package yet',
   'plan.wallIncluded': 'Includes the live wall',
   'plan.awaitingBody': 'Choose a package to open the QR and uploads.',
-  'plan.videosFromApp': 'Videos are uploaded from the iPhone app.',
+  'plan.videosFromApp': 'Videos up to 2 minutes each · any length on Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'New event',
@@ -515,7 +515,7 @@ export const en = {
   'downloads.displayTitle': 'For sharing — 2048 px',
   'downloads.displayBody': 'The whole album in ZIP parts of 500 photos, sized for screens and social.',
   'downloads.originalTitle': 'Originals — full resolution',
-  'downloads.originalBody': 'Your uploads exactly as they were, in ZIP parts of 150 photos.',
+  'downloads.originalBody': 'The originals exactly as uploaded, in ZIP parts of 150 photos.',
   'downloads.prepare': 'Prepare download',
   'downloads.again': 'Prepare again',
   'downloads.preparing': 'Preparing part {done} of {total}…',

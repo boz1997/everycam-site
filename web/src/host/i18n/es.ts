@@ -180,7 +180,7 @@ const es: Dict = {
   'plan.none': 'Aún sin paquete',
   'plan.wallIncluded': 'Incluye el muro en vivo',
   'plan.awaitingBody': 'Elige un paquete para activar el QR y las subidas.',
-  'plan.videosFromApp': 'Los vídeos se suben desde la app para iPhone.',
+  'plan.videosFromApp': 'Vídeos de hasta 2 minutos · sin límite de duración en Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nuevo evento',
@@ -511,7 +511,7 @@ const es: Dict = {
   'downloads.displayTitle': 'Para compartir: 2048 px',
   'downloads.displayBody': 'Todo el álbum en partes ZIP de 500 fotos, a un tamaño pensado para pantallas y redes sociales.',
   'downloads.originalTitle': 'Originales: máxima resolución',
-  'downloads.originalBody': 'Lo que subiste, tal cual, en partes ZIP de 150 fotos.',
+  'downloads.originalBody': 'Los originales tal como se subieron, en partes ZIP de 150 fotos.',
   'downloads.prepare': 'Preparar descarga',
   'downloads.again': 'Preparar de nuevo',
   'downloads.preparing': 'Preparando parte {done} de {total}…',

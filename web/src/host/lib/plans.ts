@@ -25,19 +25,23 @@ interface PlanRow {
   ai: boolean;
   hostOnly: boolean;
   wall: boolean;
+  /** Phone/web uploads keep the full-resolution original next to the 2048px copy (src/plans.ts originals). */
+  originals: boolean;
+  /** One video's maximum length in seconds; null = any length (src/plans.ts videoMaxSeconds). */
+  videoMaxSeconds: number | null;
 }
 
 export const PLANS: Record<PlanId, PlanRow> = {
-  spark: { name: 'Spark', tier: 'consumer', rank: 0, photos: 50, videos: 0, guests: 10, retentionDays: 7, ai: false, hostOnly: false, wall: false },
-  mini: { name: 'Mini', tier: 'consumer', rank: 1, photos: 200, videos: 0, guests: 25, retentionDays: 30, ai: false, hostOnly: false, wall: false },
-  party: { name: 'Party', tier: 'consumer', rank: 2, photos: 200, videos: 5, guests: 50, retentionDays: 30, ai: false, hostOnly: false, wall: false },
-  wedding: { name: 'Wedding', tier: 'consumer', rank: 3, photos: 500, videos: 20, guests: 100, retentionDays: 180, ai: false, hostOnly: false, wall: false },
-  unlimited: { name: 'Unlimited', tier: 'consumer', rank: 4, photos: -1, videos: -1, guests: -1, retentionDays: 365, ai: false, hostOnly: false, wall: true },
-  pro500: { name: 'Pro 500', tier: 'pro', rank: 11, photos: 500, videos: 0, guests: -1, retentionDays: 30, ai: true, hostOnly: true, wall: false },
-  pro1000: { name: 'Pro 1000', tier: 'pro', rank: 12, photos: 1000, videos: 0, guests: -1, retentionDays: 90, ai: true, hostOnly: true, wall: true },
-  pro2000: { name: 'Pro 2000', tier: 'pro', rank: 13, photos: 2000, videos: 0, guests: -1, retentionDays: 180, ai: true, hostOnly: true, wall: true },
-  pro5000: { name: 'Pro 5000', tier: 'pro', rank: 14, photos: 5000, videos: 50, guests: -1, retentionDays: 365, ai: true, hostOnly: true, wall: true },
-  proUnlimited: { name: 'Pro Unlimited', tier: 'pro', rank: 15, photos: -1, videos: -1, guests: -1, retentionDays: 365, ai: true, hostOnly: true, wall: true },
+  spark: { name: 'Spark', tier: 'consumer', rank: 0, photos: 50, videos: 0, guests: 10, retentionDays: 7, ai: false, hostOnly: false, wall: false, originals: false, videoMaxSeconds: 120 },
+  mini: { name: 'Mini', tier: 'consumer', rank: 1, photos: 200, videos: 0, guests: 25, retentionDays: 30, ai: false, hostOnly: false, wall: false, originals: false, videoMaxSeconds: 120 },
+  party: { name: 'Party', tier: 'consumer', rank: 2, photos: 200, videos: 5, guests: 50, retentionDays: 30, ai: false, hostOnly: false, wall: false, originals: false, videoMaxSeconds: 120 },
+  wedding: { name: 'Wedding', tier: 'consumer', rank: 3, photos: 500, videos: 20, guests: 100, retentionDays: 180, ai: false, hostOnly: false, wall: false, originals: false, videoMaxSeconds: 120 },
+  unlimited: { name: 'Unlimited', tier: 'consumer', rank: 4, photos: -1, videos: -1, guests: -1, retentionDays: 365, ai: false, hostOnly: false, wall: true, originals: true, videoMaxSeconds: 120 },
+  pro500: { name: 'Pro 500', tier: 'pro', rank: 11, photos: 500, videos: 0, guests: -1, retentionDays: 30, ai: true, hostOnly: true, wall: false, originals: false, videoMaxSeconds: 120 },
+  pro1000: { name: 'Pro 1000', tier: 'pro', rank: 12, photos: 1000, videos: 0, guests: -1, retentionDays: 90, ai: true, hostOnly: true, wall: true, originals: false, videoMaxSeconds: 120 },
+  pro2000: { name: 'Pro 2000', tier: 'pro', rank: 13, photos: 2000, videos: 0, guests: -1, retentionDays: 180, ai: true, hostOnly: true, wall: true, originals: false, videoMaxSeconds: 120 },
+  pro5000: { name: 'Pro 5000', tier: 'pro', rank: 14, photos: 5000, videos: 50, guests: -1, retentionDays: 365, ai: true, hostOnly: true, wall: true, originals: false, videoMaxSeconds: 120 },
+  proUnlimited: { name: 'Pro Unlimited', tier: 'pro', rank: 15, photos: -1, videos: -1, guests: -1, retentionDays: 365, ai: true, hostOnly: true, wall: true, originals: true, videoMaxSeconds: null },
 };
 
 /** The packages the web sells, per ladder, ascending (no Mini, no add-on: D4). */
