@@ -181,7 +181,7 @@ const pl: Dict = {
   'plan.none': 'Brak pakietu',
   'plan.wallIncluded': 'Ze ścianą na żywo',
   'plan.awaitingBody': 'Wybierz pakiet, aby uruchomić kod QR i wgrywanie.',
-  'plan.videosFromApp': 'Filmy do 2 minut · dowolna długość w Pro Unlimited.',
+  'plan.videosFromApp': 'Filmy do 2 minut każdy · dowolna długość w Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nowe wydarzenie',

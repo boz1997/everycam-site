@@ -180,7 +180,7 @@ const it: Dict = {
   'plan.none': 'Nessun pacchetto',
   'plan.wallIncluded': 'Parete foto dal vivo inclusa',
   'plan.awaitingBody': 'Scegli un pacchetto per attivare il QR e i caricamenti.',
-  'plan.videosFromApp': 'Video fino a 2 minuti · durata libera con Pro Unlimited.',
+  'plan.videosFromApp': 'Video fino a 2 minuti ciascuno · senza limiti di durata con Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nuovo evento',

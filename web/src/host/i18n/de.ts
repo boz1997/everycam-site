@@ -510,7 +510,7 @@ const de: Dict = {
   'downloads.displayTitle': 'Zum Teilen – 2048 px',
   'downloads.displayBody': 'Das ganze Album in ZIP-Teilen mit je 500 Fotos, passend für Bildschirme und Social Media.',
   'downloads.originalTitle': 'Originale – volle Auflösung',
-  'downloads.originalBody': 'Die Originale genau wie hochgeladen, in ZIP-Teilen zu 150 Fotos.',
+  'downloads.originalBody': 'Die Originale genau wie hochgeladen, in ZIP-Teilen mit je 150 Fotos.',
   'downloads.prepare': 'Download vorbereiten',
   'downloads.again': 'Erneut vorbereiten',
   'downloads.preparing': 'Teil {done} von {total} wird vorbereitet…',

@@ -180,7 +180,7 @@ const fr: Dict = {
   'plan.none': 'Pas encore de formule',
   'plan.wallIncluded': 'Mur en direct inclus',
   'plan.awaitingBody': 'Choisissez une formule pour ouvrir le QR et les envois.',
-  'plan.videosFromApp': 'Vidéos de 2 minutes max · durée libre avec Pro Unlimited.',
+  'plan.videosFromApp': 'Vidéos jusqu’à 2 minutes chacune · sans limite de durée avec Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nouvel événement',
@@ -511,7 +511,7 @@ const fr: Dict = {
   'downloads.displayTitle': 'Pour partager — 2048 px',
   'downloads.displayBody': 'Tout l’album en fichiers ZIP de 500 photos, dimensionnés pour les écrans et les réseaux.',
   'downloads.originalTitle': 'Originaux — pleine résolution',
-  'downloads.originalBody': 'Les originaux tels qu’ils ont été importés, en parties ZIP de 150 photos.',
+  'downloads.originalBody': 'Les originaux tels qu’ils ont été importés, en fichiers ZIP de 150 photos.',
   'downloads.prepare': 'Préparer le téléchargement',
   'downloads.again': 'Préparer à nouveau',
   'downloads.preparing': 'Préparation de la partie {done} sur {total}…',

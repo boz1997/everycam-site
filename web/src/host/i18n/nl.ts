@@ -180,7 +180,7 @@ const nl: Dict = {
   'plan.none': 'Nog geen pakket',
   'plan.wallIncluded': 'Inclusief livemuur',
   'plan.awaitingBody': 'Kies een pakket om de QR en het uploaden te activeren.',
-  'plan.videosFromApp': 'Video’s tot 2 minuten · elke lengte bij Pro Unlimited.',
+  'plan.videosFromApp': 'Video’s van maximaal 2 minuten · elke lengte bij Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Nieuw evenement',

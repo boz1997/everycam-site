@@ -180,7 +180,7 @@ const pt: Dict = {
   'plan.none': 'Ainda sem pacote',
   'plan.wallIncluded': 'Inclui o mural ao vivo',
   'plan.awaitingBody': 'Escolha um pacote para abrir o QR e os carregamentos.',
-  'plan.videosFromApp': 'Vídeos até 2 minutos · sem limite de duração no Pro Unlimited.',
+  'plan.videosFromApp': 'Vídeos até 2 minutos cada · sem limite de duração no Pro Unlimited.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Novo evento',

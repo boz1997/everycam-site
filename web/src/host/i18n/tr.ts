@@ -179,7 +179,7 @@ const tr: Dict = {
   'plan.none': 'Henüz paket yok',
   'plan.wallIncluded': 'Canlı duvar dahil',
   'plan.awaitingBody': 'QR’ı ve yüklemeyi açmak için bir paket seç.',
-  'plan.videosFromApp': 'Videolar en fazla 2 dakika · Pro Unlimited’da süresiz.',
+  'plan.videosFromApp': 'Her video en fazla 2 dakika · Pro Unlimited’da süre sınırı yok.',
 
   // ---------------------------------------------------------------- create
   'new.kicker': 'Yeni etkinlik',
@@ -510,7 +510,7 @@ const tr: Dict = {
   'downloads.displayTitle': 'Paylaşım için — 2048 px',
   'downloads.displayBody': 'Tüm albüm, 500 fotoğraflık ZIP parçaları hâlinde; ekranlar ve sosyal medya için boyutlandırılmış.',
   'downloads.originalTitle': 'Orijinaller — tam çözünürlük',
-  'downloads.originalBody': 'Orijinaller yüklendiği hâliyle, 150 fotoğraflık ZIP parçaları hâlinde.',
+  'downloads.originalBody': 'Orijinaller tam yüklendiği gibi, 150 fotoğraflık ZIP parçaları hâlinde.',
   'downloads.prepare': 'İndirmeyi hazırla',
   'downloads.again': 'Yeniden hazırla',
   'downloads.preparing': 'Hazırlanıyor… {done}/{total} parça hazır',
