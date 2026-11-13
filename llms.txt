@@ -25,6 +25,7 @@ Hosts create an event in the iPhone app (iOS 16.4 or later) or on the web dashbo
 
 - Open https://sharecam.app/wall/ on any TV, laptop or projector. No cable, no app. New photos fade in as they arrive, with your event name, code and join QR always on screen.
 - Included with Unlimited, in open albums. Photos only; videos are skipped. Also included in the Pro 1000, Pro 2000, Pro 5000 and Pro Unlimited photographer packages.
+- [Guide: office holiday party photo wall](https://sharecam.app/guides/office-holiday-party-photo-wall.html)
 
 ## Face matching: find your photos with a selfie
 
@@ -36,6 +37,7 @@ Hosts create an event in the iPhone app (iOS 16.4 or later) or on the web dashbo
 - Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can't confirm the location.
 - [How face matching works](https://sharecam.app/face-grouping.html)
 - [Host terms for face matching](https://sharecam.app/host-terms.html)
+- [Guide: find every photo you're in at a wedding, with one selfie](https://sharecam.app/guides/find-your-photos-with-a-selfie.html)
 
 ## Pricing
 
@@ -95,9 +97,11 @@ Notes from the page:
 
 - [Guides](https://sharecam.app/guides/): practical guides on collecting photos at weddings and events.
 - [QR code wedding photo album: how it works](https://sharecam.app/guides/qr-code-wedding-photo-album.html): setup, table cards, private mode, downloads and what it costs.
+- [Find Every Photo You're In at a Wedding, With One Selfie](https://sharecam.app/guides/find-your-photos-with-a-selfie.html): how face matching works, what happens to the selfie, where it's offered and what it costs.
 - [The disposable camera alternative for weddings](https://sharecam.app/guides/disposable-camera-alternative.html): keep the surprise, lose the film, the cost and the two-week wait.
 - [How to collect event photos from guests without an app](https://sharecam.app/guides/share-event-photos-without-an-app.html): QR album vs cloud folder vs group chat vs hashtag.
 - [A live photo wall for your venue, set up in five minutes](https://sharecam.app/guides/live-photo-wall-for-events.html): screen, Wi-Fi, the wall link, and what moves the upload count.
+- [Office Holiday Party Photo Wall: Guest Photos on the TV, No App](https://sharecam.app/guides/office-holiday-party-photo-wall.html): the wall on the office TV, joining from the browser, host controls and pricing.
 - [How to choose a wedding photo sharing app: 9 things to check](https://sharecam.app/guides/how-to-choose-a-wedding-photo-sharing-app.html): guest friction, names, privacy modes, storage, pricing model.
 
 ## Ratgeber (Deutsch)
