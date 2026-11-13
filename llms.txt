@@ -1,0 +1,128 @@
+# ShareCam
+
+> ShareCam, published on the App Store as "ShareCam: Event Photo Album", collects every guest's photos and videos from an event in one live album. Guests scan a QR code and share from their phone's browser: no app, no account, no password. Free to start, pay once per event, no subscription.
+
+Hosts create an event in the iPhone app (iOS 16.4 or later) or on the web dashboard. Guests join from any phone with a browser, iPhone or Android. Spark is free for up to 10 guests, the smaller packages are made for dinners, birthdays and parties, Wedding is sized for weddings up to 100 guests, and Unlimited is for more than 100 guests. There are also packages for photographers.
+
+## How guests join with a QR code
+
+1. Create your event: name, date, open or private. The QR code is ready in about a minute, and you don't need an account to start.
+2. Put it on the tables: choose from 16 card designs with the QR code built in. Print four to an A4 page with cut marks, or send the invite link.
+3. Guests scan the QR code. It opens in the phone's browser, iPhone or Android. They type their name, pick photos, videos or a whole folder, and they're in. No app, no account, no password.
+4. Lost the card? The 6-character code works too, at https://sharecam.app/join/
+5. Every upload carries the guest's name, and the host sees the full guest list. Guests who prefer the app can use it; everything lands in the same album.
+6. Photos and videos from every phone arrive in one live gallery within seconds. Photos are resized on the phone to 2,048 px before upload; on Unlimited, the full-resolution original is kept as well. Afterwards, save everything to Photos or download a ZIP.
+
+## Host controls
+
+- Private mode: guests see only their own photos while the host sees everything. Reveal the whole album with one tap, or schedule it for the morning after.
+- Hide or delete any photo, remove a guest, or pause new joins. If a guest reports a photo, it disappears for them at once and waits in the host's Reported list.
+- In an open album, everyone can like photos. "Most loved" puts favourites first, and "My photos" shows just yours. "Event shots" finds the photos on your phone taken since the event started and adds them in one tap.
+- Videos on Party and up: up to 2 minutes each, any file size. Pro Unlimited takes videos of any length.
+- Storage is counted from your event date, not the day you set it up. You're always warned before storage expires; photos are never silently deleted.
+
+## Live wall
+
+- Open https://sharecam.app/wall/ on any TV, laptop or projector. No cable, no app. New photos fade in as they arrive, with your event name, code and join QR always on screen.
+- Included with Unlimited, in open albums. Photos only; videos are skipped. Also included in the Pro 1000, Pro 2000, Pro 5000 and Pro Unlimited photographer packages.
+
+## Face matching: find your photos with a selfie
+
+- Each guest takes a selfie in the browser and sees only the photos they appear in, ready to save. No scrolling through thousands.
+- Optional add-on: $9.99 once per event, on any package, added in the iPhone app where available. Included in photographer packages.
+- Off until the host turns it on and accepts the host terms. Each guest decides for themselves; declining costs nothing and never limits access to the album.
+- Selfies are processed on our servers (Amazon Web Services, Frankfurt), not on the phone. The search signature is deleted as soon as the search finishes, within 24 hours at the latest, and the selfie is never added to the album.
+- A search covers only the photos uploaded to that one event's album. Never sold, never used to train AI, never used to identify anyone across events.
+- Not offered in Illinois, Texas or Washington, in China, Russia or Vietnam, or anywhere we can't confirm the location.
+- [How face matching works](https://sharecam.app/face-grouping.html)
+- [Host terms for face matching](https://sharecam.app/host-terms.html)
+
+## Pricing
+
+As shown on the [home page](https://sharecam.app/#packages). Pay once, per event: no subscription, nothing renews. Every event starts free on Spark.
+
+Events:
+- Spark: Free. Guests 10, Photos 50, Videos —, Storage 7 days.
+- Party: $14.99. Guests 50, Photos 200, Videos 5, Storage 1 month.
+- Wedding: $24.99. Sized for weddings up to 100 guests. Guests 100, Photos 500, Videos 20, Storage 6 months.
+- Unlimited: $39.99. For more than 100 guests. Includes the live wall. Guests Unlimited, Photos Unlimited, Videos Unlimited, Originals Kept, Storage 1 year.
+- Face matching: +$9.99. Add to any package in the iPhone app, where available.
+
+Photographers:
+- Pro 500: $54.99. Photos 500, Guests Unlimited, Face matching Included, Live wall —, Storage 1 month.
+- Pro 1000: $89.99. Photos 1,000, Guests Unlimited, Face matching Included, Live wall Included, Storage 3 months.
+- Pro 2000: $149.99. Photos 2,000, Guests Unlimited, Face matching Included, Live wall Included, Storage 6 months.
+- Pro 5000: $229.99. Photos 5,000, Videos 50 · 2 min each, Guests Unlimited, Face matching Included, Live wall Included, Storage 1 year.
+- Pro Unlimited: $339.99. For more than 5,000 photos. Videos of any length, any size. Photos Unlimited, Videos Unlimited, Guests Unlimited, Face matching Included, Live wall Included, Storage 1 year.
+- Originals kept · you upload from a computer · guests view and find their photos with a selfie.
+
+Notes from the page:
+- Prices in USD. In the app, the App Store charges in your local currency; on the web, Paddle shows local currency and tax at checkout.
+- Storage is counted from your event date, not the day you create it.
+- The live wall is included with Unlimited (open albums, photos only).
+- Guest limits are per event; removing a guest frees their slot.
+- Photographer packages: one-time purchase per event, no subscription. Buy on the web or in the ShareCam iPhone app. Prices in USD. Face matching where available.
+
+## For photographers
+
+- Upload the whole gallery from a computer on the [upload page](https://sharecam.app/join/upload/). Drag in a folder: JPEG, PNG, TIFF, WebP, HEIC or RAW (CR2, CR3, NEF, ARW, DNG, RAF, ORF and more), plus videos, with no size limit. Originals are kept byte for byte.
+- Connect the computer by scanning its QR code with the ShareCam app, or by typing the 6-character code the app shows.
+- Guests scan the table QR and find the photos they're in with a selfie, then browse the rest. No app, unlimited guests, face matching included where available.
+- The couple gets a one-time code for the album page at https://sharecam.app/join/album/ and downloads everything as ZIP parts, in 2,048 px or originals.
+- [Photographer login](https://sharecam.app/host/)
+
+## Privacy
+
+- We do not sell or rent your data to anyone. We do not show ads inside the app. We do not use your photos to train AI models.
+- Only the items you explicitly choose to upload leave your device.
+- Albums are stored in the EU: the database in Frankfurt, photos and videos in Belgium.
+- This website uses no cookies, analytics or trackers.
+- [Privacy policy](https://sharecam.app/privacy.html)
+
+## Links
+
+- [Home](https://sharecam.app/)
+- [ShareCam on the App Store](https://apps.apple.com/app/id6801534049)
+- [Create your event on the web](https://sharecam.app/host/#/new)
+- [Join an event](https://sharecam.app/join/)
+- [Support](https://sharecam.app/support.html): email app.sharecam@gmail.com and include your event code if your question is about a specific event.
+- [Terms of Service](https://sharecam.app/terms.html)
+- [Web purchase terms](https://sharecam.app/web-terms.html)
+- [Refund policy](https://sharecam.app/refund-policy.html)
+- [Imprint](https://sharecam.app/imprint.html): service provider Boz Apps.
+
+## Guides (English)
+
+- [Guides](https://sharecam.app/guides/): practical guides on collecting photos at weddings and events.
+- [QR code wedding photo album: how it works](https://sharecam.app/guides/qr-code-wedding-photo-album.html): setup, table cards, private mode, downloads and what it costs.
+- [The disposable camera alternative for weddings](https://sharecam.app/guides/disposable-camera-alternative.html): keep the surprise, lose the film, the cost and the two-week wait.
+- [How to collect event photos from guests without an app](https://sharecam.app/guides/share-event-photos-without-an-app.html): QR album vs cloud folder vs group chat vs hashtag.
+- [A live photo wall for your venue, set up in five minutes](https://sharecam.app/guides/live-photo-wall-for-events.html): screen, Wi-Fi, the wall link, and what moves the upload count.
+- [How to choose a wedding photo sharing app: 9 things to check](https://sharecam.app/guides/how-to-choose-a-wedding-photo-sharing-app.html): guest friction, names, privacy modes, storage, pricing model.
+
+## Ratgeber (Deutsch)
+
+- [Ratgeber](https://sharecam.app/guides/de/)
+- [QR-Code-Fotoalbum für die Hochzeit: So funktioniert es](https://sharecam.app/guides/de/qr-code-wedding-photo-album.html)
+- [Die Alternative zur Einwegkamera auf der Hochzeit](https://sharecam.app/guides/de/disposable-camera-alternative.html)
+- [So sammelst du Eventfotos von Gästen ohne App](https://sharecam.app/guides/de/share-event-photos-without-an-app.html)
+- [Eine Live-Fotowand für deine Location, in fünf Minuten eingerichtet](https://sharecam.app/guides/de/live-photo-wall-for-events.html)
+- [Die richtige Foto-Sharing-App für die Hochzeit: 9 Punkte zum Prüfen](https://sharecam.app/guides/de/how-to-choose-a-wedding-photo-sharing-app.html)
+
+## Guías (Español)
+
+- [Guías](https://sharecam.app/guides/es/)
+- [Álbum de fotos de boda con código QR: cómo funciona](https://sharecam.app/guides/es/qr-code-wedding-photo-album.html)
+- [La alternativa a las cámaras desechables en bodas](https://sharecam.app/guides/es/disposable-camera-alternative.html)
+- [Cómo recopilar las fotos de los invitados sin ninguna app](https://sharecam.app/guides/es/share-event-photos-without-an-app.html)
+- [Un muro de fotos en vivo para tu salón, listo en cinco minutos](https://sharecam.app/guides/es/live-photo-wall-for-events.html)
+- [Cómo elegir una app para compartir fotos de boda: 9 cosas que revisar](https://sharecam.app/guides/es/how-to-choose-a-wedding-photo-sharing-app.html)
+
+## Guides (Français)
+
+- [Guides](https://sharecam.app/guides/fr/)
+- [Album photo de mariage par QR code : comment ça marche](https://sharecam.app/guides/fr/qr-code-wedding-photo-album.html)
+- [L’alternative aux appareils photo jetables pour les mariages](https://sharecam.app/guides/fr/disposable-camera-alternative.html)
+- [Comment collecter les photos de vos invités sans application](https://sharecam.app/guides/fr/share-event-photos-without-an-app.html)
+- [Un mur photo en direct pour votre salle, installé en cinq minutes](https://sharecam.app/guides/fr/live-photo-wall-for-events.html)
+- [Comment choisir une application de partage de photos de mariage : 9 points à vérifier](https://sharecam.app/guides/fr/how-to-choose-a-wedding-photo-sharing-app.html)
